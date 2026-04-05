@@ -64,16 +64,13 @@ export default function HomePage() {
   }, [isDark]);
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center p-4 sm:p-8 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden relative flex flex-col transition-colors duration-300">
       
-      {/* Mobile Device Container */}
-      <div className="w-full max-w-[400px] h-[850px] max-h-[95vh] bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden relative flex flex-col border-[8px] border-white dark:border-slate-800 transition-colors duration-300">
-        
-        {/* Top Gradient Background */}
-        <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-600/10 to-transparent dark:from-blue-500/10 pointer-events-none" />
+      {/* Top Gradient Background */}
+      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-600/10 to-transparent dark:from-blue-500/10 pointer-events-none" />
 
         {/* Header */}
-        <header className="px-6 pt-10 pb-4 flex items-center justify-between relative z-10">
+        <header className="px-4 pt-6 pb-4 flex items-center justify-between relative z-10 safe-area-inset-top">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 p-[2px]">
               <img 
@@ -106,7 +103,7 @@ export default function HomePage() {
         <div className="flex-1 overflow-y-auto no-scrollbar pb-24 relative z-10">
           
           {/* Total Balance */}
-          <section className="px-6 py-4">
+          <section className="px-4 py-4">
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Total Balance</p>
             <div className="flex items-end gap-2">
               <h2 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">$14,850.00</h2>
@@ -117,7 +114,7 @@ export default function HomePage() {
           </section>
 
           {/* Income / Expense Cards */}
-          <section className="px-6 py-2 flex gap-4">
+          <section className="px-4 py-2 flex gap-4">
             <div className="flex-1 bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700/50">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -140,7 +137,7 @@ export default function HomePage() {
 
           {/* Analytics Section */}
           <section className="mt-6">
-            <div className="px-6 flex items-center justify-between mb-4">
+            <div className="px-4 flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Analytics</h3>
               <div className="bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl flex text-xs font-medium">
                 <button 
@@ -310,7 +307,7 @@ export default function HomePage() {
             <motion.section 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="px-6 mt-4"
+              className="px-4 mt-4"
             >
               <div className="grid grid-cols-2 gap-3">
                 {categoryData.slice(0,4).map((cat, i) => (
@@ -329,7 +326,7 @@ export default function HomePage() {
           )}
 
           {/* Recent Transactions */}
-          <section className="px-6 mt-8 mb-6">
+          <section className="px-4 mt-8 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
               <button className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors">
@@ -363,7 +360,7 @@ export default function HomePage() {
         </div>
 
         {/* Bottom Navigation Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-6 z-20">
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-4 z-20">
           <button className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-500">
             <Home size={24} />
             <span className="text-[10px] font-medium">Home</span>
@@ -393,7 +390,6 @@ export default function HomePage() {
           </button>
         </div>
 
-      </div>
     </div>
   );
 }
