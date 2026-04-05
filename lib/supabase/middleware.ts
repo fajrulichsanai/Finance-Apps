@@ -2,6 +2,14 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
+  // OPTIMIZATION: Skip auth check for public assets early
+  const pathname = request.nextUrl.pathname
+  const isPublicFile = pathname.includes('.') || pathname.startsWith('/_next')
+  
+  if (isPublicFile) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -28,41 +36,37 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // OPTIMIZATION: Only call getUser() for protected routes
+  const isAuthPage = pathname.startsWith('/login') || 
+                     pathname.startsWith('/register') || 
+                     pathname.startsWith('/auth')
 
-  // Protect routes
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/register') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // Redirect to login if not authenticated
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  if (isAuthPage) {
+    // For auth pages, only check if user exists to redirect
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // Redirect to home if user is authenticated and trying to access auth pages
-  if (
-    user &&
-    (request.nextUrl.pathname.startsWith('/login') ||
-      request.nextUrl.pathname.startsWith('/register'))
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
+    if (user) {
+      // Redirect to home if user is authenticated
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  } else {
+    // For protected pages, verify user exists
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      // Redirect to login if not authenticated
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so: const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so: myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing the cookies!
-  // 4. Finally: return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out of sync and terminate the user's session prematurely!
-
   return supabaseResponse
 }

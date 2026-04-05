@@ -31,13 +31,6 @@ export default function RegisterPage() {
     }
   }, [isDark]);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      router.push('/');
-    }
-  }, [user, router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -73,12 +66,8 @@ export default function RegisterPage() {
   const handleGoogleSignup = async () => {
     setError('');
     setIsLoading(true);
-    try {
-      await signInWithGoogle();
-    } catch (err: any) {
-      setError(err.message);
-      setIsLoading(false);
-    }
+    await signInWithGoogle();
+    // Google will redirect to auth/callback, no error handling needed here
   };
 
   return (

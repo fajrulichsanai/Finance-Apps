@@ -7,10 +7,7 @@ export const metadata: Metadata = {
   title: 'Finance App - Track Your Money',
   description: 'A modern finance tracking app with beautiful UI',
   manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f1f5f9' },
-    { media: '(prefers-color-scheme: dark)', color: '#020617' },
-  ],
+  themeColor: '#f1f5f9',
   viewport: {
     width: 'device-width',
     initialScale: 1,

@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User, Session } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
 
 type AuthContextType = {
   user: User | null
@@ -17,36 +16,35 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// OPTIMIZATION: Create Supabase client once (singleton pattern)
+const supabase = createClient()
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
-    // Get initial session (EFFICIENT: only called once on mount)
+    // OPTIMIZATION 1: Get initial session only once on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // Listen for auth changes (EFFICIENT: using onAuthStateChange)
-    // This automatically handles token refresh (7 days default)
+    // OPTIMIZATION 2: Listen for auth changes with proper cleanup
+    // This handles token refresh automatically (no extra API calls needed)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
-      
-      // Refresh the page to update server components if needed
-      router.refresh()
     })
 
+    // CRITICAL: Cleanup subscription to prevent memory leaks
     return () => subscription.unsubscribe()
-  }, [supabase, router])
+  }, []) // Empty dependency array = runs once on mount
 
   // Sign in with email/password
   const signInWithEmail = async (email: string, password: string) => {
@@ -84,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out
   const signOut = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   const value = {

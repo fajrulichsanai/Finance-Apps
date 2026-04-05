@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Moon, Sun, Bell, ArrowUpRight, ArrowDownRight, 
-  Wallet, Coffee, Car, Home, ShoppingBag, Zap,
-  ChevronRight, MoreHorizontal, PieChart as PieChartIcon, LogOut
+  Bell, ArrowUpRight, ArrowDownRight, 
+  Coffee, Car, Home, ShoppingBag, Zap, LogOut
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell,
-  PieChart, Pie, Sector
+  PieChart, Pie
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/AuthProvider';
+import BottomNav from '@/components/BottomNav';
 
 // --- Mock Data ---
 const balanceData = [
@@ -44,26 +44,16 @@ const categoryData = [
 ];
 
 const transactions = [
-  { id: 1, name: 'Starbucks', category: 'Food & Drink', amount: -5.40, date: 'Today, 09:41 AM', icon: Coffee, color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' },
-  { id: 2, name: 'Uber', category: 'Transport', amount: -12.50, date: 'Today, 08:15 AM', icon: Car, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
-  { id: 3, name: 'Salary', category: 'Income', amount: 4250.00, date: 'Yesterday', icon: Wallet, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  { id: 4, name: 'Apple Store', category: 'Shopping', amount: -99.00, date: 'Yesterday', icon: ShoppingBag, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' },
-  { id: 5, name: 'Electric Bill', category: 'Utilities', amount: -145.20, date: 'Oct 24', icon: Zap, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  { id: 1, name: 'Starbucks', category: 'Food & Drink', amount: -5.40, date: 'Today, 09:41 AM', icon: Coffee, color: 'bg-orange-100 text-orange-600' },
+  { id: 2, name: 'Uber', category: 'Transport', amount: -12.50, date: 'Today, 08:15 AM', icon: Car, color: 'bg-blue-100 text-blue-600' },
+  { id: 3, name: 'Salary', category: 'Income', amount: 4250.00, date: 'Yesterday', icon: Zap, color: 'bg-emerald-100 text-emerald-600' },
+  { id: 4, name: 'Apple Store', category: 'Shopping', amount: -99.00, date: 'Yesterday', icon: ShoppingBag, color: 'bg-purple-100 text-purple-600' },
+  { id: 5, name: 'Electric Bill', category: 'Utilities', amount: -145.20, date: 'Oct 24', icon: Home, color: 'bg-yellow-100 text-yellow-600' },
 ];
 
 export default function HomePage() {
-  const [isDark, setIsDark] = useState(false);
   const [activeTab, setActiveTab] = useState<'trend' | 'monthly' | 'categories'>('trend');
   const { user, signOut, loading } = useAuth();
-
-  // Toggle dark mode class on html element
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
 
   // Get user display name
   const getDisplayName = () => {
@@ -78,51 +68,45 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+          <p className="text-slate-600">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden relative flex flex-col transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 overflow-hidden relative flex flex-col transition-colors duration-300">
       
       {/* Top Gradient Background */}
-      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-600/10 to-transparent dark:from-blue-500/10 pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
 
         {/* Header */}
         <header className="px-4 pt-6 pb-4 flex items-center justify-between relative z-10 safe-area-inset-top">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 p-[2px]">
-              <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-blue-600 font-bold text-sm">
+              <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-blue-600 font-bold text-sm">
                 {getDisplayName().charAt(0).toUpperCase()}
               </div>
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Good Morning,</p>
-              <h1 className="text-sm font-bold text-slate-900 dark:text-white">{getDisplayName()}</h1>
+              <p className="text-xs text-slate-500 font-medium">Good Morning,</p>
+              <h1 className="text-sm font-bold text-slate-900">{getDisplayName()}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => setIsDark(!isDark)}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <button 
               onClick={() => signOut()}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-sm text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
               title="Logout"
             >
               <LogOut size={18} />
             </button>
-            <button className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors relative">
+            <button className="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-sm text-slate-600 hover:bg-slate-50 transition-colors relative">
               <Bell size={18} />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-800" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
             </button>
           </div>
         </header>
@@ -132,10 +116,10 @@ export default function HomePage() {
           
           {/* Total Balance */}
           <section className="px-4 py-4">
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Total Balance</p>
+            <p className="text-sm text-slate-500 font-medium mb-1">Total Balance</p>
             <div className="flex items-end gap-2">
-              <h2 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">$14,850.00</h2>
-              <span className="text-sm font-medium text-emerald-500 bg-emerald-100 dark:bg-emerald-500/10 px-2 py-1 rounded-lg mb-1 flex items-center">
+              <h2 className="text-4xl font-bold text-slate-900 tracking-tight">$14,850.00</h2>
+              <span className="text-sm font-medium text-emerald-500 bg-emerald-100 px-2 py-1 rounded-lg mb-1 flex items-center">
                 <ArrowUpRight size={14} className="mr-0.5" /> 2.4%
               </span>
             </div>
@@ -143,46 +127,46 @@ export default function HomePage() {
 
           {/* Income / Expense Cards */}
           <section className="px-4 py-2 flex gap-4">
-            <div className="flex-1 bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700/50">
+            <div className="flex-1 bg-white backdrop-blur-md rounded-2xl p-4 shadow-sm border border-slate-100">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                   <ArrowDownRight size={16} />
                 </div>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Income</span>
+                <span className="text-xs font-medium text-slate-500">Income</span>
               </div>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">$4,250.00</p>
+              <p className="text-lg font-bold text-slate-900">$4,250.00</p>
             </div>
-            <div className="flex-1 bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700/50">
+            <div className="flex-1 bg-white backdrop-blur-md rounded-2xl p-4 shadow-sm border border-slate-100">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400">
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                   <ArrowUpRight size={16} />
                 </div>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Expense</span>
+                <span className="text-xs font-medium text-slate-500">Expense</span>
               </div>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">$2,140.50</p>
+              <p className="text-lg font-bold text-slate-900">$2,140.50</p>
             </div>
           </section>
 
           {/* Analytics Section */}
           <section className="mt-6">
             <div className="px-4 flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Analytics</h3>
-              <div className="bg-slate-200/50 dark:bg-slate-800 p-1 rounded-xl flex text-xs font-medium">
+              <h3 className="text-lg font-bold text-slate-900">Analytics</h3>
+              <div className="bg-slate-200/50 p-1 rounded-xl flex text-xs font-medium">
                 <button 
                   onClick={() => setActiveTab('trend')}
-                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'trend' ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400")}
+                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'trend' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500")}
                 >
                   Trend
                 </button>
                 <button 
                   onClick={() => setActiveTab('monthly')}
-                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'monthly' ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400")}
+                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'monthly' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500")}
                 >
                   Monthly
                 </button>
                 <button 
                   onClick={() => setActiveTab('categories')}
-                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'categories' ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400")}
+                  className={cn("px-3 py-1.5 rounded-lg transition-all", activeTab === 'categories' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500")}
                 >
                   Categories
                 </button>
@@ -209,27 +193,27 @@ export default function HomePage() {
                             <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#e2e8f0'} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                         <XAxis 
                           dataKey="name" 
                           axisLine={false} 
                           tickLine={false} 
-                          tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }} 
+                          tick={{ fontSize: 12, fill: '#64748b' }} 
                           dy={10}
                         />
                         <YAxis 
                           axisLine={false} 
                           tickLine={false} 
-                          tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }}
+                          tick={{ fontSize: 12, fill: '#64748b' }}
                           tickFormatter={(value) => `$${value/1000}k`}
                         />
                         <Tooltip 
                           contentStyle={{ 
-                            backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                            backgroundColor: '#ffffff',
                             borderRadius: '12px',
                             border: 'none',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                            color: isDark ? '#f8fafc' : '#0f172a'
+                            color: '#0f172a'
                           }}
                           itemStyle={{ color: '#2563eb', fontWeight: 'bold' }}
                         />
@@ -258,24 +242,24 @@ export default function HomePage() {
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#e2e8f0'} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                         <XAxis 
                           dataKey="name" 
                           axisLine={false} 
                           tickLine={false} 
-                          tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }} 
+                          tick={{ fontSize: 12, fill: '#64748b' }} 
                           dy={10}
                         />
                         <YAxis 
                           axisLine={false} 
                           tickLine={false} 
-                          tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }}
+                          tick={{ fontSize: 12, fill: '#64748b' }}
                           tickFormatter={(value) => `$${value/1000}k`}
                         />
                         <Tooltip 
-                          cursor={{ fill: isDark ? '#1e293b' : '#f1f5f9' }}
+                          cursor={{ fill: '#f1f5f9' }}
                           contentStyle={{ 
-                            backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                            backgroundColor: '#ffffff',
                             borderRadius: '12px',
                             border: 'none',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
@@ -315,12 +299,12 @@ export default function HomePage() {
                         </Pie>
                         <Tooltip 
                           contentStyle={{ 
-                            backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                            backgroundColor: '#ffffff',
                             borderRadius: '12px',
                             border: 'none',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                           }}
-                          itemStyle={{ color: isDark ? '#f8fafc' : '#0f172a', fontWeight: '500' }}
+                          itemStyle={{ color: '#0f172a', fontWeight: '500' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
@@ -339,13 +323,13 @@ export default function HomePage() {
             >
               <div className="grid grid-cols-2 gap-3">
                 {categoryData.slice(0,4).map((cat, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-800/80 rounded-2xl p-3 flex items-center gap-3 shadow-sm border border-slate-100 dark:border-slate-700/50">
+                  <div key={i} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-sm border border-slate-100">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cat.color}20`, color: cat.color }}>
                       <cat.icon size={18} />
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{cat.name}</p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">${cat.value}</p>
+                      <p className="text-xs text-slate-500 font-medium">{cat.name}</p>
+                      <p className="text-sm font-bold text-slate-900">${cat.value}</p>
                     </div>
                   </div>
                 ))}
@@ -356,8 +340,8 @@ export default function HomePage() {
           {/* Recent Transactions */}
           <section className="px-4 mt-8 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
-              <button className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors">
+              <h3 className="text-lg font-bold text-slate-900">Recent Transactions</h3>
+              <button className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 See All
               </button>
             </div>
@@ -370,15 +354,15 @@ export default function HomePage() {
                       <tx.icon size={20} />
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-slate-900 dark:text-white">{tx.name}</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{tx.date}</p>
+                      <h4 className="text-base font-semibold text-slate-900">{tx.name}</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">{tx.date}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={cn("text-base font-bold", tx.amount > 0 ? "text-emerald-500" : "text-slate-900 dark:text-white")}>
+                    <p className={cn("text-base font-bold", tx.amount > 0 ? "text-emerald-500" : "text-slate-900")}>
                       {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{tx.category}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{tx.category}</p>
                   </div>
                 </div>
               ))}
@@ -388,35 +372,7 @@ export default function HomePage() {
         </div>
 
         {/* Bottom Navigation Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-4 z-20">
-          <button className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-500">
-            <Home size={24} />
-            <span className="text-[10px] font-medium">Home</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-            <PieChartIcon size={24} />
-            <span className="text-[10px] font-medium">Stats</span>
-          </button>
-          
-          {/* Floating Action Button */}
-          <div className="relative -top-6">
-            <button className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition-transform hover:scale-105">
-              <div className="w-6 h-6 relative">
-                <div className="absolute inset-0 bg-white rounded-sm w-0.5 h-full left-1/2 -translate-x-1/2" />
-                <div className="absolute inset-0 bg-white rounded-sm h-0.5 w-full top-1/2 -translate-y-1/2" />
-              </div>
-            </button>
-          </div>
-
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-            <Wallet size={24} />
-            <span className="text-[10px] font-medium">Cards</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-            <MoreHorizontal size={24} />
-            <span className="text-[10px] font-medium">More</span>
-          </button>
-        </div>
+        <BottomNav activeTab="home" />
 
     </div>
   );
