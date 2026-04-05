@@ -5,12 +5,19 @@ import { Moon, Sun, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useAuth } from '@/providers/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [isDark, setIsDark] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { signInWithEmail, signInWithGoogle, user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (isDark) {
@@ -20,15 +27,38 @@ export default function LoginPage() {
     }
   }, [isDark]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login:', { email, password });
+    setError('');
+    setIsLoading(true);
+
+    const { error } = await signInWithEmail(email, password);
+    
+    if (error) {
+      setError(error.message);
+      setIsLoading(false);
+    } else {
+      // Auth provider will handle redirect via onAuthStateChange
+      router.push('/');
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // Handle Google login logic here
-    console.log('Google Login');
+  const handleGoogleLogin = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,6 +101,14 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-700/50">
+            
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Input */}
               <div>
@@ -138,10 +176,11 @@ export default function LoginPage() {
               {/* Login Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-blue-600/30 mt-6"
+                disabled={isLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-blue-600/30 mt-6"
               >
-                Sign In
-                <ArrowRight size={18} />
+                {isLoading ? 'Signing in...' : 'Sign In'}
+                {!isLoading && <ArrowRight size={18} />}
               </button>
             </form>
 
@@ -160,7 +199,8 @@ export default function LoginPage() {
             {/* Google Sign In */}
             <button
               onClick={handleGoogleLogin}
-              className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
+              disabled={isLoading}
+              className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

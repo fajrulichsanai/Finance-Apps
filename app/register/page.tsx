@@ -5,6 +5,8 @@ import { Moon, Sun, Mail, Lock, Eye, EyeOff, ArrowRight, User } from 'lucide-rea
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useAuth } from '@/providers/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
   const [isDark, setIsDark] = useState(false);
@@ -14,6 +16,12 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  
+  const { signUpWithEmail, signInWithGoogle, user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (isDark) {
@@ -23,19 +31,54 @@ export default function RegisterPage() {
     }
   }, [isDark]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setSuccess(false);
+    
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
       return;
     }
-    // Handle registration logic here
-    console.log('Register:', { name, email, password });
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await signUpWithEmail(email, password, name);
+    
+    if (error) {
+      setError(error.message);
+      setIsLoading(false);
+    } else {
+      setSuccess(true);
+      setIsLoading(false);
+      // Redirect to login after successful registration
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    }
   };
 
-  const handleGoogleSignup = () => {
-    // Handle Google signup logic here
-    console.log('Google Signup');
+  const handleGoogleSignup = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,10 +122,25 @@ export default function RegisterPage() {
           {/* Registration Form */}
           <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-700/50">
             
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="mb-4 p-3 bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm">
+                Account created successfully! Redirecting to login...
+              </div>
+            )}
+
             {/* Google Sign Up (at top for emphasis) */}
             <button
               onClick={handleGoogleSignup}
-              className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all mb-6"
+              disabled={isLoading}
+              className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all mb-6"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -241,10 +299,11 @@ export default function RegisterPage() {
               {/* Sign Up Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-blue-600/30 mt-6"
+                disabled={isLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-blue-600/30 mt-6"
               >
-                Create Account
-                <ArrowRight size={18} />
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {!isLoading && <ArrowRight size={18} />}
               </button>
             </form>
           </div>

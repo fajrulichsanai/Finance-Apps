@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Moon, Sun, Bell, ArrowUpRight, ArrowDownRight, 
   Wallet, Coffee, Car, Home, ShoppingBag, Zap,
-  ChevronRight, MoreHorizontal, PieChart as PieChartIcon
+  ChevronRight, MoreHorizontal, PieChart as PieChartIcon, LogOut
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/providers/AuthProvider';
 
 // --- Mock Data ---
 const balanceData = [
@@ -53,6 +54,7 @@ const transactions = [
 export default function HomePage() {
   const [isDark, setIsDark] = useState(false);
   const [activeTab, setActiveTab] = useState<'trend' | 'monthly' | 'categories'>('trend');
+  const { user, signOut, loading } = useAuth();
 
   // Toggle dark mode class on html element
   useEffect(() => {
@@ -62,6 +64,28 @@ export default function HomePage() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
+
+  // Get user display name
+  const getDisplayName = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden relative flex flex-col transition-colors duration-300">
@@ -73,16 +97,13 @@ export default function HomePage() {
         <header className="px-4 pt-6 pb-4 flex items-center justify-between relative z-10 safe-area-inset-top">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 p-[2px]">
-              <img 
-                src="https://picsum.photos/seed/avatar/100/100" 
-                alt="Profile" 
-                className="w-full h-full rounded-full border-2 border-white dark:border-slate-900 object-cover"
-                referrerPolicy="no-referrer"
-              />
+              <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-blue-600 font-bold text-sm">
+                {getDisplayName().charAt(0).toUpperCase()}
+              </div>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Good Morning,</p>
-              <h1 className="text-sm font-bold text-slate-900 dark:text-white">Alex Morgan</h1>
+              <h1 className="text-sm font-bold text-slate-900 dark:text-white">{getDisplayName()}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -91,6 +112,13 @@ export default function HomePage() {
               className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button 
+              onClick={() => signOut()}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              title="Logout"
+            >
+              <LogOut size={18} />
             </button>
             <button className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors relative">
               <Bell size={18} />

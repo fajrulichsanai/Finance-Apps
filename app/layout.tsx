@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { PWARegister } from '@/components/PWARegister';
 
 export const metadata: Metadata = {
   title: 'Finance App - Track Your Money',
@@ -32,7 +34,12 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          {children}
+          <PWARegister />
+        </AuthProvider>
+      </body>
     </html>
   );
 }
