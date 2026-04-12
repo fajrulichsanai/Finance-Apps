@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User, Session } from '@supabase/supabase-js'
 
@@ -16,47 +16,97 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// OPTIMIZATION: Create Supabase client once (singleton pattern)
+// CRITICAL: Singleton Supabase client - created ONCE for entire app
 const supabase = createClient()
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  // ANTI-LOOP: Track if initial fetch is done
+  const initialFetchDone = useRef(false)
+  const authListenerRef = useRef<any>(null)
 
   useEffect(() => {
-    // OPTIMIZATION 1: Get initial session only once on mount
+    // ANTI-LOOP: Prevent double execution in React Strict Mode
+    if (initialFetchDone.current) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 [AuthProvider] useEffect called again (Strict Mode), skipping')
+      }
+      return
+    }
+
+    initialFetchDone.current = true
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔐 [Auth] Initializing session...')
+    }
+
+    // OPTIMIZATION 1: Get initial session ONCE on mount
+    let isMounted = true
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return // Component unmounted, ignore
+      
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ [Auth] Session loaded:', session ? 'authenticated' : 'guest')
+      }
     })
 
     // OPTIMIZATION 2: Listen for auth changes with proper cleanup
     // This handles token refresh automatically (no extra API calls needed)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return // Component unmounted, ignore
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔔 [Auth] State changed:', event)
+      }
+      
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // CRITICAL: Cleanup subscription to prevent memory leaks
-    return () => subscription.unsubscribe()
-  }, []) // Empty dependency array = runs once on mount
+    authListenerRef.current = subscription
 
-  // Sign in with email/password
-  const signInWithEmail = async (email: string, password: string) => {
+    // CRITICAL: Cleanup to prevent memory leaks & duplicate listeners
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🧹 [Auth] Listener unsubscribed')
+      }
+    }
+  }, []) // Empty dependency = runs ONCE on mount (React Strict Mode safe)
+
+  // OPTIMIZATION: Memoize auth functions to prevent re-creation
+  // This prevents unnecessary re-renders in child components
+  
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔑 [Auth] Signing in with email...')
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+    if (error) {
+      console.error('❌ [Auth] Sign in error:', error.message)
+    }
     return { error }
-  }
+  }, [])
 
-  // Sign up with email/password
-  const signUpWithEmail = async (email: string, password: string, name: string) => {
+  const signUpWithEmail = useCallback(async (email: string, password: string, name: string) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📝 [Auth] Signing up...')
+    }
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -66,24 +116,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     })
+    if (error) {
+      console.error('❌ [Auth] Sign up error:', error.message)
+    }
     return { error }
-  }
+  }, [])
 
-  // Sign in with Google OAuth
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔑 [Auth] Starting Google OAuth...')
+    }
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-  }
+  }, [])
 
-  // Sign out
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('👋 [Auth] Signing out...')
+    }
     await supabase.auth.signOut()
-    window.location.href = '/login'
-  }
+    // Use window.location for full page reload to clear all state
+    window.location.href = '/'
+  }, [])
 
   const value = {
     user,

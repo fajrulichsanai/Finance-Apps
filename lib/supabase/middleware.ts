@@ -2,11 +2,23 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-  // OPTIMIZATION: Skip auth check for public assets early
   const pathname = request.nextUrl.pathname
-  const isPublicFile = pathname.includes('.') || pathname.startsWith('/_next')
   
+  // OPTIMIZATION 1: Skip auth check for public assets early
+  const isPublicFile = pathname.includes('.') || pathname.startsWith('/_next')
   if (isPublicFile) {
+    return NextResponse.next()
+  }
+
+  // OPTIMIZATION 2: Skip server-side auth check for auth pages
+  // Let client handle auth state to reduce API calls
+  const isAuthPage = pathname === '/' || 
+                     pathname.startsWith('/register') || 
+                     pathname === '/auth/callback'
+  
+  if (isAuthPage && pathname !== '/auth/callback') {
+    // For login (/) and register, skip server check
+    // Client-side AuthProvider will handle session
     return NextResponse.next()
   }
 
@@ -36,35 +48,17 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  // OPTIMIZATION: Only call getUser() for protected routes
-  const isAuthPage = pathname.startsWith('/login') || 
-                     pathname.startsWith('/register') || 
-                     pathname.startsWith('/auth')
+  // OPTIMIZATION 3: Only call getUser() for protected routes (not auth pages)
+  // This route handles: /, /dashboard, etc (protected pages)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (isAuthPage) {
-    // For auth pages, only check if user exists to redirect
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      // Redirect to home if user is authenticated
-      const url = request.nextUrl.clone()
-      url.pathname = '/'
-      return NextResponse.redirect(url)
-    }
-  } else {
-    // For protected pages, verify user exists
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      // Redirect to login if not authenticated
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
+  if (!user) {
+    // Redirect to root (login page) if not authenticated
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

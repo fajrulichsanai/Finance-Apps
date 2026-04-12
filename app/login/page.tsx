@@ -1,228 +1,193 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [isDark, setIsDark] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   
-  const { signInWithEmail, signInWithGoogle, user } = useAuth();
+  // ANTI-LOOP: Don't destructure `user` if not needed
+  // This prevents unnecessary re-renders when user state changes
+  const { signInWithEmail, signInWithGoogle } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
+  
+  // ANTI-LOOP: Prevent double submissions
+  const submitInProgress = React.useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // ANTI-LOOP: Prevent double submit (especially in dev mode)
+    if (submitInProgress.current || isLoading) {
+      console.log('⚠️ Submit already in progress, ignoring');
+      return;
+    }
+    
+    submitInProgress.current = true;
     setError('');
     setIsLoading(true);
 
-    const { error } = await signInWithEmail(email, password);
-    
-    if (error) {
-      setError(error.message);
+    try {
+      const { error } = await signInWithEmail(email, password);
+      
+      if (error) {
+        setError(error.message);
+        setIsLoading(false);
+        submitInProgress.current = false;
+      } else {
+        // SUCCESS: Use window.location for full reload (clears all state)
+        // This prevents stale auth state
+        window.location.href = '/';
+        // Note: submitInProgress not reset because we're navigating away
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred');
       setIsLoading(false);
-    } else {
-      // Middleware will handle redirect to home page
-      window.location.href = '/';
+      submitInProgress.current = false;
     }
   };
 
   const handleGoogleLogin = async () => {
+    // ANTI-LOOP: Prevent double click
+    if (submitInProgress.current || isLoading) {
+      return;
+    }
+    
+    submitInProgress.current = true;
     setError('');
     setIsLoading(true);
-    await signInWithGoogle();
-    // Google will redirect to auth/callback, no error handling needed here
+    
+    try {
+      await signInWithGoogle();
+      // Google will redirect to auth/callback, no error handling needed here
+    } catch (err) {
+      console.error('Google sign in error:', err);
+      setError('Failed to initiate Google sign in');
+      setIsLoading(false);
+      submitInProgress.current = false;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden relative flex flex-col transition-colors duration-300">
-      
-      {/* Top Gradient Background */}
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-blue-600/10 to-transparent dark:from-blue-500/10 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-purple-600/5 to-transparent dark:from-purple-500/5 pointer-events-none" />
+    <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center px-4 py-8">
+      <div className="bg-white rounded-3xl p-10 w-full max-w-[380px] shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+        {/* Title */}
+        <h1 className="text-[32px] font-extrabold text-[#0d0d2b] mb-2.5 tracking-tight">
+          Welcome back
+        </h1>
+        <p className="text-sm text-[#6b6b80] leading-relaxed mb-8">
+          Please enter your credentials to access your dashboard.
+        </p>
 
-      {/* Header */}
-      <header className="px-4 pt-6 pb-4 flex items-center justify-between relative z-10">
-        <Link href="/" className="text-2xl font-bold text-slate-900 dark:text-white">
-          Finance<span className="text-blue-600">App</span>
-        </Link>
-        <button 
-          onClick={() => setIsDark(!isDark)}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-        >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-      </header>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400">
-              Sign in to continue to your account
-            </p>
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email Field */}
+          <div>
+            <label htmlFor="email" className="block text-[11px] font-semibold text-[#9999aa] tracking-[0.8px] uppercase mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors"
+              placeholder="name@firm.com"
+              required
+            />
           </div>
 
-          {/* Login Form */}
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-700/50">
-            
-            {/* Error Message */}
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email Input */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail size={18} className="text-slate-400" />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Input */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-slate-400" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Forgot Password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Remember me</span>
-                </label>
-                <button type="button" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-                  Forgot Password?
-                </button>
-              </div>
-
-              {/* Login Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-blue-600/30 mt-6"
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-                {!isLoading && <ArrowRight size={18} />}
+          {/* Password Field */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="password" className="text-[11px] font-semibold text-[#9999aa] tracking-[0.8px] uppercase">
+                Password
+              </label>
+              <button type="button" className="text-[11px] font-bold text-[#1a1a6e] tracking-[0.3px]">
+                FORGOT PASSWORD?
               </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400">
-                  Or continue with
-                </span>
-              </div>
             </div>
-
-            {/* Google Sign In */}
-            <button
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Sign in with Google
-            </button>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors"
+              placeholder="••••••••"
+              required
+            />
           </div>
 
-          {/* Sign Up Link */}
-          <div className="text-center mt-6">
-            <p className="text-slate-600 dark:text-slate-400">
-              Don&apos;t have an account?{' '}
-              <Link href="/register" className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-                Sign up
-              </Link>
-            </p>
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center gap-2.5 my-5">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-[18px] h-[18px] rounded accent-[#1a1a6e] cursor-pointer flex-shrink-0"
+            />
+            <label htmlFor="remember" className="text-sm text-[#444455] cursor-pointer">
+              Keep me signed in for 30 days
+            </label>
           </div>
-        </motion.div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full px-4 py-4 bg-[#1a1a6e] text-white border-none rounded-[50px] text-base font-semibold cursor-pointer flex items-center justify-center gap-2 hover:bg-[#14146e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+            {!isLoading && <span className="text-lg font-normal">→</span>}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-[#e8e8ee]"></div>
+          <span className="text-[11px] text-[#b0b0c0] tracking-[0.8px] font-medium">OR CONTINUE WITH</span>
+          <div className="flex-1 h-px bg-[#e8e8ee]"></div>
+        </div>
+
+        {/* Google Login Button */}
+        <button
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+          className="w-full px-4 py-3.5 bg-white border-[1.5px] border-[#e8e8ee] rounded-[50px] text-[15px] font-semibold text-[#0d0d2b] cursor-pointer flex items-center justify-center gap-2.5 hover:bg-[#f8f8fb] hover:border-[#ccc] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          <div className="w-5 h-5 bg-[#0d0d2b] rounded flex items-center justify-center flex-shrink-0">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="1" width="4" height="4" fill="white"/>
+              <rect x="7" y="1" width="4" height="4" fill="white" opacity="0.7"/>
+              <rect x="1" y="7" width="4" height="4" fill="white" opacity="0.7"/>
+              <rect x="7" y="7" width="4" height="4" fill="white" opacity="0.5"/>
+            </svg>
+          </div>
+          Login with Google
+        </button>
+
+        {/* Sign Up Link */}
+        <div className="text-center mt-8 pt-6 border-t-[1.5px] border-[#f0f0f5] text-sm text-[#6b6b80]">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-[#1a1a6e] font-bold no-underline">
+            Sign Up
+          </Link>
+        </div>
       </div>
     </div>
   );
