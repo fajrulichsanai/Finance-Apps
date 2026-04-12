@@ -56,8 +56,8 @@ export default function InsightPage() {
   const totalCategoryAmount = categories.reduce((sum, cat) => sum + cat.amount, 0);
 
   return (
-    <div className="min-h-screen bg-[#e4e4e8] flex justify-center py-5">
-      <div className="w-[390px] bg-[#f2f2f5] rounded-[36px] overflow-hidden relative pb-[90px]">
+    <div className="min-h-screen bg-[#f2f2f5] relative pb-[90px]">
+      <div className="w-full max-w-[430px] mx-auto">
         
         {/* Top Nav */}
         <div className="flex items-center justify-between px-5 pt-6 pb-3 bg-[#f2f2f5]">
@@ -303,7 +303,7 @@ export default function InsightPage() {
         </div>
 
         {/* Bottom Nav */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white py-2.5 pb-[22px] flex justify-around items-center border-t border-gray-200 rounded-b-[36px]">
+        <div className="absolute bottom-0 left-0 right-0 bg-white py-2.5 pb-[22px] flex justify-around items-center border-t border-gray-200">
           <Link href="/dashboard" className="flex flex-col items-center gap-0.5 cursor-pointer">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M3 12L12 3l9 9" stroke="#bbb" strokeWidth="2" strokeLinecap="round"/>

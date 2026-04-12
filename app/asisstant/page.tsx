@@ -14,28 +14,11 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="container">
-      <div className="phone">
+    <>
+    <div className="main-container">
 
-        {/* STATUS BAR */}
-        <div className="status-bar">
-          <span>9:41</span>
-          <div className="status-icons">
-            {/* signal */}
-            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="14" width="3" height="7" rx="1"/><rect x="6" y="10" width="3" height="11" rx="1"/><rect x="11" y="6" width="3" height="15" rx="1"/><rect x="16" y="2" width="3" height="19" rx="1" opacity=".35"/></svg>
-            {/* wifi */}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M5 12.5A9.5 9.5 0 0 1 12 10a9.5 9.5 0 0 1 7 2.5"/>
-              <path d="M8.5 15.5A5 5 0 0 1 12 14a5 5 0 0 1 3.5 1.5"/>
-              <circle cx="12" cy="19" r="1" fill="currentColor"/>
-            </svg>
-            {/* battery */}
-            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="7" width="18" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5"/><rect x="19" y="10" width="3" height="4" rx="1"/><rect x="2.5" y="8.5" width="14" height="7" rx="1"/></svg>
-          </div>
-        </div>
-
-        {/* HEADER */}
-        <div className="header">
+      {/* HEADER */}
+      <div className="header">
           <div className="header-left">
             <div className="avatar-icon">
               {/* robot/AI icon */}
@@ -177,42 +160,13 @@ export default function AssistantPage() {
       </div>
 
       <style jsx>{`
-        .container {
+        .main-container {
           font-family: 'DM Sans', sans-serif;
-          background: #dde0e8;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          min-height: 100vh;
-          padding: 24px 0;
-        }
-
-        .phone {
-          width: 375px;
-          min-height: 812px;
           background: #f0f2f5;
-          border-radius: 40px;
-          overflow: hidden;
-          box-shadow: 0 30px 80px rgba(0,0,0,0.25), 0 0 0 10px #c8ccd6;
-          position: relative;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
         }
-
-        /* STATUS BAR */
-        .status-bar {
-          background: #f0f2f5;
-          padding: 14px 24px 6px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 11px;
-          font-weight: 600;
-          color: #1a1a2e;
-          flex-shrink: 0;
-        }
-        .status-icons { display: flex; gap: 5px; align-items: center; }
-        .status-icons svg { width: 14px; height: 14px; }
 
         /* HEADER */
         .header {
@@ -503,6 +457,6 @@ export default function AssistantPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>
+    </>
   );
 }

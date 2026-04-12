@@ -27,8 +27,7 @@ export default function ProfilePage() {
         .container {
           font-family: 'DM Sans', sans-serif;
           background: #f0f2f6;
-          max-width: 430px;
-          margin: 0 auto;
+          min-height: 100vh;
           padding-bottom: 90px;
           color: #111827;
         }
@@ -464,8 +463,6 @@ export default function ProfilePage() {
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
-    max-width: 430px;
-    margin: 0 auto;
     padding-bottom: 90px;
     color: var(--text-dark);
   }

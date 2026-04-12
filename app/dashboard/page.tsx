@@ -128,8 +128,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] flex justify-center py-5">
-      <div className="w-full max-w-[390px] bg-[#f5f5f7] rounded-[36px] overflow-hidden relative pb-20">
+    <div className="min-h-screen bg-[#f5f5f7] relative pb-20">
+      <div className="w-full max-w-[430px] mx-auto">
         
         {/* Top Nav */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-[#f5f5f7]">

@@ -101,8 +101,6 @@ export default function RecordPage() {
           font-family: 'DM Sans', sans-serif;
           background: #f0f2f6;
           min-height: 100vh;
-          max-width: 430px;
-          margin: 0 auto;
           padding-bottom: 90px;
           color: #111827;
         }
