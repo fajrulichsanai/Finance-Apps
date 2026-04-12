@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import { Nunito } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/providers/AuthProvider';
+
+const nunito = Nunito({ 
+  subsets: ['latin'],
+  weight: ['700', '800', '900'],
+  variable: '--font-nunito',
+});
 
 export const metadata: Metadata = {
   title: 'Finance App - Track Your Money',
@@ -17,7 +24,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>
+      <body className={nunito.variable}>
         <AuthProvider>
           {children}
         </AuthProvider>

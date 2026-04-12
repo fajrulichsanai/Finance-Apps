@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Wallet, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Sparkles } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
@@ -20,24 +20,45 @@ interface CategoryModalProps {
   mode: 'create' | 'edit';
 }
 
-// Predefined icons and colors
+// Predefined icons and colors - EXPANDED
 const ICONS = [
-  'Wallet', 'Coffee', 'ShoppingBag', 'Car', 'Home', 'Zap', 'Heart', 
-  'BookOpen', 'Film', 'Music', 'Smartphone', 'Laptop', 'Gift', 
-  'TrendingUp', 'DollarSign', 'CreditCard', 'PiggyBank'
+  'ShoppingCart', 'Coffee', 'Car', 'Home', 'Heart', 'Zap', 
+  'Utensils', 'ShoppingBag', 'Smartphone', 'Laptop', 'Plane',
+  'Film', 'Music', 'Gamepad2', 'Dumbbell', 'GraduationCap',
+  'Briefcase', 'Gift', 'Pizza', 'Bus', 'Bike', 'Train',
+  'Shirt', 'Watch', 'Headphones', 'Camera', 'Book',
+  'Pill', 'Stethoscope', 'Baby', 'PawPrint', 'Palmtree',
+  'Sparkles', 'TrendingUp', 'DollarSign', 'CreditCard', 
+  'PiggyBank', 'Wallet', 'Calculator', 'Receipt', 'Banknote'
 ];
 
 const COLORS = [
-  '#ef4444', '#f59e0b', '#eab308', '#10b981', '#3b82f6', 
-  '#8b5cf6', '#ec4899', '#64748b', '#06b6d4', '#f97316'
+  '#1a237e', // Navy blue (primary)
+  '#2e7d32', // Green
+  '#c62828', // Red
+  '#f9a825', // Yellow/Gold
+  '#00b0d8', // Cyan
+  '#7b1fa2', // Purple
+  '#ef4444', // Bright red
+  '#f59e0b', // Orange
+  '#10b981', // Emerald
+  '#3b82f6', // Blue
+  '#8b5cf6', // Violet
+  '#ec4899', // Pink
+  '#64748b', // Slate
+  '#f97316', // Deep orange
+  '#06b6d4', // Turquoise
+  '#84cc16', // Lime
+  '#a855f7', // Light purple
+  '#f43f5e', // Rose
 ];
 
 export default function CategoryModal({ isOpen, onClose, onSubmit, category, mode }: CategoryModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     type: 'expense' as 'income' | 'expense',
-    icon: 'Wallet',
-    color: '#3b82f6',
+    icon: 'ShoppingCart',
+    color: '#1a237e',
     budget: 0
   });
   const [loading, setLoading] = useState(false);
@@ -57,8 +78,8 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
       setFormData({
         name: '',
         type: 'expense',
-        icon: 'Wallet',
-        color: '#3b82f6',
+        icon: 'ShoppingCart',
+        color: '#1a237e',
         budget: 0
       });
     }
@@ -84,221 +105,255 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
 
   const getIconComponent = (iconName: string) => {
     const IconComponent = (Icons as any)[iconName];
-    return IconComponent || Icons.Wallet;
+    return IconComponent || Icons.ShoppingCart;
   };
 
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-end justify-center p-0">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/50"
+          className="absolute inset-0 bg-black/35"
+          style={{ backdropFilter: 'blur(2px)' }}
         />
 
-        {/* Modal */}
+        {/* Bottom Sheet */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          initial={{ opacity: 0, y: '100%' }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="relative bg-white rounded-t-[28px] shadow-2xl w-full max-w-[430px] max-h-[95vh] overflow-y-auto"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">
-              {mode === 'create' ? 'Tambah Kategori' : 'Edit Kategori'}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+          {/* Drag Handle */}
+          <div className="flex justify-center pt-3.5 pb-5">
+            <div className="w-[38px] h-1 bg-gray-300 rounded-full" />
           </div>
 
-          {/* Success message */}
-          <AnimatePresence>
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mx-6 mt-4 p-3 bg-green-50 rounded-lg flex items-center gap-2"
+          {/* Content Container */}
+          <div className="px-6 pb-9">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[22px] font-black text-gray-900" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                {mode === 'create' ? 'Create Category' : 'Edit Category'}
+              </h2>
+              <button
+                onClick={onClose}
+                className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
               >
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                <span className="text-sm text-green-700">
-                  {mode === 'create' ? 'Kategori berhasil dibuat!' : 'Kategori berhasil diupdate!'}
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nama Kategori
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Contoh: Transportasi, Makanan"
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-              />
+                <X className="w-4 h-4 text-gray-600" strokeWidth={2.5} />
+              </button>
             </div>
 
-            {/* Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipe
-              </label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type: 'expense' })}
-                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                    formData.type === 'expense'
-                      ? 'border-red-500 bg-red-50 text-red-700'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                  }`}
+            {/* Success message */}
+            <AnimatePresence>
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-5 p-3.5 bg-green-500 rounded-2xl flex items-center gap-3 shadow-lg shadow-green-500/25"
                 >
-                  Pengeluaran
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type: 'income' })}
-                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                    formData.type === 'income'
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                  }`}
-                >
-                  Pemasukan
-                </button>
-              </div>
-            </div>
+                  <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
+                  <span className="text-sm font-bold text-white">
+                    {mode === 'create' ? 'Category created!' : 'Category updated!'}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Budget - only for expense */}
-            {formData.type === 'expense' && (
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
+              {/* Live Preview */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Budget (Rp)
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                  Live Preview
+                </label>
+                <div className="bg-gray-50 rounded-[18px] py-6 px-4 flex flex-col items-center gap-2.5">
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300"
+                    style={{ backgroundColor: formData.color }}
+                  >
+                    {React.createElement(getIconComponent(formData.icon), {
+                      className: 'w-7 h-7',
+                      style: { color: 'white', strokeWidth: 1.8 }
+                    })}
+                  </div>
+                  <div className="text-xl font-black text-gray-900" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                    {formData.name || 'Dining Out'}
+                  </div>
+                  <div className="text-[13px] text-gray-400 font-medium">
+                    {formData.type === 'expense' && formData.budget > 0 
+                      ? `Monthly Budget: Rp${formData.budget.toLocaleString('id-ID')}`
+                      : formData.type === 'income' 
+                      ? 'Income Category'
+                      : 'Monthly Budget: Rp0'
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Category Name */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                  Category Name
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={formData.budget}
-                  onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
-                  placeholder="0"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. Health & Fitness"
+                  className="w-full px-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none text-[14.5px] text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
                 />
               </div>
-            )}
 
-            {/* Icon */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Icon
-              </label>
-              <div className="grid grid-cols-6 gap-2">
-                {ICONS.map((iconName) => {
-                  const IconComponent = getIconComponent(iconName);
-                  const isSelected = formData.icon === iconName;
-                  return (
-                    <button
-                      key={iconName}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, icon: iconName })}
-                      className={`p-3 rounded-lg border-2 transition-all ${
-                        isSelected
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <IconComponent className="w-5 h-5 mx-auto text-gray-700" />
-                    </button>
-                  );
-                })}
+              {/* Type Selection */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                  Type
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, type: 'expense' })}
+                    className={`px-4 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                      formData.type === 'expense'
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
+                        : 'bg-gray-50 text-gray-600'
+                    }`}
+                  >
+                    💸 Expense
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, type: 'income' })}
+                    className={`px-4 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                      formData.type === 'income'
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                        : 'bg-gray-50 text-gray-600'
+                    }`}
+                  >
+                    💰 Income
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Color */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Warna
-              </label>
-              <div className="flex gap-2">
-                {COLORS.map((color) => {
-                  const isSelected = formData.color === color;
-                  return (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, color })}
-                      className={`w-10 h-10 rounded-lg transition-all ${
-                        isSelected ? 'ring-2 ring-offset-2 ring-gray-400' : ''
-                      }`}
-                      style={{ backgroundColor: color }}
+              {/* Budget - only for expense */}
+              {formData.type === 'expense' && (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                    Monthly Budget
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-[18px] top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
+                      Rp
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="10000"
+                      value={formData.budget}
+                      onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
+                      placeholder="0"
+                      className="w-full pl-12 pr-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none font-bold text-gray-900 text-base placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
                     />
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
+                </div>
+              )}
 
-            {/* Preview */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600 mb-2">Preview</p>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: `${formData.color}20` }}
+              {/* Select Icon */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">
+                    Select Icon
+                  </label>
+                  <span className="text-[13px] font-bold text-blue-900 cursor-pointer">
+                    {ICONS.length} Icons
+                  </span>
+                </div>
+                <div 
+                  className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1"
+                  style={{ 
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch'
+                  }}
                 >
-                  {React.createElement(getIconComponent(formData.icon), {
-                    className: 'w-6 h-6',
-                    style: { color: formData.color }
+                  {ICONS.map((iconName) => {
+                    const IconComponent = getIconComponent(iconName);
+                    const isSelected = formData.icon === iconName;
+                    return (
+                      <button
+                        key={iconName}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, icon: iconName })}
+                        className={`flex-shrink-0 w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all ${
+                          isSelected
+                            ? 'bg-gray-100 border-2 border-blue-900'
+                            : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                        }`}
+                      >
+                        <IconComponent 
+                          className={`w-[22px] h-[22px] ${isSelected ? 'text-blue-900' : 'text-gray-600'}`}
+                          strokeWidth={1.8}
+                        />
+                      </button>
+                    );
                   })}
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {formData.name || 'Nama Kategori'}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {formData.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
-                    {formData.type === 'expense' && formData.budget > 0 && 
-                      ` • Budget: Rp ${formData.budget.toLocaleString('id-ID')}`
-                    }
-                  </p>
+              </div>
+
+              {/* Theme Color */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                  Theme Color
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {COLORS.map((color) => {
+                    const isSelected = formData.color === color;
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, color })}
+                        className={`w-[46px] h-[46px] rounded-full transition-all active:scale-90 ${
+                          isSelected ? 'ring-[3px] ring-offset-[3px]' : ''
+                        }`}
+                        style={{ 
+                          backgroundColor: color,
+                          outlineColor: isSelected ? color : 'transparent'
+                        }}
+                      />
+                    );
+                  })}
+                  {/* Custom color picker - optional */}
+                  <button
+                    type="button"
+                    className="w-[46px] h-[46px] rounded-full bg-gray-50 border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-all"
+                  >
+                    <Sparkles className="w-[18px] h-[18px] text-gray-400" strokeWidth={1.8} />
+                  </button>
                 </div>
               </div>
-            </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Batal
-              </button>
+              {/* Save Button */}
               <button
                 type="submit"
                 disabled={loading || !formData.name}
-                className="flex-1 px-4 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-blue-900 text-white rounded-full py-[18px] font-bold text-base shadow-lg shadow-blue-900/30 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-98"
               >
-                {loading ? 'Menyimpan...' : mode === 'create' ? 'Tambah' : 'Update'}
+                {loading ? 'Saving...' : mode === 'create' ? 'Save Category' : 'Update Category'}
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

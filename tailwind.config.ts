@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        nunito: ['Nunito', 'sans-serif'],
       },
       colors: {
         blue: {

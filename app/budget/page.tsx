@@ -6,36 +6,21 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { User, Bell, SlidersHorizontal, Plus } from 'lucide-react';
-import { Utensils, Car, FileText, Gamepad2 } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import BudgetOverview from '@/components/BudgetOverview';
 import BudgetUtilization from '@/components/BudgetUtilization';
 import BudgetCategoryCard from '@/components/BudgetCategoryCard';
-import { useExpenseBudgets } from '@/lib/hooks/useCategories';
+import CategoryModal from '@/components/CategoryModal';
+import { useExpenseBudgets, useManageCategories } from '@/lib/hooks/useCategories';
+import type { CategoryWithBudget, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
-// Temporary icon mapping for categories
-const getCategoryIcon = (name: string) => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('food') || lowerName.includes('makan')) return Utensils;
-  if (lowerName.includes('transport') || lowerName.includes('travel')) return Car;
-  if (lowerName.includes('bill') || lowerName.includes('tagihan')) return FileText;
-  if (lowerName.includes('entertainment') || lowerName.includes('hiburan')) return Gamepad2;
-  return FileText;
-};
-
-const getCategoryColors = (name: string) => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('food') || lowerName.includes('makan')) 
-    return { bg: '#e6f9ee', color: '#2fa05c' };
-  if (lowerName.includes('transport') || lowerName.includes('travel')) 
-    return { bg: '#eaf0fb', color: '#1a2f7a' };
-  if (lowerName.includes('bill') || lowerName.includes('tagihan')) 
-    return { bg: '#fdeaea', color: '#d62d2d' };
-  if (lowerName.includes('entertainment') || lowerName.includes('hiburan')) 
-    return { bg: '#f0eaf8', color: '#7b5ea7' };
-  return { bg: '#e8ecf8', color: '#6b7280' };
+// Helper to get icon component from icon name
+const getIconComponent = (iconName: string) => {
+  const IconComponent = (Icons as any)[iconName];
+  return IconComponent || Icons.Wallet;
 };
 
 export default function BudgetPage() {
@@ -44,8 +29,41 @@ export default function BudgetPage() {
     totalBudget, 
     totalSpent, 
     totalRemaining, 
-    loading 
+    loading,
+    refresh 
   } = useExpenseBudgets();
+
+  const { createCategory, updateCategory } = useManageCategories();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryWithBudget | null>(null);
+
+  const handleCreateClick = () => {
+    setSelectedCategory(null);
+    setModalMode('create');
+    setModalOpen(true);
+  };
+
+  const handleEditClick = (category: CategoryWithBudget) => {
+    setSelectedCategory(category);
+    setModalMode('edit');
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (data: CreateCategoryInput | UpdateCategoryInput) => {
+    try {
+      if (modalMode === 'create') {
+        await createCategory(data as CreateCategoryInput);
+      } else if (selectedCategory) {
+        await updateCategory(selectedCategory.id, data);
+      }
+      refresh();
+    } catch (error) {
+      console.error('Error saving category:', error);
+      throw error;
+    }
+  };
 
   const utilizationPercentage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
@@ -112,30 +130,42 @@ export default function BudgetPage() {
       {/* CATEGORY CARDS */}
       <div className="px-5 space-y-3">
         {categories.map((category) => {
-          const Icon = getCategoryIcon(category.name);
-          const colors = getCategoryColors(category.name);
+          const Icon = getIconComponent(category.icon);
           
           return (
-            <BudgetCategoryCard
-              key={category.id}
-              name={category.name}
-              icon={Icon}
-              iconColor={colors.color}
-              iconBgColor={colors.bg}
-              transactionCount={Number(category.transaction_count) || 0}
-              spent={Number(category.total_spent) || 0}
-              limit={Number(category.budget) || 0}
-              isOverBudget={Number(category.remaining_budget) < 0}
-            />
+            <div key={category.id} onClick={() => handleEditClick(category)} className="cursor-pointer">
+              <BudgetCategoryCard
+                name={category.name}
+                icon={Icon}
+                iconColor={category.color}
+                iconBgColor={`${category.color}20`}
+                transactionCount={Number(category.transaction_count) || 0}
+                spent={Number(category.total_spent) || 0}
+                limit={Number(category.budget) || 0}
+                isOverBudget={Number(category.remaining_budget) < 0}
+              />
+            </div>
           );
         })}
       </div>
 
       {/* CREATE NEW CATEGORY BUTTON */}
-      <button className="flex items-center justify-center gap-2 bg-green-500 text-white rounded-full py-4 px-7 mx-5 mt-4 mb-6 font-bold text-sm shadow-lg shadow-green-500/35 active:scale-98 transition-transform">
+      <button 
+        onClick={handleCreateClick}
+        className="flex items-center justify-center gap-2 bg-green-500 text-white rounded-full py-4 px-7 mx-5 mt-4 mb-6 font-bold text-sm shadow-lg shadow-green-500/35 active:scale-98 transition-transform hover:bg-green-600"
+      >
         <Plus className="w-5 h-5" strokeWidth={2.5} />
         Buat Kategori Budget Baru
       </button>
+
+      {/* CATEGORY MODAL */}
+      <CategoryModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleSubmit}
+        category={selectedCategory}
+        mode={modalMode}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNav />
