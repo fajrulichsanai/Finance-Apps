@@ -43,6 +43,10 @@ export function useTransactionForm() {
     setFormData(prev => ({ ...prev, description }));
   }, []);
 
+  const updateDate = useCallback((transaction_date: string) => {
+    setFormData(prev => ({ ...prev, transaction_date }));
+  }, []);
+
   const addTag = useCallback((tag: string) => {
     const normalizedTag = tag.trim().startsWith('#') ? tag.trim() : `#${tag.trim()}`;
     setFormData(prev => ({
@@ -102,6 +106,7 @@ export function useTransactionForm() {
     updateCategory,
     updateNote,
     updateDescription,
+    updateDate,
     addTag,
     removeTag,
     validateForm,

@@ -6,3 +6,4 @@ export { LoginForm } from './LoginForm';
 export { RegisterForm } from './RegisterForm';
 export { RegisterHero } from './RegisterHero';
 export { SecurityFooter } from './SecurityFooter';
+export { default as AuthSkeleton } from './AuthSkeleton';

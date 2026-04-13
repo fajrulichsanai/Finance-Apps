@@ -23,7 +23,7 @@ export default function SmartRecommendations({ recommendations }: SmartRecommend
             <line x1="9" y1="21" x2="15" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </div>
-        <span className="text-base font-extrabold text-white">Smart Recommendations</span>
+        <span className="text-base font-extrabold text-white">Rekomendasi Cerdas</span>
       </div>
 
       {recommendations.map((rec) => (
@@ -47,7 +47,7 @@ export default function SmartRecommendations({ recommendations }: SmartRecommend
       ))}
 
       <button className="w-full mt-3.5 py-3 px-4 rounded-[50px] bg-transparent border-[1.5px] border-white border-opacity-40 text-white text-[13px] font-bold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-white hover:bg-opacity-10 transition-colors">
-        Implement All Suggestions ✦
+        Terapkan Semua Saran ✦
       </button>
     </InsightCard>
   );

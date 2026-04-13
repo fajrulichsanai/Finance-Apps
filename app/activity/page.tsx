@@ -9,21 +9,85 @@ import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 import ActivitySearchBar from '@/components/features/activity/ActivitySearchBar';
 import TransactionSection from '@/components/features/activity/TransactionSection';
-import { MOCK_ACTIVITY_DATA } from '@/lib/constants/activity';
-import { ActivitySection } from '@/types';
+import { useTransactions } from '@/lib/hooks/useTransactions';
+import { ActivitySection, ActivityTransaction } from '@/types';
 
 export default function ActivityPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { transactions, loading } = useTransactions();
+
+  // Group transactions by date sections
+  const groupedSections = useMemo((): ActivitySection[] => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const todayStr = today.toISOString().split('T')[0];
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    const todayTxns: ActivityTransaction[] = [];
+    const yesterdayTxns: ActivityTransaction[] = [];
+    const thisWeekTxns: ActivityTransaction[] = [];
+    const olderTxns: ActivityTransaction[] = [];
+
+    transactions.forEach(txn => {
+      const txnDate = txn.transaction_date.split('T')[0];
+      const txnTime = new Date(txn.transaction_date).toLocaleTimeString('id-ID', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+
+      const activityTxn: ActivityTransaction = {
+        id: txn.id,
+        name: txn.description,
+        category: txn.category_name || 'Tanpa Kategori',
+        description: txn.note || '',
+        amount: txn.amount,
+        time: txnTime,
+        type: txn.type,
+        icon: 'money' // Default icon, can be enhanced later
+      };
+
+      if (txnDate === todayStr) {
+        todayTxns.push(activityTxn);
+      } else if (txnDate === yesterdayStr) {
+        yesterdayTxns.push(activityTxn);
+      } else if (new Date(txnDate) >= sevenDaysAgo) {
+        thisWeekTxns.push(activityTxn);
+      } else {
+        olderTxns.push(activityTxn);
+      }
+    });
+
+    const sections: ActivitySection[] = [];
+    
+    if (todayTxns.length > 0) {
+      sections.push({ label: 'Hari Ini', date: todayStr, transactions: todayTxns });
+    }
+    if (yesterdayTxns.length > 0) {
+      sections.push({ label: 'Kemarin', date: yesterdayStr, transactions: yesterdayTxns });
+    }
+    if (thisWeekTxns.length > 0) {
+      sections.push({ label: 'Minggu Ini', date: '', transactions: thisWeekTxns });
+    }
+    if (olderTxns.length > 0) {
+      sections.push({ label: 'Lebih Lama', date: '', transactions: olderTxns });
+    }
+
+    return sections;
+  }, [transactions]);
 
   // Filter transactions based on search query
   const filteredSections = useMemo(() => {
     if (!searchQuery.trim()) {
-      return MOCK_ACTIVITY_DATA;
+      return groupedSections;
     }
 
     const query = searchQuery.toLowerCase();
     
-    return MOCK_ACTIVITY_DATA
+    return groupedSections
       .map((section) => ({
         ...section,
         transactions: section.transactions.filter(
@@ -34,7 +98,21 @@ export default function ActivityPage() {
         ),
       }))
       .filter((section) => section.transactions.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, groupedSections]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
+        <div className="w-full max-w-[430px] mx-auto">
+          <AppHeader />
+          <div className="px-[18px] py-8">
+            <p className="text-center text-gray-500">Memuat transaksi...</p>
+          </div>
+          <BottomNav />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
@@ -57,7 +135,7 @@ export default function ActivityPage() {
             ))
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-400 text-sm">No transactions found</p>
+              <p className="text-gray-400 text-sm">Tidak ada transaksi ditemukan</p>
             </div>
           )}
         </div>

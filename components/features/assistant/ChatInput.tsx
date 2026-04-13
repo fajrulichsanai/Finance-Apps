@@ -22,7 +22,7 @@ export default function ChatInput({
   };
 
   return (
-    <div className="bg-white border-t border-slate-200 px-4 py-2.5 flex items-center gap-2.5">
+    <div className="px-4 py-2.5 flex items-center gap-2.5">
       <input 
         type="text" 
         placeholder={placeholder}

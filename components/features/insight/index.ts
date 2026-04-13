@@ -12,3 +12,4 @@ export { default as CategoryAllocation } from './CategoryAllocation';
 export { default as SmartRecommendations } from './SmartRecommendations';
 export { default as MonthlySpendingTrend } from './MonthlySpendingTrend';
 export { default as StatCard } from './StatCard';
+export { default as InsightSkeleton } from './InsightSkeleton';

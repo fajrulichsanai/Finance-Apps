@@ -1,13 +1,7 @@
-// =====================================================
-// FINANCE APP - Budget Page
-// =====================================================
-// Display budget overview and category limits
-// =====================================================
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { SlidersHorizontal, Plus } from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
@@ -17,13 +11,8 @@ import BudgetCategoryCard from '@/components/features/budget/BudgetCategoryCard'
 import CategoryModal from '@/components/features/category/CategoryModal';
 import { SuccessPopup, ErrorPopup } from '@/components/ui';
 import { useExpenseBudgets, useManageCategories } from '@/lib/hooks/useCategories';
+import { getIconComponent } from '@/lib/utils/icons';
 import type { CategoryWithBudget, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
-
-// Helper to get icon component from icon name
-const getIconComponent = (iconName: string) => {
-  const IconComponent = (Icons as any)[iconName];
-  return IconComponent || Icons.Wallet;
-};
 
 type SortOrder = 'habis-dulu' | 'masih-ada-dulu';
 
@@ -150,10 +139,14 @@ export default function BudgetPage() {
         </h2>
         <button 
           onClick={toggleSort}
-          className="flex items-center gap-1.5 text-[11px] font-bold text-blue-900 uppercase tracking-wider hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors active:scale-95"
+          className="flex items-center gap-1.5 p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition-colors active:scale-95"
+          title={sortOrder === 'habis-dulu' ? 'Urutkan: Habis Dulu' : 'Urutkan: Tersisa Dulu'}
         >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          {sortOrder === 'habis-dulu' ? 'Habis Dulu' : 'Tersisa Dulu'}
+          {sortOrder === 'habis-dulu' ? (
+            <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
+          ) : (
+            <ArrowDown className="w-5 h-5" strokeWidth={2.5} />
+          )}
         </button>
       </div>
 
@@ -165,9 +158,9 @@ export default function BudgetPage() {
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
               <Icons.Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No categories yet</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Belum ada kategori</h3>
             <p className="text-sm text-gray-500 text-center max-w-[280px]">
-              Create your first budget category to start tracking your expenses
+              Buat kategori budget pertama untuk mulai melacak pengeluaran Anda
             </p>
           </div>
         ) : (

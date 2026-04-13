@@ -10,7 +10,7 @@ export default function HealthScore() {
 
   return (
     <InsightCard>
-      <div className="text-[13px] font-bold text-[#0d0d2b] mb-3.5">Health Score</div>
+      <div className="text-[13px] font-bold text-[#0d0d2b] mb-3.5">Skor Kesehatan</div>
       <div className="relative w-[130px] h-[130px] mx-auto my-1 mb-3">
         <svg width="130" height="130" viewBox="0 0 130 130" className="-rotate-90">
           <circle cx="65" cy="65" r="54" fill="none" stroke="#e8f5ee" strokeWidth="10" />
@@ -32,7 +32,7 @@ export default function HealthScore() {
         </div>
       </div>
       <div className="text-xs text-gray-500 text-center leading-relaxed mt-1.5">
-        Your score increased by {improvement} points this month due to improved savings rate.
+        Skor Anda meningkat {improvement} poin bulan ini karena tingkat tabungan membaik.
       </div>
     </InsightCard>
   );

@@ -15,7 +15,7 @@ export default function CategoryAllocation({ categories }: CategoryAllocationPro
   return (
     <InsightCard>
       <div className="flex justify-between items-center mb-3.5">
-        <div className="text-[13px] font-bold text-[#0d0d2b]">Category Allocation</div>
+        <div className="text-[13px] font-bold text-[#0d0d2b]">Alokasi Kategori</div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#bbb" strokeWidth="2" />
           <line x1="12" y1="8" x2="12" y2="12" stroke="#bbb" strokeWidth="2" strokeLinecap="round" />

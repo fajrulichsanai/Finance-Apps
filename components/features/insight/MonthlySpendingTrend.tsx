@@ -13,8 +13,8 @@ export default function MonthlySpendingTrend() {
 
   return (
     <InsightCard>
-      <div className="text-[13px] font-bold text-[#0d0d2b] mb-3.5">Monthly Spending Trend</div>
-      <p className="text-[11px] text-gray-400 mb-2.5">Historical data for the last 6 months</p>
+      <div className="text-[13px] font-bold text-[#0d0d2b] mb-3.5">Tren Pengeluaran Bulanan</div>
+      <p className="text-[11px] text-gray-400 mb-2.5">Data historis 6 bulan terakhir</p>
 
       {/* Tab Toggle */}
       <div className="flex gap-2 mb-4">
@@ -24,7 +24,7 @@ export default function MonthlySpendingTrend() {
             activeTab === 'spending' ? 'bg-[#1a1a6e] text-white' : 'bg-[#f0f0f5] text-gray-400'
           }`}
         >
-          Spending
+          Pengeluaran
         </button>
         <button
           onClick={() => setActiveTab('income')}
@@ -32,7 +32,7 @@ export default function MonthlySpendingTrend() {
             activeTab === 'income' ? 'bg-[#1a1a6e] text-white' : 'bg-[#f0f0f5] text-gray-400'
           }`}
         >
-          Income
+          Pemasukan
         </button>
       </div>
 

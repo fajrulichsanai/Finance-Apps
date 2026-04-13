@@ -9,7 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { getIconComponent, CATEGORY_ICONS, CATEGORY_COLORS } from '@/lib/utils/icons';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
 interface CategoryModalProps {
@@ -19,39 +19,6 @@ interface CategoryModalProps {
   category?: Category | null;
   mode: 'create' | 'edit';
 }
-
-// Predefined icons and colors - EXPANDED
-const ICONS = [
-  'ShoppingCart', 'Coffee', 'Car', 'Home', 'Heart', 'Zap', 
-  'Utensils', 'ShoppingBag', 'Smartphone', 'Laptop', 'Plane',
-  'Film', 'Music', 'Gamepad2', 'Dumbbell', 'GraduationCap',
-  'Briefcase', 'Gift', 'Pizza', 'Bus', 'Bike', 'Train',
-  'Shirt', 'Watch', 'Headphones', 'Camera', 'Book',
-  'Pill', 'Stethoscope', 'Baby', 'PawPrint', 'Palmtree',
-  'Sparkles', 'TrendingUp', 'DollarSign', 'CreditCard', 
-  'PiggyBank', 'Wallet', 'Calculator', 'Receipt', 'Banknote'
-];
-
-const COLORS = [
-  '#1a237e', // Navy blue (primary)
-  '#2e7d32', // Green
-  '#c62828', // Red
-  '#f9a825', // Yellow/Gold
-  '#00b0d8', // Cyan
-  '#7b1fa2', // Purple
-  '#ef4444', // Bright red
-  '#f59e0b', // Orange
-  '#10b981', // Emerald
-  '#3b82f6', // Blue
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#64748b', // Slate
-  '#f97316', // Deep orange
-  '#06b6d4', // Turquoise
-  '#84cc16', // Lime
-  '#a855f7', // Light purple
-  '#f43f5e', // Rose
-];
 
 export default function CategoryModal({ isOpen, onClose, onSubmit, category, mode }: CategoryModalProps) {
   const [formData, setFormData] = useState<CreateCategoryInput | UpdateCategoryInput>({
@@ -117,11 +84,6 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     } finally {
       setLoading(false);
     }
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const IconComponent = (Icons as any)[iconName];
-    return IconComponent || Icons.ShoppingCart;
   };
 
   if (!isOpen) return null;
@@ -286,14 +248,13 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                 </div>
               </div>
 
-              {/* Select Icon */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">
                     Select Icon
                   </label>
                   <span className="text-[13px] font-bold text-blue-900 cursor-pointer">
-                    {ICONS.length} Icons
+                    {CATEGORY_ICONS.length} Icons
                   </span>
                 </div>
                 <div className="relative">
@@ -308,7 +269,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                       WebkitOverflowScrolling: 'touch'
                     }}
                   >
-                    {ICONS.map((iconName) => {
+                    {CATEGORY_ICONS.map((iconName) => {
                       const IconComponent = getIconComponent(iconName);
                       const isSelected = formData.icon === iconName;
                       return (
@@ -339,7 +300,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                   Theme Color
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {COLORS.map((color) => {
+                  {CATEGORY_COLORS.map((color) => {
                     const isSelected = formData.color === color;
                     return (
                       <button

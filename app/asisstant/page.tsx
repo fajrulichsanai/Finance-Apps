@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import AppHeader from '@/components/shared/AppHeader';
+import BottomNav from '@/components/shared/BottomNav';
 import {
-  AssistantHeader,
   ChatMessage,
   SpendingAnomalyCard,
   QuickReplies,
@@ -21,11 +22,11 @@ export default function AssistantPage() {
     useAssistantChat(INITIAL_MESSAGES);
 
   return (
-    <div className="font-dm-sans bg-slate-50 min-h-screen flex flex-col">
-      {/* Header */}
-      <AssistantHeader />
+    <div className="font-dm-sans bg-slate-50 min-h-screen flex flex-col pb-24">
+      {/* Global Header */}
+      <AppHeader />
 
-      {/* Chat Area */}
+      {/* Chat Area - scrollable */}
       <div className="flex-1 overflow-y-auto px-4 py-2.5 pb-2 flex flex-col gap-3 scrollbar-hide">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
@@ -48,12 +49,20 @@ export default function AssistantPage() {
         onSelect={handleQuickReply} 
       />
 
-      {/* Input Bar */}
-      <ChatInput 
-        value={inputValue}
-        onChange={setInputValue}
-        onSend={sendMessage}
-      />
+      {/* Input Bar - fixed at bottom above BottomNav */}
+      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-slate-200 z-10">
+        <div className="max-w-[430px] mx-auto">
+          <ChatInput 
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={sendMessage}
+            placeholder="Tanya Stitch apapun…"
+          />
+        </div>
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

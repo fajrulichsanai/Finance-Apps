@@ -17,7 +17,7 @@ export default function ActivitySearchBar({ value, onChange }: ActivitySearchBar
         <Search className="w-4 h-4 text-gray-400" />
         <input 
           type="text" 
-          placeholder="Search transactions..." 
+          placeholder="Cari transaksi..." 
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="flex-1 border-none outline-none text-sm text-gray-600 placeholder:text-gray-400 bg-transparent"

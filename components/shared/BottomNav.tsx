@@ -4,11 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Home, TrendingUp, Wallet, User } from 'lucide-react';
 
-interface BottomNavProps {
-  onAddClick?: () => void;
-}
-
-export default function BottomNav({ onAddClick }: BottomNavProps) {
+export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -40,11 +36,11 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
         <span className="text-[10px] font-medium">Insight</span>
       </button>
       
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Direct to Record Page */}
       <div className="relative -top-6">
         <button 
-          onClick={onAddClick}
-          className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition-transform hover:scale-105"
+          onClick={() => router.push('/record')}
+          className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
         >
           <div className="w-6 h-6 relative">
             <div className="absolute inset-0 bg-white rounded-sm w-0.5 h-full left-1/2 -translate-x-1/2" />

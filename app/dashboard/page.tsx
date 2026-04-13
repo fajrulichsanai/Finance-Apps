@@ -1,12 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/providers/AuthProvider';
-import TransactionModal from '@/components/features/transaction/TransactionModal';
 import { useBalanceSummary, useCurrentMonthSummary, useCategoryBreakdown } from '@/lib/hooks/useStatistics';
 import { useRecentTransactions } from '@/lib/hooks/useTransactions';
-import { transactionService } from '@/lib/services/transactions';
-import type { CreateTransactionInput } from '@/lib/services/transactions';
 import { getDisplayName } from '@/lib/utils/user';
 import { calculateHealthScore, getHealthStanding } from '@/lib/utils/financial';
 import { BUDGET_THRESHOLD, RECENT_TRANSACTIONS_LIMIT, TOP_BUDGET_CATEGORIES } from '@/lib/constants/dashboard';
@@ -21,14 +18,13 @@ import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 
 export default function DashboardPage() {
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
   const { user, loading } = useAuth();
 
   // Data hooks
   const { summary: balanceSummary, loading: balanceLoading } = useBalanceSummary();
-  const { summary: monthSummary, refresh: refreshMonth } = useCurrentMonthSummary();
+  const { summary: monthSummary } = useCurrentMonthSummary();
   const { data: categoryData } = useCategoryBreakdown('expense');
-  const { transactions, loading: transactionsLoading, refresh: refreshTransactions } = useRecentTransactions(RECENT_TRANSACTIONS_LIMIT);
+  const { transactions, loading: transactionsLoading } = useRecentTransactions(RECENT_TRANSACTIONS_LIMIT);
 
   // Derived data
   const displayName = getDisplayName(user);
@@ -48,13 +44,6 @@ export default function DashboardPage() {
       percentage,
     };
   });
-
-  // Handlers
-  const handleAddTransaction = async (data: CreateTransactionInput) => {
-    await transactionService.createTransaction(data);
-    refreshTransactions();
-    refreshMonth();
-  };
 
   if (loading || balanceLoading) {
     return (
@@ -107,13 +96,7 @@ export default function DashboardPage() {
           <div className="h-[60px]" />
         </div>
 
-        <BottomNav onAddClick={() => setShowTransactionModal(true)} />
-
-        <TransactionModal
-          isOpen={showTransactionModal}
-          onClose={() => setShowTransactionModal(false)}
-          onSubmit={handleAddTransaction}
-        />
+        <BottomNav />
       </div>
     </div>
   );

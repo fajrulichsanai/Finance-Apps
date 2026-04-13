@@ -11,3 +11,4 @@ export { AIInsightCard } from './AIInsightCard';
 export { MonthlyStatsCard } from './MonthlyStatsCard';
 export { RecentActivityList } from './RecentActivityList';
 export { DashboardHeader } from './DashboardHeader';
+export { default as DashboardSkeleton } from './DashboardSkeleton';
