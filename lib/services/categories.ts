@@ -12,6 +12,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
+  type: 'income' | 'expense';
   budget: number;
   created_at: string;
   updated_at: string;
@@ -27,6 +28,7 @@ export interface CreateCategoryInput {
   name: string;
   icon: string;
   color: string;
+  type: 'income' | 'expense';
   budget?: number;
 }
 
@@ -34,6 +36,7 @@ export interface UpdateCategoryInput {
   name?: string;
   icon?: string;
   color?: string;
+  type?: 'income' | 'expense';
   budget?: number;
 }
 
@@ -148,6 +151,7 @@ class CategoryService {
           name: input.name.trim(),
           icon: input.icon || 'Wallet',
           color: input.color || '#3b82f6',
+          type: input.type || 'expense',
           budget: input.budget || 0
         })
         .select()

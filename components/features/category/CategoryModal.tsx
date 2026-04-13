@@ -54,10 +54,11 @@ const COLORS = [
 ];
 
 export default function CategoryModal({ isOpen, onClose, onSubmit, category, mode }: CategoryModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateCategoryInput | UpdateCategoryInput>({
     name: '',
     icon: 'ShoppingCart',
     color: '#1a237e',
+    type: 'expense',
     budget: 0
   });
   const [loading, setLoading] = useState(false);
@@ -70,6 +71,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
         name: category.name,
         icon: category.icon,
         color: category.color,
+        type: category.type,
         budget: Number(category.budget)
       });
     } else {
@@ -77,6 +79,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
         name: '',
         icon: 'ShoppingCart',
         color: '#1a237e',
+        type: 'expense',
         budget: 0
       });
     }
@@ -224,6 +227,37 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                   placeholder="e.g. Health & Fitness"
                   className="w-full px-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none text-[14.5px] text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
                 />
+              </div>
+
+              {/* Category Type */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
+                  Category Type
+                </label>
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, type: 'expense' })}
+                    className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                      formData.type === 'expense'
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
+                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    💸 Expense
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, type: 'income' })}
+                    className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                      formData.type === 'income'
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    💰 Income
+                  </button>
+                </div>
               </div>
 
               {/* Monthly Budget */}

@@ -12,6 +12,7 @@ const config: Config = {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         nunito: ['Nunito', 'sans-serif'],
+        'dm-sans': ['DM Sans', 'sans-serif'],
       },
       colors: {
         blue: {

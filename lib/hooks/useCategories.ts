@@ -16,7 +16,8 @@ import {
 } from '@/lib/services/categories';
 
 /**
- * Hook for fetching all categories (user's own)
+ * Hook for fetching all categories (user's own + templates)
+ * Returns separated income and expense categories
  */
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,7 +28,7 @@ export function useCategories() {
     try {
       setLoading(true);
       setError(null);
-      const data = await categoryService.getUserCategories();
+      const data = await categoryService.getAllCategories();
       setCategories(data);
     } catch (err) {
       setError(err as Error);
@@ -41,8 +42,14 @@ export function useCategories() {
     fetchCategories();
   }, [fetchCategories]);
 
+  // Separate categories by type
+  const incomeCategories = categories.filter(cat => cat.type === 'income');
+  const expenseCategories = categories.filter(cat => cat.type === 'expense');
+
   return {
     categories,
+    incomeCategories,
+    expenseCategories,
     loading,
     error,
     refresh: fetchCategories
