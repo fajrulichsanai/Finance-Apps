@@ -19,7 +19,7 @@ export const RecentActivityList: React.FC<RecentActivityListProps> = ({ transact
     <div className="bg-[#ebebf0] rounded-[18px] px-[18px] py-4 mb-3.5">
       <div className="flex justify-between items-center mb-3.5">
         <span className="text-[15px] font-bold text-[#0d0d2b]">Recent Activity</span>
-        <Link href="/statistics" className="text-xs font-bold text-[#1a1a6e] no-underline">
+        <Link href="/activity" className="text-xs font-bold text-[#1a1a6e] no-underline">
           View All
         </Link>
       </div>

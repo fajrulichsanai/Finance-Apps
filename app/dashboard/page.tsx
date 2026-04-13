@@ -17,7 +17,7 @@ import { AccountsGrid } from '@/components/features/dashboard/AccountsGrid';
 import { AIInsightCard } from '@/components/features/dashboard/AIInsightCard';
 import { MonthlyStatsCard } from '@/components/features/dashboard/MonthlyStatsCard';
 import { RecentActivityList } from '@/components/features/dashboard/RecentActivityList';
-import { DashboardHeader } from '@/components/features/dashboard/DashboardHeader';
+import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 
 export default function DashboardPage() {
@@ -70,7 +70,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] relative pb-20">
       <div className="w-full max-w-[430px] mx-auto">
-        <DashboardHeader />
+        <AppHeader />
 
         <div className="px-4 overflow-y-auto max-h-[calc(100vh-180px)]">
           <HealthScoreCard score={healthScore} standing={healthStanding} />
@@ -106,16 +106,6 @@ export default function DashboardPage() {
 
           <div className="h-[60px]" />
         </div>
-
-        {/* FAB */}
-        <button 
-          onClick={() => setShowTransactionModal(true)}
-          className="absolute bottom-[88px] right-5 w-[50px] h-[50px] bg-[#1a1a6e] rounded-full flex items-center justify-center cursor-pointer border-none shadow-[0_4px_16px_rgba(26,26,110,0.35)]"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-        </button>
 
         <BottomNav onAddClick={() => setShowTransactionModal(true)} />
 

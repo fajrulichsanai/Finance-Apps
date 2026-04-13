@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, PieChart as PieChartIcon, Wallet, MoreHorizontal } from 'lucide-react';
+import { Home, TrendingUp, Wallet, User } from 'lucide-react';
 
 interface BottomNavProps {
   onAddClick?: () => void;
@@ -25,19 +25,19 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
         }`}
       >
         <Home size={24} />
-        <span className="text-[10px] font-medium">Beranda</span>
+        <span className="text-[10px] font-medium">Home</span>
       </button>
       
       <button 
-        onClick={() => router.push('/statistics')}
+        onClick={() => router.push('/insight')}
         className={`flex flex-col items-center gap-1 transition-colors ${
-          isActive('/statistics')
+          isActive('/insight')
             ? 'text-blue-600' 
             : 'text-slate-400 hover:text-slate-600'
         }`}
       >
-        <PieChartIcon size={24} />
-        <span className="text-[10px] font-medium">Statistik</span>
+        <TrendingUp size={24} />
+        <span className="text-[10px] font-medium">Insight</span>
       </button>
       
       {/* Floating Action Button */}
@@ -54,15 +54,15 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
       </div>
 
       <button 
-        onClick={() => router.push('/categories')}
+        onClick={() => router.push('/budget')}
         className={`flex flex-col items-center gap-1 transition-colors ${
-          isActive('/categories')
+          isActive('/budget')
             ? 'text-blue-600' 
             : 'text-slate-400 hover:text-slate-600'
         }`}
       >
         <Wallet size={24} />
-        <span className="text-[10px] font-medium">Dompet</span>
+        <span className="text-[10px] font-medium">Budget</span>
       </button>
       
       <button 
@@ -73,8 +73,8 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
             : 'text-slate-400 hover:text-slate-600'
         }`}
       >
-        <MoreHorizontal size={24} />
-        <span className="text-[10px] font-medium">Lainnya</span>
+        <User size={24} />
+        <span className="text-[10px] font-medium">Akun</span>
       </button>
     </div>
   );
