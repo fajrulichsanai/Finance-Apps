@@ -11,7 +11,7 @@ interface TransactionIconProps {
 }
 
 export default function TransactionIcon({ iconType, className = "w-[22px] h-[22px]" }: TransactionIconProps) {
-  const icons: Record<TransactionIconType, JSX.Element> = {
+  const icons: Record<TransactionIconType, React.JSX.Element> = {
     food: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className={className}>
         <path d="M18 8h1a4 4 0 0 1 0 8h-1" stroke="#1a1a6e" strokeWidth="2" strokeLinecap="round"/>

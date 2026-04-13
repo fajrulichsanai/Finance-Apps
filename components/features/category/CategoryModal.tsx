@@ -91,12 +91,12 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     setError(null);
     
     // Validation
-    if (!formData.name.trim()) {
+    if (!formData.name?.trim()) {
       setError('Category name is required');
       return;
     }
     
-    if (formData.budget < 0) {
+    if (formData.budget && formData.budget < 0) {
       setError('Budget cannot be negative');
       return;
     }
@@ -197,7 +197,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                     className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300"
                     style={{ backgroundColor: formData.color }}
                   >
-                    {React.createElement(getIconComponent(formData.icon), {
+                    {React.createElement(getIconComponent(formData.icon || 'ShoppingCart'), {
                       className: 'w-7 h-7',
                       style: { color: 'white', strokeWidth: 1.8 }
                     })}
@@ -206,7 +206,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                     {formData.name || 'Dining Out'}
                   </div>
                   <div className="text-[13px] text-gray-400 font-medium">
-                    {formData.budget > 0 
+                    {formData.budget && formData.budget > 0 
                       ? `Monthly Budget: Rp${formData.budget.toLocaleString('id-ID')}`
                       : 'Monthly Budget: Rp0'
                     }
