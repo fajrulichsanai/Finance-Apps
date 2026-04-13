@@ -43,7 +43,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl p-10 w-full max-w-[380px] shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+    <div className="bg-white rounded-3xl p-8 sm:p-10 w-full shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[32px] font-extrabold text-[#0d0d2b] mb-2.5 tracking-tight">

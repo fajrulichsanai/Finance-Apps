@@ -82,7 +82,7 @@ export const useRegister = () => {
         setSuccess(true);
         setIsLoading(false);
         setTimeout(() => {
-          router.push('/login');
+          router.push('/'); // Root is the login page
         }, 2000);
       }
     } catch (err) {

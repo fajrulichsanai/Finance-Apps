@@ -29,6 +29,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const authListenerRef = useRef<any>(null)
   const sessionFetchPromise = useRef<Promise<any> | null>(null)
   const lastFetchTime = useRef<number>(0)
+  const sessionExpiryTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Session expiry: 5 minutes (in milliseconds)
+  const SESSION_EXPIRY_MS = 5 * 60 * 1000
+
+  // Function to start session expiry timer
+  const startSessionExpiryTimer = useCallback(() => {
+    // Clear existing timer
+    if (sessionExpiryTimer.current) {
+      clearTimeout(sessionExpiryTimer.current)
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⏱️ [Auth] Starting 5-minute session expiry timer')
+    }
+
+    // Set new timer for 5 minutes
+    sessionExpiryTimer.current = setTimeout(async () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⏰ [Auth] Session expired after 5 minutes, logging out...')
+      }
+      
+      // Force logout
+      await supabase.auth.signOut()
+      window.location.href = '/'
+    }, SESSION_EXPIRY_MS)
+  }, [SESSION_EXPIRY_MS])
+
+  // Function to clear session expiry timer
+  const clearSessionExpiryTimer = useCallback(() => {
+    if (sessionExpiryTimer.current) {
+      clearTimeout(sessionExpiryTimer.current)
+      sessionExpiryTimer.current = null
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🛑 [Auth] Session expiry timer cleared')
+      }
+    }
+  }, [])
 
   useEffect(() => {
     // ANTI-LOOP: Prevent double execution in React Strict Mode
@@ -106,6 +145,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ [Auth] Session loaded:', session ? 'authenticated' : 'guest')
       }
+
+      // Start session expiry timer if authenticated
+      if (session) {
+        startSessionExpiryTimer()
+      }
     }).catch((error) => {
       console.error('❌ [Auth] Failed to load session:', error)
       setLoading(false)
@@ -136,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(null)
           setUser(null)
           setLoading(false)
+          clearSessionExpiryTimer()
         } else {
           debounceTimer = setTimeout(() => {
             if (!isMounted) return
@@ -147,6 +192,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(session)
             setUser(session?.user ?? null)
             setLoading(false)
+
+            // Manage session expiry timer
+            if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+              startSessionExpiryTimer()
+            } else if (!session) {
+              clearSessionExpiryTimer()
+            }
           }, 100) // 100ms debounce
         }
       })
@@ -164,8 +216,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('🧹 [Auth] Listener unsubscribed')
         }
       }
+      // Clear session expiry timer on cleanup
+      clearSessionExpiryTimer()
     }
-  }, []) // Empty dependency = runs ONCE on mount (React Strict Mode safe)
+  }, [startSessionExpiryTimer, clearSessionExpiryTimer]) // Add dependencies
 
   // OPTIMIZATION: Memoize auth functions to prevent re-creation
   // This prevents unnecessary re-renders in child components
@@ -221,7 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     await supabase.auth.signOut()
     // Use window.location for full page reload to clear all state
-    window.location.href = '/'
+    window.location.href = '/' // Root is the login page
   }, [])
 
   const value = {

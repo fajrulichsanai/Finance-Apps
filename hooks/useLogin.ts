@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 
 export const useLogin = () => {
@@ -8,6 +9,7 @@ export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { signInWithEmail, signInWithGoogle } = useAuth();
+  const router = useRouter();
   const submitInProgress = useRef(false);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -30,7 +32,14 @@ export const useLogin = () => {
         setIsLoading(false);
         submitInProgress.current = false;
       } else {
-        window.location.href = '/';
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ [Login] Success! Redirecting...');
+        }
+        
+        // Force full page reload to ensure cookies are properly set
+        // This is necessary because browser client uses different storage
+        // than middleware (which reads from request cookies)
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       console.error('Unexpected error:', err);

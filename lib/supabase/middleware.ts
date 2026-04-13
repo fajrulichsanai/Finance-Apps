@@ -4,23 +4,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
-  // OPTIMIZATION 1: Skip auth check for public assets early
-  const isPublicFile = pathname.includes('.') || pathname.startsWith('/_next')
-  if (isPublicFile) {
-    return NextResponse.next()
-  }
-
-  // OPTIMIZATION 2: Skip server-side auth check for auth pages
-  // Let client handle auth state to reduce API calls
-  const isAuthPage = pathname === '/' || 
-                     pathname.startsWith('/register') || 
-                     pathname === '/auth/callback'
-  
-  if (isAuthPage && pathname !== '/auth/callback') {
-    // For login (/) and register, skip server check
-    // Client-side AuthProvider will handle session
-    return NextResponse.next()
-  }
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/register', '/auth/callback']
+  const isPublicRoute = publicRoutes.includes(pathname)
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -44,23 +30,35 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  // OPTIMIZATION 3: Only call getUser() for protected routes (not auth pages)
-  // This route handles: /, /dashboard, etc (protected pages)
+  // Get user session
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    // Redirect to root (login page) if not authenticated
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🔒 [Middleware] ${pathname} - User: ${user ? user.email : 'none'}`)
+  }
+
+  // Auth redirect logic
+  if (!user && !isPublicRoute) {
+    // Not logged in, trying to access protected route → redirect to login (/)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`↩️ [Middleware] Redirecting ${pathname} → / (no auth)`)
+    }
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
+  if (user && (pathname === '/' || pathname === '/register')) {
+    // Already logged in, trying to access auth pages → redirect to dashboard
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`↩️ [Middleware] Redirecting ${pathname} → /dashboard (already authed)`)
+    }
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   return supabaseResponse
 }

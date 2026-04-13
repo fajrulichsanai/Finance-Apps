@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 import { useRegister } from '@/hooks/useRegister';
 import { AuthLogo } from '@/components/features/auth/AuthLogo';
 import { RegisterHero } from '@/components/features/auth/RegisterHero';
@@ -8,6 +10,8 @@ import { RegisterForm } from '@/components/features/auth/RegisterForm';
 import { SecurityFooter } from '@/components/features/auth/SecurityFooter';
 
 export default function RegisterPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const {
     formData,
     updateField,
@@ -17,6 +21,30 @@ export default function RegisterPage() {
     handleEmailRegister,
     handleGoogleRegister,
   } = useRegister();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f0f0f0]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#1a1a6e] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-[#6b6b80] text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render register form if user is logged in
+  if (user) {
+    return null;
+  }
 
   return (
     <div 

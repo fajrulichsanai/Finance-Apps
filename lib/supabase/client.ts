@@ -67,14 +67,12 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       auth: {
-        // CRITICAL: Increase storage lock timeout to prevent stealing
-        storageKey: 'sb-auth-token',
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        // Use default storage (cookies) managed by @supabase/ssr
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        // Disable flow type to prevent multiple concurrent requests
-        flowType: 'pkce',
+        // Remove flowType to use default (implicit flow for password auth)
+        // Session expiry: 5 minutes managed by server
       },
       // Add global fetch options with timeout
       global: {
