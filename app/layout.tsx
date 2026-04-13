@@ -3,6 +3,11 @@ import { Nunito } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/providers/AuthProvider';
 
+// Import utility to expose lock clearing function to console
+if (typeof window !== 'undefined') {
+  import('@/lib/utils/clearLocks')
+}
+
 const nunito = Nunito({ 
   subsets: ['latin'],
   weight: ['700', '800', '900'],

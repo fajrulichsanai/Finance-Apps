@@ -6,7 +6,7 @@ import {
   Coffee, Car, Home, ShoppingBag, Zap, Plus
 } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
-import TransactionModal from '@/components/TransactionModal';
+import TransactionModal from '@/components/features/transaction/TransactionModal';
 import { useBalanceSummary, useCurrentMonthSummary, useCategoryBreakdown } from '@/lib/hooks/useStatistics';
 import { useRecentTransactions } from '@/lib/hooks/useTransactions';
 import { transactionService } from '@/lib/services/transactions';

@@ -9,7 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Coffee, Car, Home, ShoppingBag, Zap, Gift, Briefcase, DollarSign, Heart, BookOpen, MoreHorizontal, Film, TrendingUp } from 'lucide-react';
 import { useCategories } from '@/lib/hooks/useCategories';
-import CustomSelect, { type SelectOption } from '@/components/CustomSelect';
+import CustomSelect, { type SelectOption } from '@/components/shared/CustomSelect';
 import type { CreateTransactionInput, Transaction } from '@/lib/services/transactions';
 
 // Icon mapping

@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle } from 'lucide-react';
+import { X } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
@@ -61,7 +61,6 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     budget: 0
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Initialize form data when category changes
@@ -103,11 +102,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
 
     try {
       await onSubmit(formData);
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-      }, 1000);
+      // Parent component handles success popup and closing
     } catch (err: any) {
       console.error('Error submitting category:', err);
       // Extract meaningful error message
@@ -168,23 +163,6 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                 <X className="w-4 h-4 text-gray-600" strokeWidth={2.5} />
               </button>
             </div>
-
-            {/* Success message */}
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mb-5 p-3.5 bg-green-500 rounded-2xl flex items-center gap-3 shadow-lg shadow-green-500/25"
-                >
-                  <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                  <span className="text-sm font-bold text-white">
-                    {mode === 'create' ? 'Category created!' : 'Category updated!'}
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Error message */}
             <AnimatePresence>

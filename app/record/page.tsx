@@ -4,25 +4,27 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check } from 'lucide-react';
 import { useTransactionForm } from '@/hooks/useTransactionForm';
 import { useCategories } from '@/lib/hooks/useCategories';
 import { useTransactions } from '@/lib/hooks/useTransactions';
-import Header from '@/components/shared/Header';
-import TransactionTypeToggle from '@/components/features/TransactionTypeToggle';
-import AmountDisplay from '@/components/features/AmountDisplay';
-import CategorySelector from '@/components/features/CategorySelector';
-import TransactionDatePicker from '@/components/features/TransactionDatePicker';
-import PaymentAccountSelector from '@/components/features/PaymentAccountSelector';
-import NoteInput from '@/components/features/NoteInput';
-import TagsInput from '@/components/features/TagsInput';
-import BottomNav from '@/components/BottomNav';
+import AppHeader from '@/components/shared/AppHeader';
+import TransactionTypeToggle from '@/components/features/transaction/TransactionTypeToggle';
+import AmountDisplay from '@/components/features/transaction/AmountDisplay';
+import CategorySelector from '@/components/features/transaction/CategorySelector';
+import TransactionDatePicker from '@/components/features/transaction/TransactionDatePicker';
+import PaymentAccountSelector from '@/components/features/transaction/PaymentAccountSelector';
+import NoteInput from '@/components/features/transaction/NoteInput';
+import TagsInput from '@/components/features/transaction/TagsInput';
+import BottomNav from '@/components/shared/BottomNav';
+import { SuccessPopup, ErrorPopup } from '@/components/ui';
 
 export default function RecordPage() {
   const router = useRouter();
   const { createTransaction } = useTransactions();
-  const { incomeCategories, expenseCategories, loading: categoriesLoading } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
 
   const {
     formData,
@@ -41,12 +43,14 @@ export default function RecordPage() {
     prepareSubmitData,
   } = useTransactionForm();
 
-  const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
 
   const handleSave = async () => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
+      setShowErrorPopup(true);
       return;
     }
 
@@ -58,9 +62,11 @@ export default function RecordPage() {
       await createTransaction(submitData);
       
       resetForm();
-      router.push('/dashboard');
+      setShowSuccessPopup(true);
     } catch (err) {
-      setError((err as Error).message || 'Failed to save transaction');
+      const errorMsg = (err as Error).message || 'Failed to save transaction';
+      setError(errorMsg);
+      setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -68,7 +74,7 @@ export default function RecordPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
-      <Header title="Financial Architect" />
+      <AppHeader />
 
       <div className="animate-fade-in-up">
         <TransactionTypeToggle value={formData.type} onChange={updateType} />
@@ -76,7 +82,7 @@ export default function RecordPage() {
         <AmountDisplay amount={formData.amount} />
 
         <CategorySelector
-          categories={currentCategories}
+          categories={categories}
           selectedId={formData.category_id}
           onSelect={updateCategory}
           loading={categoriesLoading}
@@ -109,6 +115,30 @@ export default function RecordPage() {
           {isSubmitting ? 'Saving...' : 'Save Transaction'}
         </button>
       </div>
+
+      {/* SUCCESS POPUP */}
+      <SuccessPopup
+        isOpen={showSuccessPopup}
+        title="Transaksi Berhasil Disimpan!"
+        message="Saldo Anda telah diperbarui secara real-time."
+        status="Tersimpan"
+        onDone={() => {
+          setShowSuccessPopup(false);
+          router.push('/dashboard');
+        }}
+      />
+
+      {/* ERROR POPUP */}
+      <ErrorPopup
+        isOpen={showErrorPopup}
+        title="Gagal Menyimpan Transaksi"
+        message={error || 'Terjadi kesalahan. Silakan coba lagi.'}
+        onRetry={() => {
+          setShowErrorPopup(false);
+          handleSave();
+        }}
+        onCancel={() => setShowErrorPopup(false)}
+      />
 
       <BottomNav />
     </div>

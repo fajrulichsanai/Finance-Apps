@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import BottomNav from '@/components/BottomNav';
+import BottomNav from '@/components/shared/BottomNav';
 
 export default function ProfilePage() {
   const router = useRouter();
