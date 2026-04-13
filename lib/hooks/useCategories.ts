@@ -41,13 +41,8 @@ export function useCategories() {
     fetchCategories();
   }, [fetchCategories]);
 
-  const incomeCategories = categories.filter(c => c.type === 'income');
-  const expenseCategories = categories.filter(c => c.type === 'expense');
-
   return {
     categories,
-    incomeCategories,
-    expenseCategories,
     loading,
     error,
     refresh: fetchCategories
@@ -57,7 +52,7 @@ export function useCategories() {
 /**
  * Hook for categories with budget tracking
  */
-export function useCategoriesWithBudget(type?: 'income' | 'expense') {
+export function useCategoriesWithBudget() {
   const [categories, setCategories] = useState<CategoryWithBudget[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -66,7 +61,7 @@ export function useCategoriesWithBudget(type?: 'income' | 'expense') {
     try {
       setLoading(true);
       setError(null);
-      const data = await categoryService.getCategoriesWithBudget(type);
+      const data = await categoryService.getCategoriesWithBudget();
       setCategories(data);
     } catch (err) {
       setError(err as Error);
@@ -74,7 +69,7 @@ export function useCategoriesWithBudget(type?: 'income' | 'expense') {
     } finally {
       setLoading(false);
     }
-  }, [type]);
+  }, []);
 
   useEffect(() => {
     fetchCategories();
@@ -111,10 +106,10 @@ export function useCategoriesWithBudget(type?: 'income' | 'expense') {
 }
 
 /**
- * Hook for expense categories with budget
+ * Hook for budget categories
  */
 export function useExpenseBudgets() {
-  return useCategoriesWithBudget('expense');
+  return useCategoriesWithBudget();
 }
 
 /**

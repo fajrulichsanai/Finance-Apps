@@ -10,7 +10,6 @@ export interface Category {
   id: string;
   user_id: string | null;
   name: string;
-  type: 'income' | 'expense';
   icon: string;
   color: string;
   budget: number;
@@ -26,7 +25,6 @@ export interface CategoryWithBudget extends Category {
 
 export interface CreateCategoryInput {
   name: string;
-  type: 'income' | 'expense';
   icon: string;
   color: string;
   budget?: number;
@@ -65,15 +63,14 @@ class CategoryService {
   /**
    * Get user's categories with budget tracking
    */
-  async getCategoriesWithBudget(type?: 'income' | 'expense') {
+  async getCategoriesWithBudget() {
     try {
       const { data: { user } } = await this.supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await this.supabase
         .rpc('get_categories_with_budget', {
-          p_user_id: user.id,
-          p_type: type || null
+          p_user_id: user.id
         });
 
       if (error) throw error;
@@ -111,52 +108,6 @@ class CategoryService {
   }
 
   /**
-   * Get categories by type
-   */
-  async getCategoriesByType(type: 'income' | 'expense') {
-    try {
-      const { data: { user } } = await this.supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const { data, error } = await this.supabase
-        .from('categories')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('type', type)
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-
-      return data as Category[];
-
-    } catch (error) {
-      console.error('Error fetching categories by type:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get income categories
-   */
-  async getIncomeCategories() {
-    return this.getCategoriesByType('income');
-  }
-
-  /**
-   * Get expense categories
-   */
-  async getExpenseCategories() {
-    return this.getCategoriesByType('expense');
-  }
-
-  /**
-   * Get expense categories with budget info
-   */
-  async getExpenseCategoriesWithBudget() {
-    return this.getCategoriesWithBudget('expense');
-  }
-
-  /**
    * Get category by ID
    */
   async getCategoryById(id: string) {
@@ -185,26 +136,33 @@ class CategoryService {
       const { data: { user } } = await this.supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Validate input
+      if (!input.name || !input.name.trim()) {
+        throw new Error('Category name is required');
+      }
+
       const { data, error } = await this.supabase
         .from('categories')
         .insert({
           user_id: user.id,
-          name: input.name,
-          type: input.type,
-          icon: input.icon,
-          color: input.color,
+          name: input.name.trim(),
+          icon: input.icon || 'Wallet',
+          color: input.color || '#3b82f6',
           budget: input.budget || 0
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating category:', error);
+        throw new Error(error.message || 'Failed to create category');
+      }
 
       return data as Category;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating category:', error);
-      throw error;
+      throw new Error(error?.message || 'Failed to create category');
     }
   }
 
@@ -216,21 +174,39 @@ class CategoryService {
       const { data: { user } } = await this.supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Validate input if name is being updated
+      if (input.name !== undefined && !input.name.trim()) {
+        throw new Error('Category name cannot be empty');
+      }
+
+      // Prepare update data with trimmed name if present
+      const updateData = {
+        ...input,
+        ...(input.name && { name: input.name.trim() })
+      };
+
       const { data, error } = await this.supabase
         .from('categories')
-        .update(input)
+        .update(updateData)
         .eq('id', id)
         .eq('user_id', user.id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating category:', error);
+        throw new Error(error.message || 'Failed to update category');
+      }
+
+      if (!data) {
+        throw new Error('Category not found or you do not have permission to update it');
+      }
 
       return data as Category;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating category:', error);
-      throw error;
+      throw new Error(error?.message || 'Failed to update category');
     }
   }
 

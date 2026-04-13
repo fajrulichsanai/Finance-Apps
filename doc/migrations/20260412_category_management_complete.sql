@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS public.categories (
   
   -- Category information
   name VARCHAR(100) NOT NULL,
-  type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
   
   -- Visual customization
   icon VARCHAR(50) DEFAULT 'Wallet',
@@ -54,8 +53,6 @@ CREATE TABLE IF NOT EXISTS public.categories (
 -- INDEXES: categories
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_categories_user_id ON public.categories(user_id);
-CREATE INDEX IF NOT EXISTS idx_categories_type ON public.categories(type);
-CREATE INDEX IF NOT EXISTS idx_categories_user_type ON public.categories(user_id, type);
 
 -- =====================================================
 -- TRIGGER: Auto-update timestamp
@@ -119,15 +116,11 @@ CREATE POLICY "Users can delete own categories"
 -- - remaining_budget: budget - total_spent
 -- - transaction_count: number of transactions
 
-CREATE OR REPLACE FUNCTION get_categories_with_budget(
-  p_user_id UUID,
-  p_type VARCHAR DEFAULT NULL
-)
+CREATE OR REPLACE FUNCTION get_categories_with_budget(p_user_id UUID)
 RETURNS TABLE (
   id UUID,
   user_id UUID,
   name VARCHAR,
-  type VARCHAR,
   icon VARCHAR,
   color VARCHAR,
   budget DECIMAL,
@@ -143,7 +136,6 @@ BEGIN
     c.id,
     c.user_id,
     c.name,
-    c.type,
     c.icon,
     c.color,
     c.budget,
@@ -160,8 +152,7 @@ BEGIN
     ON c.id = t.category_id 
     AND t.user_id = p_user_id
   WHERE c.user_id = p_user_id
-    AND (p_type IS NULL OR c.type = p_type)
-  GROUP BY c.id, c.user_id, c.name, c.type, c.icon, c.color, c.budget, c.created_at, c.updated_at
+  GROUP BY c.id, c.user_id, c.name, c.icon, c.color, c.budget, c.created_at, c.updated_at
   ORDER BY c.name ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -175,23 +166,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION initialize_user_categories(p_user_id UUID)
 RETURNS void AS $$
 BEGIN
-  -- Create default expense categories with budgets
-  INSERT INTO public.categories (user_id, name, type, icon, color, budget) VALUES
-    (p_user_id, 'Makanan & Minuman', 'expense', 'Coffee', '#f59e0b', 1500000),
-    (p_user_id, 'Transportasi', 'expense', 'Car', '#3b82f6', 1000000),
-    (p_user_id, 'Belanja', 'expense', 'ShoppingBag', '#8b5cf6', 800000),
-    (p_user_id, 'Hiburan', 'expense', 'Film', '#ec4899', 500000),
-    (p_user_id, 'Tagihan', 'expense', 'Home', '#ef4444', 2000000),
-    (p_user_id, 'Kesehatan', 'expense', 'Heart', '#f43f5e', 500000),
-    (p_user_id, 'Lainnya', 'expense', 'Wallet', '#64748b', 500000)
-  ON CONFLICT DO NOTHING;
-
-  -- Create default income categories (no budget needed)
-  INSERT INTO public.categories (user_id, name, type, icon, color, budget) VALUES
-    (p_user_id, 'Gaji', 'income', 'Zap', '#10b981', 0),
-    (p_user_id, 'Freelance', 'income', 'Briefcase', '#3b82f6', 0),
-    (p_user_id, 'Investasi', 'income', 'TrendingUp', '#8b5cf6', 0),
-    (p_user_id, 'Lainnya', 'income', 'DollarSign', '#6366f1', 0)
+  -- Create default budget categories for new user
+  INSERT INTO public.categories (user_id, name, icon, color, budget) VALUES
+    (p_user_id, 'Makanan & Minuman', 'Coffee', '#f59e0b', 1500000),
+    (p_user_id, 'Transportasi', 'Car', '#3b82f6', 1000000),
+    (p_user_id, 'Belanja', 'ShoppingBag', '#8b5cf6', 800000),
+    (p_user_id, 'Hiburan', 'Film', '#ec4899', 500000),
+    (p_user_id, 'Tagihan', 'Home', '#ef4444', 2000000),
+    (p_user_id, 'Kesehatan', 'Heart', '#f43f5e', 500000),
+    (p_user_id, 'Pendidikan', 'BookOpen', '#06b6d4', 500000),
+    (p_user_id, 'Gadget', 'Smartphone', '#64748b', 1000000),
+    (p_user_id, 'Lainnya', 'Wallet', '#64748b', 500000)
   ON CONFLICT DO NOTHING;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -202,24 +187,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Description: Template categories (user_id = NULL) for reference
 -- Users will get copies of these when they sign up
 
-INSERT INTO public.categories (user_id, name, type, icon, color, budget) VALUES
-  -- Income Templates
-  (NULL, 'Gaji', 'income', 'Zap', '#10b981', 0),
-  (NULL, 'Freelance', 'income', 'Briefcase', '#3b82f6', 0),
-  (NULL, 'Investasi', 'income', 'TrendingUp', '#8b5cf6', 0),
-  (NULL, 'Hadiah', 'income', 'Gift', '#ec4899', 0),
-  (NULL, 'Bonus', 'income', 'DollarSign', '#6366f1', 0),
-  
-  -- Expense Templates
-  (NULL, 'Makanan & Minuman', 'expense', 'Coffee', '#f59e0b', 1500000),
-  (NULL, 'Transportasi', 'expense', 'Car', '#3b82f6', 1000000),
-  (NULL, 'Belanja', 'expense', 'ShoppingBag', '#8b5cf6', 800000),
-  (NULL, 'Hiburan', 'expense', 'Film', '#ec4899', 500000),
-  (NULL, 'Rumah & Tagihan', 'expense', 'Home', '#ef4444', 2000000),
-  (NULL, 'Kesehatan', 'expense', 'Heart', '#f43f5e', 500000),
-  (NULL, 'Pendidikan', 'expense', 'BookOpen', '#06b6d4', 500000),
-  (NULL, 'Gadget', 'expense', 'Smartphone', '#64748b', 1000000),
-  (NULL, 'Lainnya', 'expense', 'Wallet', '#64748b', 500000)
+INSERT INTO public.categories (user_id, name, icon, color, budget) VALUES
+  -- Budget Categories
+  (NULL, 'Makanan & Minuman', 'Coffee', '#f59e0b', 1500000),
+  (NULL, 'Transportasi', 'Car', '#3b82f6', 1000000),
+  (NULL, 'Belanja', 'ShoppingBag', '#8b5cf6', 800000),
+  (NULL, 'Hiburan', 'Film', '#ec4899', 500000),
+  (NULL, 'Rumah & Tagihan', 'Home', '#ef4444', 2000000),
+  (NULL, 'Kesehatan', 'Heart', '#f43f5e', 500000),
+  (NULL, 'Pendidikan', 'BookOpen', '#06b6d4', 500000),
+  (NULL, 'Gadget', 'Smartphone', '#64748b', 1000000),
+  (NULL, 'Lainnya', 'Wallet', '#64748b', 500000)
 ON CONFLICT DO NOTHING;
 
 -- =====================================================
@@ -236,7 +214,6 @@ ON CONFLICT DO NOTHING;
 --   .from('categories')
 --   .insert({
 --     name: 'Transportasi',
---     type: 'expense',
 --     icon: 'Car',
 --     color: '#3b82f6',
 --     budget: 1000000
@@ -257,8 +234,7 @@ ON CONFLICT DO NOTHING;
 -- Frontend code:
 -- const { data, error } = await supabase
 --   .rpc('get_categories_with_budget', {
---     p_user_id: user.id,
---     p_type: 'expense'  // or null for all
+--     p_user_id: user.id
 --   });
 
 -- 4. DELETE CATEGORY
@@ -291,7 +267,7 @@ ON CONFLICT DO NOTHING;
 -- MIGRATION COMPLETED ✅
 -- =====================================================
 -- Features implemented:
--- ✅ User-specific categories with RLS
+-- ✅ User-specific budget categories with RLS
 -- ✅ Custom icons and colors
 -- ✅ Budget tracking per category
 -- ✅ Transaction counting

@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle, Sparkles } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
@@ -56,20 +56,19 @@ const COLORS = [
 export default function CategoryModal({ isOpen, onClose, onSubmit, category, mode }: CategoryModalProps) {
   const [formData, setFormData] = useState({
     name: '',
-    type: 'expense' as 'income' | 'expense',
     icon: 'ShoppingCart',
     color: '#1a237e',
     budget: 0
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Initialize form data when category changes
   useEffect(() => {
     if (category && mode === 'edit') {
       setFormData({
         name: category.name,
-        type: category.type,
         icon: category.icon,
         color: category.color,
         budget: Number(category.budget)
@@ -77,16 +76,29 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     } else {
       setFormData({
         name: '',
-        type: 'expense',
         icon: 'ShoppingCart',
         color: '#1a237e',
         budget: 0
       });
     }
-  }, [category, mode]);
+    setError(null);
+  }, [category, mode, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validation
+    if (!formData.name.trim()) {
+      setError('Category name is required');
+      return;
+    }
+    
+    if (formData.budget < 0) {
+      setError('Budget cannot be negative');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -96,8 +108,14 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
         setSuccess(false);
         onClose();
       }, 1000);
-    } catch (error) {
-      console.error('Error submitting category:', error);
+    } catch (err: any) {
+      console.error('Error submitting category:', err);
+      // Extract meaningful error message
+      const errorMessage = err?.message || 
+                          err?.error?.message || 
+                          err?.toString() || 
+                          'Failed to save category. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -137,7 +155,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
           </div>
 
           {/* Content Container */}
-          <div className="px-6 pb-9">
+          <div className="px-6 pb-28">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[22px] font-black text-gray-900" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -168,6 +186,23 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
               )}
             </AnimatePresence>
 
+            {/* Error message */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-5 p-3.5 bg-red-500 rounded-2xl flex items-center gap-3 shadow-lg shadow-red-500/25"
+                >
+                  <X className="w-5 h-5 text-white flex-shrink-0" />
+                  <span className="text-sm font-bold text-white">
+                    {error}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
               
@@ -190,10 +225,8 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                     {formData.name || 'Dining Out'}
                   </div>
                   <div className="text-[13px] text-gray-400 font-medium">
-                    {formData.type === 'expense' && formData.budget > 0 
+                    {formData.budget > 0 
                       ? `Monthly Budget: Rp${formData.budget.toLocaleString('id-ID')}`
-                      : formData.type === 'income' 
-                      ? 'Income Category'
                       : 'Monthly Budget: Rp0'
                     }
                   </div>
@@ -215,59 +248,31 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                 />
               </div>
 
-              {/* Type Selection */}
+              {/* Monthly Budget */}
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Type
+                  Monthly Budget
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'expense' })}
-                    className={`px-4 py-3.5 rounded-2xl font-bold text-sm transition-all ${
-                      formData.type === 'expense'
-                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                        : 'bg-gray-50 text-gray-600'
-                    }`}
-                  >
-                    💸 Expense
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'income' })}
-                    className={`px-4 py-3.5 rounded-2xl font-bold text-sm transition-all ${
-                      formData.type === 'income'
-                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
-                        : 'bg-gray-50 text-gray-600'
-                    }`}
-                  >
-                    💰 Income
-                  </button>
+                <div className="relative">
+                  <span className="absolute left-[18px] top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
+                    Rp
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="10000"
+                    value={formData.budget || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Prevent leading zeros
+                      const numValue = value === '' ? 0 : parseInt(value, 10);
+                      setFormData({ ...formData, budget: isNaN(numValue) ? 0 : numValue });
+                    }}
+                    placeholder="0"
+                    className="w-full pl-12 pr-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none font-bold text-gray-900 text-base placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
+                  />
                 </div>
               </div>
-
-              {/* Budget - only for expense */}
-              {formData.type === 'expense' && (
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                    Monthly Budget
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-[18px] top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
-                      Rp
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="10000"
-                      value={formData.budget}
-                      onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
-                      placeholder="0"
-                      className="w-full pl-12 pr-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none font-bold text-gray-900 text-base placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Select Icon */}
               <div>
@@ -279,35 +284,40 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                     {ICONS.length} Icons
                   </span>
                 </div>
-                <div 
-                  className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1"
-                  style={{ 
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                    WebkitOverflowScrolling: 'touch'
-                  }}
-                >
-                  {ICONS.map((iconName) => {
-                    const IconComponent = getIconComponent(iconName);
-                    const isSelected = formData.icon === iconName;
-                    return (
-                      <button
-                        key={iconName}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, icon: iconName })}
-                        className={`flex-shrink-0 w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all ${
-                          isSelected
-                            ? 'bg-gray-100 border-2 border-blue-900'
-                            : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
-                        }`}
-                      >
-                        <IconComponent 
-                          className={`w-[22px] h-[22px] ${isSelected ? 'text-blue-900' : 'text-gray-600'}`}
-                          strokeWidth={1.8}
-                        />
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  {/* Scroll fade hint - right side */}
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 rounded-r-2xl" />
+                  
+                  <div 
+                    className="grid grid-rows-3 grid-flow-col gap-2.5 overflow-x-auto pb-2 -mx-1 px-1"
+                    style={{ 
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none',
+                      WebkitOverflowScrolling: 'touch'
+                    }}
+                  >
+                    {ICONS.map((iconName) => {
+                      const IconComponent = getIconComponent(iconName);
+                      const isSelected = formData.icon === iconName;
+                      return (
+                        <button
+                          key={iconName}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, icon: iconName })}
+                          className={`flex-shrink-0 w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-gray-100 border-2 border-blue-900'
+                              : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                          }`}
+                        >
+                          <IconComponent 
+                            className={`w-[22px] h-[22px] ${isSelected ? 'text-blue-900' : 'text-gray-600'}`}
+                            strokeWidth={1.8}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -334,13 +344,6 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                       />
                     );
                   })}
-                  {/* Custom color picker - optional */}
-                  <button
-                    type="button"
-                    className="w-[46px] h-[46px] rounded-full bg-gray-50 border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-all"
-                  >
-                    <Sparkles className="w-[18px] h-[18px] text-gray-400" strokeWidth={1.8} />
-                  </button>
                 </div>
               </div>
 

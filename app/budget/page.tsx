@@ -129,30 +129,43 @@ export default function BudgetPage() {
 
       {/* CATEGORY CARDS */}
       <div className="px-5 space-y-3">
-        {categories.map((category) => {
-          const Icon = getIconComponent(category.icon);
-          
-          return (
-            <div key={category.id} onClick={() => handleEditClick(category)} className="cursor-pointer">
-              <BudgetCategoryCard
-                name={category.name}
-                icon={Icon}
-                iconColor={category.color}
-                iconBgColor={`${category.color}20`}
-                transactionCount={Number(category.transaction_count) || 0}
-                spent={Number(category.total_spent) || 0}
-                limit={Number(category.budget) || 0}
-                isOverBudget={Number(category.remaining_budget) < 0}
-              />
+        {categories.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-12 px-5">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Icons.Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
             </div>
-          );
-        })}
+            <h3 className="text-lg font-bold text-gray-900 mb-2">No categories yet</h3>
+            <p className="text-sm text-gray-500 text-center max-w-[280px]">
+              Create your first budget category to start tracking your expenses
+            </p>
+          </div>
+        ) : (
+          categories.map((category) => {
+            const Icon = getIconComponent(category.icon);
+            
+            return (
+              <div key={category.id} onClick={() => handleEditClick(category)} className="cursor-pointer">
+                <BudgetCategoryCard
+                  name={category.name}
+                  icon={Icon}
+                  iconColor={category.color}
+                  iconBgColor={`${category.color}20`}
+                  transactionCount={Number(category.transaction_count) || 0}
+                  spent={Number(category.total_spent) || 0}
+                  limit={Number(category.budget) || 0}
+                  isOverBudget={Number(category.remaining_budget) < 0}
+                />
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* CREATE NEW CATEGORY BUTTON */}
       <button 
         onClick={handleCreateClick}
-        className="flex items-center justify-center gap-2 bg-green-500 text-white rounded-full py-4 px-7 mx-5 mt-4 mb-6 font-bold text-sm shadow-lg shadow-green-500/35 active:scale-98 transition-transform hover:bg-green-600"
+        className="flex items-center justify-center gap-2 bg-blue-900 text-white rounded-full py-4 px-7 mx-5 mt-4 mb-6 font-bold text-sm shadow-lg shadow-blue-900/35 active:scale-98 transition-transform hover:bg-blue-800"
       >
         <Plus className="w-5 h-5" strokeWidth={2.5} />
         Buat Kategori Budget Baru
