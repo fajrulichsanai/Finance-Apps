@@ -68,21 +68,58 @@ class CategoryService {
    */
   async getCategoriesWithBudget() {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      // Get authenticated user
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('[getCategoriesWithBudget] Auth error:', {
+          message: authError.message,
+          status: authError.status,
+          name: authError.name
+        });
+        throw new Error(`Authentication failed: ${authError.message}`);
+      }
+      if (!user) {
+        console.error('[getCategoriesWithBudget] No user found');
+        throw new Error('User not authenticated');
+      }
+
+      console.log('[getCategoriesWithBudget] Calling RPC for user:', user.id);
 
       const { data, error } = await this.supabase
         .rpc('get_categories_with_budget', {
           p_user_id: user.id
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[getCategoriesWithBudget] RPC error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw new Error(`Failed to fetch categories with budget: ${error.message}${error.details ? ' - ' + error.details : ''}`);
+      }
 
+      console.log('[getCategoriesWithBudget] RPC success, rows:', (data || []).length);
+
+      // Handle empty data - this is valid (no categories yet)
+      if (!data || data.length === 0) {
+        console.log('[getCategoriesWithBudget] No categories found - returning empty array');
+        return [];
+      }
+
+      console.log('[getCategoriesWithBudget] Processed results:', data.length, 'categories');
       return data as CategoryWithBudget[];
 
-    } catch (error) {
-      console.error('Error fetching categories with budget:', error);
-      throw error;
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Unknown error';
+      const errorDetails = {
+        name: error?.name,
+        message: errorMsg,
+        stack: error?.stack?.split('\n')[0]
+      };
+      console.error('[getCategoriesWithBudget] Caught error:', errorDetails);
+      throw new Error(errorMsg);
     }
   }
 

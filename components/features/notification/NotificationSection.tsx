@@ -1,4 +1,4 @@
-import { NotificationGroup } from '@/lib/constants/notification';
+import { NotificationGroup } from '@/lib/services/notifications';
 import NotificationCard from './NotificationCard';
 
 interface NotificationSectionProps {

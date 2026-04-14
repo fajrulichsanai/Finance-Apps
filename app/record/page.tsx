@@ -49,11 +49,11 @@ export default function RecordPage() {
   const filteredCategories = categories.filter(cat => cat.type === formData.type);
 
   const handleSave = async () => {
+    // Inline validation (no popup for validation errors)
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
-      setShowErrorPopup(true);
-      return;
+      return; // Show inline error, don't open popup
     }
 
     try {
@@ -66,6 +66,7 @@ export default function RecordPage() {
       resetForm();
       setShowSuccessPopup(true);
     } catch (err) {
+      // Only show popup for server/API errors
       const errorMsg = (err as Error).message || 'Gagal menyimpan transaksi';
       setError(errorMsg);
       setShowErrorPopup(true);
@@ -106,10 +107,15 @@ export default function RecordPage() {
         {/* Note Input */}
         <NoteInput value={formData.note} onChange={updateNote} />
 
-        {/* Error Message */}
-        {error && (
-          <div className="mx-5 mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
-            <p className="text-sm text-red-700 font-medium">{error}</p>
+        {/* Inline Error Message (Validation Errors) */}
+        {error && !showErrorPopup && (
+          <div className="mx-5 mb-4 p-3.5 bg-red-50 border-l-4 border-red-500 rounded-lg">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+            </div>
           </div>
         )}
 

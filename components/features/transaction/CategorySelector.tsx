@@ -22,6 +22,9 @@ export default function CategorySelector({
   onSelect,
   loading = false,
 }: CategorySelectorProps) {
+  // Handle many categories (>9) with scrollable grid
+  const hasManyCats = categories.length > 9;
+  
   if (loading) {
     return (
       <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-sm animate-pulse">
@@ -50,9 +53,11 @@ export default function CategorySelector({
   return (
     <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-sm">
       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">
-        Pilih Kategori
+        Pilih Kategori {hasManyCats && <span className="text-slate-300">({categories.length})</span>}
       </p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className={`grid grid-cols-3 gap-3 ${
+        hasManyCats ? 'max-h-[280px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100' : ''
+      }`}>
         {categories.map(category => {
           const Icon = getIconComponent(category.icon);
           const isSelected = selectedId === category.id;

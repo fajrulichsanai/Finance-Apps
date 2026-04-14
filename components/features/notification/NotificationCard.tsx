@@ -1,12 +1,26 @@
-import { Notification, NOTIFICATION_STYLES } from '@/lib/constants/notification';
+import { Notification } from '@/lib/services/notifications';
+import { NOTIFICATION_STYLES } from '@/lib/constants/notification';
 import NotificationIcon from './NotificationIcon';
 
 interface NotificationCardProps {
   notification: Notification;
 }
 
+function formatTimestamp(createdAt: string): string {
+  const date = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+}
+
 export default function NotificationCard({ notification }: NotificationCardProps) {
-  const { type, title, message, timestamp, isRead, actionLabel } = notification;
+  const { type, title, message, created_at, is_read, action_label } = notification;
+  const timestamp = formatTimestamp(created_at);
 
   // Insight card has special styling
   if (type === 'insight') {
@@ -19,9 +33,9 @@ export default function NotificationCard({ notification }: NotificationCardProps
         <div className="absolute right-7 -bottom-7 w-[70px] h-[70px] rounded-full bg-white/[0.04]" />
         <p className="text-[15px] font-bold text-white mb-1 relative z-10">{title}</p>
         <p className="text-xs text-white/70 mb-3.5 leading-relaxed relative z-10">{message}</p>
-        {actionLabel && (
+        {action_label && (
           <button className="bg-[#7fe87a] border-none rounded-[20px] px-5 py-2 text-xs font-bold text-[#1a4a18] cursor-pointer tracking-wide relative z-10">
-            {actionLabel}
+            {action_label}
           </button>
         )}
       </div>
@@ -43,9 +57,9 @@ export default function NotificationCard({ notification }: NotificationCardProps
           </span>
           <div className="flex items-center gap-1 whitespace-nowrap ml-2 mt-0.5">
             <span className="text-[11px] text-gray-300 leading-tight">
-              {timestamp.split(' ').join('\n')}
+              {timestamp}
             </span>
-            {!isRead && (
+            {!is_read && (
               <div className="w-2 h-2 rounded-full bg-[#3a3a9c] ml-0.5 -mt-2.5" />
             )}
           </div>

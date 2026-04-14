@@ -123,9 +123,16 @@ export function useCategoryBreakdown(
       setError(null);
       const breakdown = await statisticsService.getCategoryBreakdown(type, startDate, endDate);
       setData(breakdown);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error fetching category breakdown:', err);
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Failed to fetch category breakdown';
+      const errorObj = new Error(errorMessage);
+      setError(errorObj);
+      console.error('[useCategoryBreakdown] Error:', {
+        message: errorMessage,
+        type,
+        startDate,
+        endDate
+      });
     } finally {
       setLoading(false);
     }

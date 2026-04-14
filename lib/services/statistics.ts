@@ -180,8 +180,27 @@ class StatisticsService {
     endDate?: string
   ): Promise<CategoryBreakdown[]> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      // Get authenticated user
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('[getCategoryBreakdown] Auth error:', {
+          message: authError.message,
+          status: authError.status,
+          name: authError.name
+        });
+        throw new Error(`Authentication failed: ${authError.message}`);
+      }
+      if (!user) {
+        console.error('[getCategoryBreakdown] No user found');
+        throw new Error('User not authenticated');
+      }
+
+      console.log('[getCategoryBreakdown] Calling RPC with params:', {
+        user_id: user.id,
+        type,
+        start_date: startDate || 'null',
+        end_date: endDate || 'null'
+      });
 
       const { data, error } = await this.supabase.rpc('get_category_breakdown', {
         p_user_id: user.id,
@@ -190,19 +209,44 @@ class StatisticsService {
         p_end_date: endDate || null
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[getCategoryBreakdown] RPC error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw new Error(`Failed to fetch category breakdown: ${error.message}${error.details ? ' - ' + error.details : ''}`);
+      }
 
-      const total = (data || []).reduce((sum: number, cat: any) => sum + Number(cat.total_amount), 0);
+      console.log('[getCategoryBreakdown] RPC success, rows:', (data || []).length);
 
-      return (data || []).map((cat: any) => ({
+      // Handle empty data - this is valid (no transactions yet)
+      if (!data || data.length === 0) {
+        console.log('[getCategoryBreakdown] No data found - returning empty array');
+        return [];
+      }
+
+      const total = data.reduce((sum: number, cat: any) => sum + Number(cat.total_amount), 0);
+
+      const result = data.map((cat: any) => ({
         ...cat,
         total_amount: Number(cat.total_amount),
         percentage: total > 0 ? (Number(cat.total_amount) / total) * 100 : 0
       }));
 
-    } catch (error) {
-      console.error('Error fetching category breakdown:', error);
-      throw error;
+      console.log('[getCategoryBreakdown] Processed results:', result.length, 'categories');
+      return result;
+
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Unknown error';
+      const errorDetails = {
+        name: error?.name,
+        message: errorMsg,
+        stack: error?.stack?.split('\n')[0]
+      };
+      console.error('[getCategoryBreakdown] Caught error:', errorDetails);
+      throw new Error(errorMsg);
     }
   }
 

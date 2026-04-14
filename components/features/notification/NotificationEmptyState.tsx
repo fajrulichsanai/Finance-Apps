@@ -11,7 +11,7 @@ export default function NotificationEmptyState() {
         No Notifications
       </h3>
       <p className="text-sm text-gray-400 text-center max-w-xs">
-        You're all caught up! We'll notify you when there's something new.
+        You&apos;re all caught up! We&apos;ll notify you when there&apos;s something new.
       </p>
     </div>
   );

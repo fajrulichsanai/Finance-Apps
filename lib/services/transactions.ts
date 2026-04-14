@@ -12,7 +12,7 @@ export interface Transaction {
   category_id: string | null;
   type: 'income' | 'expense';
   amount: number;
-  description: string;
+  description?: string | null; // Optional - can be empty
   note?: string;
   transaction_date: string; // ISO date string
   created_at: string;
@@ -24,10 +24,10 @@ export interface Transaction {
 }
 
 export interface CreateTransactionInput {
-  category_id: string | null;
+  category_id?: string | null; // Optional - income doesn't require category
   type: 'income' | 'expense';
   amount: number;
-  description: string;
+  description?: string; // Optional - can be empty
   note?: string;
   transaction_date?: string; // ISO date, defaults to today
 }
@@ -151,22 +151,45 @@ class TransactionService {
   async createTransaction(input: CreateTransactionInput) {
     try {
       // Get current user
-      const { data: { user } } = await this.supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('[createTransaction] Auth error:', authError.message);
+        throw new Error(`Authentication failed: ${authError.message}`);
+      }
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      console.log('[createTransaction] Validating input:', { type: input.type, has_category: !!input.category_id });
 
       // Validate amount
-      if (input.amount <= 0) {
+      if (!input.amount || input.amount <= 0) {
         throw new Error('Amount must be greater than 0');
       }
+
+      // Validate type
+      if (!input.type || !['income', 'expense'].includes(input.type)) {
+        throw new Error('Transaction type must be either "income" or "expense"');
+      }
+
+      // Validate category for expenses
+      if (input.type === 'expense' && !input.category_id) {
+        throw new Error('Category is required for expense transactions');
+      }
+
+      // Description is now optional - can be empty string
+      const description = input.description?.trim() || '';
+
+      console.log('[createTransaction] Inserting transaction...');
 
       const { data, error } = await this.supabase
         .from('transactions')
         .insert({
           user_id: user.id,
-          category_id: input.category_id,
+          category_id: input.category_id || null,
           type: input.type,
           amount: input.amount,
-          description: input.description,
+          description: description,
           note: input.note || null,
           transaction_date: input.transaction_date || new Date().toISOString().split('T')[0]
         })
@@ -180,7 +203,17 @@ class TransactionService {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[createTransaction] Database error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw new Error(`Failed to create transaction: ${error.message}`);
+      }
+
+      console.log('[createTransaction] Transaction created:', data.id);
 
       return {
         ...data,
@@ -190,9 +223,10 @@ class TransactionService {
         category: undefined
       } as Transaction;
 
-    } catch (error) {
-      console.error('Error creating transaction:', error);
-      throw error;
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Unknown error occurred';
+      console.error('[createTransaction] Error:', errorMsg);
+      throw new Error(errorMsg);
     }
   }
 

@@ -70,9 +70,14 @@ export function useCategoriesWithBudget() {
       setError(null);
       const data = await categoryService.getCategoriesWithBudget();
       setCategories(data);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error fetching categories with budget:', err);
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Failed to fetch categories with budget';
+      const errorObj = new Error(errorMessage);
+      setError(errorObj);
+      console.error('[useCategoriesWithBudget] Error:', {
+        message: errorMessage,
+        original: err
+      });
     } finally {
       setLoading(false);
     }

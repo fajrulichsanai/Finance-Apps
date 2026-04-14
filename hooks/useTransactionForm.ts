@@ -65,9 +65,12 @@ export function useTransactionForm() {
   }, []);
 
   const validateForm = useCallback((): string | null => {
-    if (formData.amount <= 0) return 'Amount must be greater than 0';
-    if (!formData.category_id) return 'Please select a category';
-    if (!formData.description.trim()) return 'Description is required';
+    if (formData.amount <= 0) return 'Jumlah harus lebih dari 0';
+    // Category required only for expense
+    if (formData.type === 'expense' && !formData.category_id) {
+      return 'Pilih kategori untuk pengeluaran';
+    }
+    // Description no longer required
     return null;
   }, [formData]);
 
@@ -85,14 +88,20 @@ export function useTransactionForm() {
   }, []);
 
   const prepareSubmitData = useCallback((): CreateTransactionInput => {
-    return {
+    const data: CreateTransactionInput = {
       type: formData.type,
       amount: formData.amount,
-      category_id: formData.category_id!,
-      description: formData.description,
+      description: formData.description || `${formData.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} ${new Date().toLocaleDateString('id-ID')}`,
       note: formData.note,
       transaction_date: formData.transaction_date,
     };
+    
+    // Include category only if selected (required for expense)
+    if (formData.category_id) {
+      data.category_id = formData.category_id;
+    }
+    
+    return data;
   }, [formData]);
 
   return {

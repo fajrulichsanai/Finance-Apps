@@ -23,7 +23,7 @@ export default function DashboardPage() {
   // Data hooks
   const { summary: balanceSummary, loading: balanceLoading } = useBalanceSummary();
   const { summary: monthSummary } = useCurrentMonthSummary();
-  const { data: categoryData } = useCategoryBreakdown('expense');
+  const { data: categoryData, loading: categoryLoading, error: categoryError } = useCategoryBreakdown('expense');
   const { transactions, loading: transactionsLoading } = useRecentTransactions(RECENT_TRANSACTIONS_LIMIT);
 
   // Derived data
@@ -34,7 +34,8 @@ export default function DashboardPage() {
   );
   const healthStanding = getHealthStanding(healthScore);
 
-  const budgetCategories = categoryData.slice(0, TOP_BUDGET_CATEGORIES).map(cat => {
+  // Budget categories with error handling
+  const budgetCategories = !categoryError ? categoryData.slice(0, TOP_BUDGET_CATEGORIES).map(cat => {
     const limit = cat.total_amount * BUDGET_THRESHOLD.DEFAULT_MULTIPLIER;
     const percentage = (cat.total_amount / limit) * 100;
     return {
@@ -43,7 +44,7 @@ export default function DashboardPage() {
       limit,
       percentage,
     };
-  });
+  }) : [];
 
   if (loading || balanceLoading) {
     return (
@@ -69,7 +70,11 @@ export default function DashboardPage() {
             displayName={displayName}
           />
 
-          <BudgetOverviewCard categories={budgetCategories} />
+          <BudgetOverviewCard 
+            categories={budgetCategories} 
+            loading={categoryLoading}
+            error={categoryError}
+          />
 
           <AccountsGrid 
             cashBalance={balanceSummary?.balance || 0}

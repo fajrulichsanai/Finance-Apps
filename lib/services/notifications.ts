@@ -49,8 +49,22 @@ class NotificationService {
    */
   async getNotifications(filters: NotificationFilters = {}): Promise<Notification[]> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      // Get authenticated user
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('[getNotifications] Auth error:', {
+          message: authError.message,
+          status: authError.status,
+          name: authError.name
+        });
+        throw new Error(`Authentication failed: ${authError.message}`);
+      }
+      if (!user) {
+        console.error('[getNotifications] No user found');
+        throw new Error('User not authenticated');
+      }
+
+      console.log('[getNotifications] Fetching notifications for user:', user.id, 'with filters:', filters);
 
       let query = this.supabase
         .from('notifications')
@@ -77,13 +91,27 @@ class NotificationService {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('[getNotifications] Query error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw new Error(`Failed to fetch notifications: ${error.message}`);
+      }
+
+      console.log('[getNotifications] Success:', (data || []).length, 'notifications found');
 
       return (data || []) as Notification[];
 
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      throw error;
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Unknown error';
+      console.error('[getNotifications] Caught error:', {
+        message: errorMsg,
+        name: error?.name
+      });
+      throw new Error(errorMsg);
     }
   }
 
