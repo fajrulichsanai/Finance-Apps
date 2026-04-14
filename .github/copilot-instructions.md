@@ -144,6 +144,16 @@ npm run build
 npx tsc --noEmit
 ```
 
+## Custom Agents
+
+Use specialized agents for specific workflows:
+
+- **Fullstack Engineer**: Building complete features end-to-end, implementing fullstack workflows, creating new pages with backend integration, optimizing application architecture, enforcing project structure, designing scalable systems
+- **Next.js Auditor**: Refactoring code, auditing code quality, reviewing project structure, cleaning messy code, improving maintainability, detecting tech debt, standardizing components
+- **Supabase Backend Engineer**: Designing backend, creating database schema, generating SQL migrations, implementing RLS policies, optimizing Supabase queries
+- **Product Thinker**: Analyzing product features, evaluating UX decisions, identifying user pain points, validating feature ideas, prioritizing product roadmap, conducting user research analysis, reviewing user flows
+- **Explore**: Fast read-only codebase exploration and Q&A (specify thoroughness: quick/medium/thorough)
+
 ---
 
 **Philosophy**: Build like a startup engineer with limited budget. Every query counts. Optimize for current free tier, design for future scale.
