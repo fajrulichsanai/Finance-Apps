@@ -67,7 +67,7 @@ export default function TransactionModal({
       setFormData({
         type: editTransaction.type,
         amount: editTransaction.amount,
-        description: editTransaction.description,
+        description: editTransaction.description ?? '',
         category_id: editTransaction.category_id,
         note: editTransaction.note || '',
         transaction_date: editTransaction.transaction_date
@@ -79,7 +79,7 @@ export default function TransactionModal({
     e.preventDefault();
     
     // Validation
-    if (!formData.description.trim()) {
+    if (!(formData.description ?? '').trim()) {
       setError('Deskripsi harus diisi');
       return;
     }
