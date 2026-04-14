@@ -183,7 +183,7 @@ export async function GET() {
   // Calculate daily summary
   // Send push to each user
 
-  const users = []; // fetch from DB
+  const users: Array<{ id: string; todayExpense: number }> = []; // fetch from DB
   
   for (const user of users) {
     await fetch('/api/push/send', {
