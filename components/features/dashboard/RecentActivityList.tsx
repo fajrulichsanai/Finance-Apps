@@ -42,7 +42,7 @@ export const RecentActivityList: React.FC<RecentActivityListProps> = ({ transact
               <div className="flex-1">
                 <div className="text-[13px] font-bold text-[#0d0d2b]">{tx.description}</div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wide mt-0.5">
-                  {tx.category_name || 'Uncategorized'}
+                  {tx.type === 'income' ? 'Income' : (tx.category_name || 'Uncategorized')}
                 </div>
               </div>
               <div className={`text-sm font-bold ${tx.type === 'income' ? 'text-[#1a9e6e]' : 'text-[#e74c3c]'}`}>

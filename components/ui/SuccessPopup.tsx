@@ -12,7 +12,7 @@ export interface SuccessPopupProps {
 export const SuccessPopup: React.FC<SuccessPopupProps> = ({
   title = "Transaction Saved Successfully!",
   message = "Your balance has been updated in real-time.",
-  status = "Confirmed",
+  status,
   transactionId,
   onDone,
   isOpen
@@ -40,12 +40,12 @@ export const SuccessPopup: React.FC<SuccessPopupProps> = ({
 
         {/* Message */}
         {message && (
-          <p className="text-sm font-medium text-slate-600 text-center mb-4 leading-relaxed">
+          <p className="text-sm font-medium text-slate-600 text-center mb-6 leading-relaxed">
             {message}
           </p>
         )}
 
-        {/* Status Row */}
+        {/* Status Row - Only show if explicitly provided */}
         {(status || transactionId) && (
           <div className="flex gap-2.5 bg-slate-50 rounded-2xl p-3.5 mb-6">
             {status && (

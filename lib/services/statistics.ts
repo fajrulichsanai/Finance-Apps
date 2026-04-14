@@ -214,9 +214,13 @@ class StatisticsService {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          code: error.code
+          code: error.code,
+          raw: JSON.stringify(error, null, 2)
         });
-        throw new Error(`Failed to fetch category breakdown: ${error.message}${error.details ? ' - ' + error.details : ''}`);
+        const errorMessage = error.message || 'Unknown RPC error';
+        const errorDetails = error.details || '';
+        const errorHint = error.hint ? ` (Hint: ${error.hint})` : '';
+        throw new Error(`Failed to fetch category breakdown: ${errorMessage}${errorDetails ? ' - ' + errorDetails : ''}${errorHint}`);
       }
 
       console.log('[getCategoryBreakdown] RPC success, rows:', (data || []).length);

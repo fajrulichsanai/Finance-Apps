@@ -41,8 +41,8 @@ export default function ActivityPage() {
 
       const activityTxn: ActivityTransaction = {
         id: txn.id,
-        name: txn.description,
-        category: txn.category_name || 'Tanpa Kategori',
+        name: txn.description || 'No description',
+        category: txn.type === 'income' ? 'Income' : (txn.category_name || 'Tanpa Kategori'),
         description: txn.note || '',
         amount: txn.amount,
         time: txnTime,

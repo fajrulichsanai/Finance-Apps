@@ -90,13 +90,15 @@ export default function RecordPage() {
           type={formData.type}
         />
 
-        {/* Category Selector with Dynamic Icons */}
-        <CategorySelector
-          categories={filteredCategories}
-          selectedId={formData.category_id}
-          onSelect={updateCategory}
-          loading={categoriesLoading}
-        />
+        {/* Category Selector - Only show for expense transactions */}
+        {formData.type === 'expense' && (
+          <CategorySelector
+            categories={filteredCategories}
+            selectedId={formData.category_id}
+            onSelect={updateCategory}
+            loading={categoriesLoading}
+          />
+        )}
 
         {/* Custom Date Picker */}
         <CustomDatePicker 
