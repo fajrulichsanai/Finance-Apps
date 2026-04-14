@@ -4,6 +4,11 @@ import { type NextRequest, NextResponse } from 'next/server'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
+  // Skip auth check for API routes (they handle auth themselves)
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next({ request })
+  }
+  
   // Public routes that don't require authentication
   const publicRoutes = ['/', '/register', '/auth/callback']
   const isPublicRoute = publicRoutes.includes(pathname)

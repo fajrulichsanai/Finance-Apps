@@ -14,6 +14,7 @@ import ProCard from '@/components/features/profile/ProCard';
 import DarkModeToggle from '@/components/features/profile/DarkModeToggle';
 import ProfileFooter from '@/components/features/profile/ProfileFooter';
 import Section from '@/components/features/profile/Section';
+import PushNotificationManager from '@/components/features/notification/PushNotificationManager';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -64,6 +65,14 @@ export default function ProfilePage() {
               <DarkModeToggle enabled={isDarkMode} onToggle={toggleDarkMode} />
             </div>
           </Section>
+          
+          {user && (
+            <Section label="Push Notifications">
+              <div className="bg-white rounded-[18px] shadow-sm p-5">
+                <PushNotificationManager userId={user.id} />
+              </div>
+            </Section>
+          )}
           
           <ProfileFooter onSignOut={handleSignOut} isSigningOut={isSigningOut} />
           
