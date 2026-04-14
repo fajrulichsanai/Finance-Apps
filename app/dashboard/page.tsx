@@ -16,6 +16,7 @@ import { MonthlyStatsCard } from '@/components/features/dashboard/MonthlyStatsCa
 import { RecentActivityList } from '@/components/features/dashboard/RecentActivityList';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
+import InstallPrompt from '@/components/shared/InstallPrompt';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -102,6 +103,9 @@ export default function DashboardPage() {
         </div>
 
         <BottomNav />
+        
+        {/* PWA Install Prompt */}
+        <InstallPrompt />
       </div>
     </div>
   );
