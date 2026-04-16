@@ -41,8 +41,8 @@ export default function ActivityPage() {
 
       const activityTxn: ActivityTransaction = {
         id: txn.id,
-        name: txn.description || 'No description',
-        category: txn.type === 'income' ? 'Income' : (txn.category_name || 'Tanpa Kategori'),
+        name: txn.description || 'Tidak ada deskripsi',
+        category: txn.type === 'income' ? 'Pemasukan' : (txn.category_name || 'Tanpa Kategori'),
         description: txn.note || '',
         amount: txn.amount,
         time: txnTime,
@@ -106,7 +106,20 @@ export default function ActivityPage() {
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-[18px] py-8">
-            <p className="text-center text-gray-500">Memuat transaksi...</p>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="bg-white rounded-lg p-4 shadow-sm animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                    </div>
+                    <div className="h-5 bg-gray-200 rounded w-16"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           <BottomNav />
         </div>

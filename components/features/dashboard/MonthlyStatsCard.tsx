@@ -27,7 +27,7 @@ export const MonthlyStatsCard: React.FC<MonthlyStatsCardProps> = ({ type, amount
         </div>
         <div className="flex-1">
           <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">
-            {isIncome ? 'Monthly Income' : 'Monthly Expenses'}
+            {isIncome ? 'Pemasukan Bulan Ini' : 'Pengeluaran Bulan Ini'}
           </div>
           <div className="text-2xl font-extrabold text-[#0d0d2b]">
             {formatIDR(amount)}

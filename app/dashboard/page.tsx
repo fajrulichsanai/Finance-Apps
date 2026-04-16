@@ -2,21 +2,22 @@
 
 import React from 'react';
 import { useAuth } from '@/providers/AuthProvider';
-import { useBalanceSummary, useCurrentMonthSummary, useCategoryBreakdown } from '@/lib/hooks/useStatistics';
+import { useBalanceSummary, useCurrentMonthSummary } from '@/lib/hooks/useStatistics';
 import { useRecentTransactions } from '@/lib/hooks/useTransactions';
+import { useCategoriesWithBudget } from '@/lib/hooks/useCategories';
 import { getDisplayName } from '@/lib/utils/user';
 import { calculateHealthScore, getHealthStanding } from '@/lib/utils/financial';
-import { BUDGET_THRESHOLD, RECENT_TRANSACTIONS_LIMIT, TOP_BUDGET_CATEGORIES } from '@/lib/constants/dashboard';
+import { RECENT_TRANSACTIONS_LIMIT, TOP_BUDGET_CATEGORIES } from '@/lib/constants/dashboard';
 import { HealthScoreCard } from '@/components/features/dashboard/HealthScoreCard';
 import { NetWorthCard } from '@/components/features/dashboard/NetWorthCard';
 import { BudgetOverviewCard } from '@/components/features/dashboard/BudgetOverviewCard';
-import { AccountsGrid } from '@/components/features/dashboard/AccountsGrid';
 import { AIInsightCard } from '@/components/features/dashboard/AIInsightCard';
 import { MonthlyStatsCard } from '@/components/features/dashboard/MonthlyStatsCard';
 import { RecentActivityList } from '@/components/features/dashboard/RecentActivityList';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 import InstallPrompt from '@/components/shared/InstallPrompt';
+import DashboardSkeleton from '@/components/features/dashboard/DashboardSkeleton';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -24,7 +25,7 @@ export default function DashboardPage() {
   // Data hooks
   const { summary: balanceSummary, loading: balanceLoading } = useBalanceSummary();
   const { summary: monthSummary } = useCurrentMonthSummary();
-  const { data: categoryData, loading: categoryLoading, error: categoryError } = useCategoryBreakdown('expense');
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategoriesWithBudget();
   const { transactions, loading: transactionsLoading } = useRecentTransactions(RECENT_TRANSACTIONS_LIMIT);
 
   // Derived data
@@ -35,27 +36,24 @@ export default function DashboardPage() {
   );
   const healthStanding = getHealthStanding(healthScore);
 
-  // Budget categories with error handling
-  const budgetCategories = !categoryError ? categoryData.slice(0, TOP_BUDGET_CATEGORIES).map(cat => {
-    const limit = cat.total_amount * BUDGET_THRESHOLD.DEFAULT_MULTIPLIER;
-    const percentage = (cat.total_amount / limit) * 100;
-    return {
-      name: cat.category_name,
-      spent: cat.total_amount,
-      limit,
-      percentage,
-    };
-  }) : [];
+  // Budget categories with actual limits from database
+  const budgetCategories = !categoriesError ? categories
+    .filter(cat => Number(cat.budget) > 0)
+    .slice(0, TOP_BUDGET_CATEGORIES)
+    .map(cat => {
+      const spent = Number(cat.total_spent) || 0;
+      const limit = Number(cat.budget) || 0;
+      const percentage = limit > 0 ? (spent / limit) * 100 : 0;
+      return {
+        name: cat.name,
+        spent,
+        limit,
+        percentage,
+      };
+    }) : [];
 
   if (loading || balanceLoading) {
-    return (
-      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#1a1a6e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#6b6b80]">Memuat...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -73,13 +71,8 @@ export default function DashboardPage() {
 
           <BudgetOverviewCard 
             categories={budgetCategories} 
-            loading={categoryLoading}
-            error={categoryError}
-          />
-
-          <AccountsGrid 
-            cashBalance={balanceSummary?.balance || 0}
-            bankBalance={0}
+            loading={categoriesLoading}
+            error={categoriesError}
           />
 
           <AIInsightCard />

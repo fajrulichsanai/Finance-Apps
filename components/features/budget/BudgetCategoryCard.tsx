@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Trash2 } from 'lucide-react';
 
 interface BudgetCategoryCardProps {
   name: string;
@@ -18,6 +18,8 @@ interface BudgetCategoryCardProps {
   spent: number;
   limit: number;
   isOverBudget?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function BudgetCategoryCard({
@@ -28,7 +30,9 @@ export default function BudgetCategoryCard({
   transactionCount,
   spent,
   limit,
-  isOverBudget = false
+  isOverBudget = false,
+  onEdit,
+  onDelete
 }: BudgetCategoryCardProps) {
   const percentage = limit > 0 ? (spent / limit) * 100 : 0;
   const isWarning = percentage >= 80 && percentage < 100;
@@ -57,6 +61,18 @@ export default function BudgetCategoryCard({
           <h3 className="font-bold text-gray-900">{name}</h3>
           <p className="text-xs text-gray-500">{transactionCount} transaksi</p>
         </div>
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+            title="Hapus kategori"
+          >
+            <Trash2 className="w-5 h-5" strokeWidth={1.5} />
+          </button>
+        )}
       </div>
 
       {/* Amounts */}
@@ -89,6 +105,10 @@ export default function BudgetCategoryCard({
 
       {/* Action Button */}
       <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit?.();
+        }}
         className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all active:scale-98 ${buttonStyle}`}
       >
         {isOverBudget ? 'Sesuaikan Budget' : 'Atur Budget'}

@@ -68,24 +68,26 @@ export default function NotificationPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f0] flex flex-col pb-20">
-      <NotificationHeader onMarkAllRead={handleMarkAllRead} />
+      <div className="w-full max-w-[430px] mx-auto flex flex-col flex-1">
+        <NotificationHeader onMarkAllRead={handleMarkAllRead} />
 
-      <div className="flex-1 overflow-y-auto px-3.5 pb-3.5">
-        {groups.length === 0 ? (
-          <NotificationEmptyState />
-        ) : (
-          <>
-            {groups.map((group) => (
-              <NotificationSection key={group.label} group={group} />
-            ))}
+        <div className="flex-1 overflow-y-auto px-3.5 pb-3.5">
+          {groups.length === 0 ? (
+            <NotificationEmptyState />
+          ) : (
+            <>
+              {groups.map((group) => (
+                <NotificationSection key={group.label} group={group} />
+              ))}
 
-            <div className="text-center py-2.5">
-              <button className="text-xs text-gray-400 tracking-wide hover:text-gray-600 transition-colors inline-flex items-center gap-1">
-                VIEW ARCHIVE <RotateCcw size={12} />
-              </button>
-            </div>
-          </>
-        )}
+              <div className="text-center py-2.5">
+                <button className="text-xs text-gray-400 tracking-wide hover:text-gray-600 transition-colors inline-flex items-center gap-1">
+                  VIEW ARCHIVE <RotateCcw size={12} />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

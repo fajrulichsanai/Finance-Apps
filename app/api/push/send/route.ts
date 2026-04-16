@@ -7,16 +7,21 @@ import { createClient } from '@supabase/supabase-js';
 // ============================================================
 
 // Only configure web-push if all required env vars are present
-if (
-  process.env.VAPID_EMAIL &&
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY &&
-  process.env.VAPID_PRIVATE_KEY
-) {
-  webpush.setVapidDetails(
-    process.env.VAPID_EMAIL,
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+// Wrap in try-catch to prevent build-time errors
+try {
+  if (
+    process.env.VAPID_EMAIL &&
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY &&
     process.env.VAPID_PRIVATE_KEY
-  );
+  ) {
+    webpush.setVapidDetails(
+      process.env.VAPID_EMAIL.trim(),
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.trim(),
+      process.env.VAPID_PRIVATE_KEY.trim()
+    );
+  }
+} catch (error) {
+  console.error('[Push API] VAPID configuration error:', error);
 }
 
 // ============================================================

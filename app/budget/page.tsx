@@ -27,7 +27,7 @@ export default function BudgetPage() {
     refresh 
   } = useExpenseBudgets();
 
-  const { createCategory, updateCategory } = useManageCategories();
+  const { createCategory, updateCategory, deleteCategory } = useManageCategories();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
@@ -37,7 +37,11 @@ export default function BudgetPage() {
   // Popup states
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleCreateClick = () => {
     setSelectedCategory(null);
@@ -75,6 +79,31 @@ export default function BudgetPage() {
     }
   };
 
+  const handleDeleteClick = (categoryId: string) => {
+    setDeleteTargetId(categoryId);
+    setShowConfirmDelete(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    
+    setDeleteLoading(true);
+    try {
+      await deleteCategory(deleteTargetId);
+      setShowConfirmDelete(false);
+      setDeleteTargetId(null);
+      await refresh();
+      setSuccessMessage('Kategori berhasil dihapus');
+      setShowSuccessPopup(true);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      setErrorMessage((error as Error).message || 'Gagal menghapus kategori');
+      setShowErrorPopup(true);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const toggleSort = () => {
     setSortOrder(prev => prev === 'habis-dulu' ? 'masih-ada-dulu' : 'habis-dulu');
   };
@@ -98,12 +127,37 @@ export default function BudgetPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pb-20">
-        <AppHeader />
-        <div className="animate-pulse p-5">
-          <div className="h-40 bg-gray-200 rounded-2xl mb-4" />
-          <div className="h-32 bg-gray-200 rounded-2xl mb-4" />
-          <div className="h-48 bg-gray-200 rounded-2xl" />
+      <div className="min-h-screen bg-gray-50 pb-24">
+        <div className="w-full max-w-[430px] mx-auto">
+          <AppHeader />
+          <div className="px-5 py-6 space-y-3">
+            {/* Title skeleton */}
+            <div className="h-8 bg-gray-200 rounded w-32 animate-pulse mb-4"></div>
+            {/* Budget Overview skeleton */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm space-y-3 animate-pulse">
+              <div className="h-6 bg-gray-200 rounded w-40"></div>
+              {[1, 2].map(i => (
+                <div key={i} className="space-y-2">
+                  <div className="h-2 bg-gray-200 rounded"></div>
+                  <div className="h-3 bg-gray-200 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+            {/* Category cards skeleton */}
+            {[1, 2].map(i => (
+              <div key={i} className="bg-white rounded-2xl p-4 shadow-sm animate-pulse">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-11 h-11 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                  </div>
+                </div>
+                <div className="h-2 bg-gray-200 rounded mb-3"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -137,67 +191,68 @@ export default function BudgetPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* GLOBAL HEADER */}
-      <AppHeader />
+      <div className="w-full max-w-[430px] mx-auto">
+        {/* GLOBAL HEADER */}
+        <AppHeader />
 
-      {/* PAGE TITLE */}
-      <div className="px-5 py-2">
-        <p className="text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1">
-          Portfolio Management
-        </p>
-        <h1 className="text-4xl font-black text-gray-900 leading-tight">
-          Budget Control
-        </h1>
-      </div>
+        {/* PAGE TITLE */}
+        <div className="px-5 py-2">
+          <p className="text-[10px] font-bold text-blue-900 uppercase tracking-widest mb-1">
+            Portfolio Management
+          </p>
+          <h1 className="text-4xl font-black text-gray-900 leading-tight">
+            Budget Control
+          </h1>
+        </div>
 
-      {/* BUDGET OVERVIEW */}
-      <BudgetOverview
-        totalSpent={totalSpent}
-        monthlyGoal={totalBudget}
-        remaining={totalRemaining}
-      />
+        {/* BUDGET OVERVIEW */}
+        <BudgetOverview
+          totalSpent={totalSpent}
+          monthlyGoal={totalBudget}
+          remaining={totalRemaining}
+        />
 
-      {/* UTILIZATION */}
-      <BudgetUtilization percentage={utilizationPercentage} />
+        {/* UTILIZATION */}
+        <BudgetUtilization percentage={utilizationPercentage} />
 
-      {/* CATEGORY LIMITS HEADER */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3">
-        <h2 className="text-xl font-extrabold text-gray-900">
-          Limit Kategori
-        </h2>
-        <button 
-          onClick={toggleSort}
-          className="flex items-center gap-1.5 p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition-colors active:scale-95"
-          title={sortOrder === 'habis-dulu' ? 'Urutkan: Habis Dulu' : 'Urutkan: Tersisa Dulu'}
-        >
-          {sortOrder === 'habis-dulu' ? (
-            <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
-          ) : (
-            <ArrowDown className="w-5 h-5" strokeWidth={2.5} />
-          )}
-        </button>
-      </div>
+        {/* CATEGORY LIMITS HEADER */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3">
+          <h2 className="text-xl font-extrabold text-gray-900">
+            Limit Kategori
+          </h2>
+          <button 
+            onClick={toggleSort}
+            className="flex items-center gap-1.5 p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition-colors active:scale-95"
+            title={sortOrder === 'habis-dulu' ? 'Urutkan: Habis Dulu' : 'Urutkan: Tersisa Dulu'}
+          >
+            {sortOrder === 'habis-dulu' ? (
+              <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
+            ) : (
+              <ArrowDown className="w-5 h-5" strokeWidth={2.5} />
+            )}
+          </button>
+        </div>
 
-      {/* CATEGORY CARDS */}
-      <div className="px-5 space-y-3">
-        {sortedCategories.length === 0 ? (
-          /* Empty State */
-          <div className="flex flex-col items-center justify-center py-12 px-5">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Icons.Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+        {/* CATEGORY CARDS */}
+        <div className="px-5 space-y-3">
+          {sortedCategories.length === 0 ? (
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center py-12 px-5">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Icons.Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Belum ada kategori</h3>
+              <p className="text-sm text-gray-500 text-center max-w-[280px]">
+                Buat kategori budget pertama untuk mulai melacak pengeluaran Anda
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Belum ada kategori</h3>
-            <p className="text-sm text-gray-500 text-center max-w-[280px]">
-              Buat kategori budget pertama untuk mulai melacak pengeluaran Anda
-            </p>
-          </div>
-        ) : (
-          sortedCategories.map((category) => {
-            const Icon = getIconComponent(category.icon);
-            
-            return (
-              <div key={category.id} onClick={() => handleEditClick(category)} className="cursor-pointer">
+          ) : (
+            sortedCategories.map((category) => {
+              const Icon = getIconComponent(category.icon);
+              
+              return (
                 <BudgetCategoryCard
+                  key={category.id}
                   name={category.name}
                   icon={Icon}
                   iconColor={category.color}
@@ -206,53 +261,85 @@ export default function BudgetPage() {
                   spent={Number(category.total_spent) || 0}
                   limit={Number(category.budget) || 0}
                   isOverBudget={Number(category.remaining_budget) < 0}
+                  onEdit={() => handleEditClick(category)}
+                  onDelete={() => handleDeleteClick(category.id)}
                 />
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
+
+        {/* CREATE NEW CATEGORY BUTTON */}
+        <div className="flex justify-center mt-4 mb-6">
+          <button 
+            onClick={handleCreateClick}
+            className="flex items-center justify-center gap-2 bg-blue-900 text-white rounded-full py-4 px-7 font-bold text-sm shadow-lg shadow-blue-900/35 active:scale-98 transition-transform hover:bg-blue-800"
+          >
+            <Plus className="w-5 h-5" strokeWidth={2.5} />
+            Buat Kategori Budget
+          </button>
+        </div>
+
+        {/* CATEGORY MODAL */}
+        <CategoryModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSubmit={handleSubmit}
+          category={selectedCategory}
+          mode={modalMode}
+        />
+
+        {/* SUCCESS POPUP */}
+        <SuccessPopup
+          isOpen={showSuccessPopup}
+          title={successMessage.includes('dihapus') ? 'Kategori Berhasil Dihapus!' : (modalMode === 'create' ? 'Kategori Berhasil Dibuat!' : 'Kategori Berhasil Diperbarui!')}
+          message={successMessage || 'Budget kategori telah disimpan dan siap digunakan.'}
+          status="Tersimpan"
+          onDone={() => {
+            setShowSuccessPopup(false);
+            setSuccessMessage('');
+          }}
+        />
+
+        {/* ERROR POPUP */}
+        <ErrorPopup
+          isOpen={showErrorPopup}
+          title="Gagal Menyimpan"
+          message={errorMessage}
+          onRetry={() => {
+            setShowErrorPopup(false);
+            setModalOpen(true);
+          }}
+          onCancel={() => setShowErrorPopup(false)}
+        />
       </div>
 
-      {/* CREATE NEW CATEGORY BUTTON */}
-      <div className="flex justify-center mt-4 mb-6">
-        <button 
-          onClick={handleCreateClick}
-          className="flex items-center justify-center gap-2 bg-blue-900 text-white rounded-full py-4 px-7 font-bold text-sm shadow-lg shadow-blue-900/35 active:scale-98 transition-transform hover:bg-blue-800"
-        >
-          <Plus className="w-5 h-5" strokeWidth={2.5} />
-          Buat Kategori Budget
-        </button>
-      </div>
-
-      {/* CATEGORY MODAL */}
-      <CategoryModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleSubmit}
-        category={selectedCategory}
-        mode={modalMode}
-      />
-
-      {/* SUCCESS POPUP */}
-      <SuccessPopup
-        isOpen={showSuccessPopup}
-        title={modalMode === 'create' ? 'Kategori Berhasil Dibuat!' : 'Kategori Berhasil Diperbarui!'}
-        message="Budget kategori telah disimpan dan siap digunakan."
-        status="Tersimpan"
-        onDone={() => setShowSuccessPopup(false)}
-      />
-
-      {/* ERROR POPUP */}
-      <ErrorPopup
-        isOpen={showErrorPopup}
-        title="Gagal Menyimpan"
-        message={errorMessage}
-        onRetry={() => {
-          setShowErrorPopup(false);
-          setModalOpen(true);
-        }}
-        onCancel={() => setShowErrorPopup(false)}
-      />
+      {/* DELETE CONFIRM POPUP */}
+      {showConfirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => !deleteLoading && setShowConfirmDelete(false)} />
+          <div className="relative bg-white rounded-3xl p-6 w-full max-w-[300px] shadow-2xl">
+            <h3 className="font-bold text-lg text-gray-900 mb-2">Hapus Kategori?</h3>
+            <p className="text-sm text-gray-500 mb-6">Tindakan ini tidak dapat dibatalkan. Semua transaksi di kategori ini akan tetap ada.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmDelete(false)}
+                disabled={deleteLoading}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-200 transition-all disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                disabled={deleteLoading}
+                className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition-all disabled:opacity-50"
+              >
+                {deleteLoading ? 'Menghapus...' : 'Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BOTTOM NAVIGATION */}
       <BottomNav />

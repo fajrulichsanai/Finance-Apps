@@ -21,7 +21,7 @@ export const BudgetOverviewCard: React.FC<BudgetOverviewCardProps> = ({ categori
     <div className="bg-white rounded-[18px] px-[18px] py-4 mb-3.5">
       <div className="flex justify-between items-center mb-3.5">
         <span className="text-[9px] font-bold text-gray-400 tracking-[0.8px] uppercase">
-          Budget Overview
+          Ikhtisar Anggaran
         </span>
         <span className="text-[11px] font-bold text-[#1a1a6e]">
           {formatMonthYear()}
@@ -51,7 +51,7 @@ export const BudgetOverviewCard: React.FC<BudgetOverviewCardProps> = ({ categori
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <p className="text-xs font-semibold text-red-600 mb-1">Gagal Memuat Budget</p>
+          <p className="text-xs font-semibold text-red-600 mb-1">Gagal Memuat Anggaran</p>
           <p className="text-[10px] text-gray-400">Silakan coba lagi nanti</p>
         </div>
       ) : categories.length > 0 ? (
@@ -75,14 +75,14 @@ export const BudgetOverviewCard: React.FC<BudgetOverviewCardProps> = ({ categori
               />
             </div>
             <div className="flex justify-between text-[10px] text-gray-400">
-              <span>{formatIDR(budget.spent)} spent</span>
-              <span>{formatIDR(budget.limit)} limit</span>
+              <span>{formatIDR(budget.spent)} terpakai</span>
+              <span>{formatIDR(budget.limit)} batas</span>
             </div>
           </div>
         ))
       ) : (
         <p className="text-sm text-gray-400 text-center py-4">
-          No budget data available
+          Tidak ada data anggaran
         </p>
       )}
     </div>
