@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
               Reset Password
             </h1>
             <p className="text-sm text-[#6b6b80] leading-relaxed">
-              Enter your new password below. Make sure it's at least 8 characters long.
+              Enter your new password below. Make sure it&apos;s at least 8 characters long.
             </p>
           </div>
 

@@ -238,6 +238,12 @@ class TransactionService {
    */
   async updateTransaction(id: string, input: UpdateTransactionInput) {
     try {
+      // Get current user for ownership verification
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
+
       // Validate amount if provided
       if (input.amount !== undefined && input.amount <= 0) {
         throw new Error('Amount must be greater than 0');
@@ -247,6 +253,7 @@ class TransactionService {
         .from('transactions')
         .update(input)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select(`
           *,
           category:categories(
@@ -258,6 +265,10 @@ class TransactionService {
         .single();
 
       if (error) throw error;
+      
+      if (!data) {
+        throw new Error('Transaction not found or you do not have permission to update it');
+      }
 
       return {
         ...data,
@@ -278,10 +289,17 @@ class TransactionService {
    */
   async deleteTransaction(id: string) {
     try {
+      // Get current user for ownership verification
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
+
       const { error } = await this.supabase
         .from('transactions')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 

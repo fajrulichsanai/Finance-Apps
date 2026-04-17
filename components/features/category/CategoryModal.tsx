@@ -31,27 +31,30 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize form data when category changes
+  // Initialize form data when category changes or modal opens
   useEffect(() => {
-    if (category && mode === 'edit') {
-      setFormData({
-        name: category.name,
-        icon: category.icon,
-        color: category.color,
-        type: category.type,
-        budget: Number(category.budget)
-      });
-    } else {
-      setFormData({
-        name: '',
-        icon: 'ShoppingCart',
-        color: '#1a237e',
-        type: 'expense',
-        budget: 0
-      });
+    if (isOpen) {
+      if (category && mode === 'edit') {
+        setFormData({
+          name: category.name,
+          icon: category.icon,
+          color: category.color,
+          type: category.type,
+          budget: Number(category.budget)
+        });
+      } else {
+        // Always reset to defaults for create mode
+        setFormData({
+          name: '',
+          icon: 'ShoppingCart',
+          color: '#1a237e',
+          type: 'expense',
+          budget: 0
+        });
+      }
     }
     setError(null);
-  }, [category, mode, isOpen]);
+  }, [isOpen, category, mode]); // Depend on isOpen to reset when modal closes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +105,14 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     try {
       await onSubmit(formData);
       // Parent component handles success popup and closing
+      // Reset form for next use
+      setFormData({
+        name: '',
+        icon: 'ShoppingCart',
+        color: '#1a237e',
+        type: 'expense',
+        budget: 0
+      });
     } catch (err: any) {
       console.error('Error submitting category:', err);
       // Extract meaningful error message

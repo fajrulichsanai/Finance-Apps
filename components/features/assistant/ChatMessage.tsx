@@ -22,8 +22,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         </div>
         <div 
           className="bg-white rounded-[4px_18px_18px_18px] px-4 py-3.5 text-sm leading-relaxed text-gray-700 shadow-md max-w-[90%]"
-          dangerouslySetInnerHTML={{ __html: message.content }}
-        />
+        >
+          {message.content}
+        </div>
       </div>
     );
   }

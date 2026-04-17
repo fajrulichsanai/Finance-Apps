@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import type { ChatMessage } from '@/lib/constants/assistant';
 
+const MAX_MESSAGES = 50; // Prevent memory leak in long chats
+
 export function useAssistantChat(initialMessages: ChatMessage[] = []) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [inputValue, setInputValue] = useState('');
@@ -15,7 +17,10 @@ export function useAssistantChat(initialMessages: ChatMessage[] = []) {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    setMessages(prev => {
+      const updated = [...prev, newMessage];
+      return updated.length > MAX_MESSAGES ? updated.slice(-MAX_MESSAGES) : updated;
+    });
     setInputValue('');
 
     // TODO: Replace with actual API call to AI service

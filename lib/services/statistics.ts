@@ -140,6 +140,12 @@ class StatisticsService {
       const monthlyMap = new Map<string, { income: number; expense: number }>();
 
       (data || []).forEach((tx: any) => {
+        const amount = Number(tx.amount);
+        if (!Number.isFinite(amount)) {
+          console.warn('[getMonthlyData] Invalid amount:', tx.amount);
+          return;
+        }
+
         const date = new Date(tx.transaction_date);
         const monthKey = date.toLocaleDateString('en-US', { month: 'short' });
         
@@ -149,9 +155,9 @@ class StatisticsService {
 
         const monthData = monthlyMap.get(monthKey)!;
         if (tx.type === 'income') {
-          monthData.income += Number(tx.amount);
+          monthData.income += amount;
         } else {
-          monthData.expense += Number(tx.amount);
+          monthData.expense += amount;
         }
       });
 

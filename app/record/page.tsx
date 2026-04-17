@@ -83,7 +83,7 @@ export default function RecordPage() {
   });
 
   // Refs for cleanup
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Cleanup on unmount

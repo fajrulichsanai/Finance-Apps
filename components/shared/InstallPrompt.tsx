@@ -19,11 +19,7 @@ export default function InstallPrompt() {
       return; // Already installed, don't show prompt
     }
 
-    // Check if user dismissed the prompt before
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-      return;
-    }
+    // Don't persist dismissal in localStorage - allow prompt re-trigger on session restart
 
     // Listen for beforeinstallprompt event
     const handler = (e: any) => {
@@ -61,8 +57,7 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Remember user dismissed (don't show again this session)
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    // Only hide for this session - allow re-prompt on next session
   };
 
   if (!showPrompt) return null;

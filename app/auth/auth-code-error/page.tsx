@@ -48,7 +48,7 @@ export default function AuthCodeErrorPage() {
             <p className="text-sm text-amber-800">
               <strong>What happened?</strong>
               <br />
-              The authentication code from your provider has expired or couldn't be verified. This
+              The authentication code from your provider has expired or couldn&apos;t be verified. This
               can happen if you took too long to complete the sign-in process.
             </p>
           </div>

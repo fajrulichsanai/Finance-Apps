@@ -110,7 +110,8 @@ export default function BudgetPage() {
       setDeleteTargetId(null);
       await refresh();
       
-      // Track success operation
+      // Reset popup state FIRST, then show success
+      resetPopupState();
       setSuccessOperation('delete');
       setShowSuccessPopup(true);
     } catch (error) {
@@ -118,7 +119,9 @@ export default function BudgetPage() {
       setErrorMessage((error as Error).message || 'Gagal menghapus kategori');
       setErrorOperation('delete');
       setShowErrorPopup(true);
-      // Keep deleteTargetId set so user can retry with same target
+      // Reset delete state for clean retry
+      setShowConfirmDelete(false);
+      setDeleteTargetId(null);
     } finally {
       setDeleteLoading(false);
     }
@@ -144,7 +147,7 @@ export default function BudgetPage() {
       }
     });
     return sorted;
-  }, [categories?.length, categories?.[0]?.id, sortOrder]);
+  }, [categories, sortOrder]);
 
   const utilizationPercentage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 

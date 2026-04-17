@@ -70,7 +70,7 @@ export default function ActivityPage() {
       // FIX: Assign proper icon based on category, fallback to money for income
       const iconType: TransactionIconType = txn.type === 'income' 
         ? 'money' 
-        : (iconMap[txn.category_icon] || 'money');
+        : (txn.category_icon ? iconMap[txn.category_icon] : 'money') || 'money';
 
       const activityTxn: ActivityTransaction = {
         id: txn.id,

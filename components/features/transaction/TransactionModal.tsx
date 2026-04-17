@@ -63,32 +63,41 @@ export default function TransactionModal({
 
   // Initialize form with edit data
   useEffect(() => {
-    if (mode === 'edit' && editTransaction) {
-      setFormData({
-        type: editTransaction.type,
-        amount: editTransaction.amount,
-        description: editTransaction.description ?? '',
-        category_id: editTransaction.category_id,
-        note: editTransaction.note || '',
-        transaction_date: editTransaction.transaction_date
-      });
+    if (isOpen) {
+      if (mode === 'edit' && editTransaction) {
+        setFormData({
+          type: editTransaction.type,
+          amount: editTransaction.amount,
+          description: editTransaction.description ?? '',
+          category_id: editTransaction.category_id,
+          note: editTransaction.note || '',
+          transaction_date: editTransaction.transaction_date
+        });
+      } else {
+        // Reset to defaults for create mode
+        setFormData({
+          type: 'expense',
+          amount: 0,
+          description: '',
+          category_id: null,
+          note: '',
+          transaction_date: new Date().toISOString().split('T')[0]
+        });
+      }
     }
-  }, [mode, editTransaction]);
+    setError(null);
+  }, [isOpen, mode, editTransaction]); // Re-init when modal opens or data changes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!(formData.description ?? '').trim()) {
-      setError('Deskripsi harus diisi');
-      return;
-    }
     if (formData.amount <= 0) {
       setError('Jumlah harus lebih dari 0');
       return;
     }
-    if (!formData.category_id) {
-      setError('Silakan pilih kategori');
+    if (formData.type === 'expense' && !formData.category_id) {
+      setError('Silakan pilih kategori untuk pengeluaran');
       return;
     }
 
@@ -118,11 +127,14 @@ export default function TransactionModal({
   const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
   // Convert categories to SelectOption format
+  // NOTE: Using inline style for colors instead of Tailwind dynamic classes
+  // Tailwind cannot generate classes from runtime values
   const categoryOptions: SelectOption[] = currentCategories.map(cat => ({
     value: cat.id,
     label: cat.name,
     icon: getIconComponent(cat.icon || ''),
-    color: cat.color ? `bg-[${cat.color}]/10 text-[${cat.color}]` : undefined
+    color: undefined, // Use inline styles in CustomSelect instead
+    backgroundColor: cat.color
   }));
 
   if (!isOpen) return null;
@@ -224,7 +236,7 @@ export default function TransactionModal({
             <input
               type="text"
               id="description"
-              value={formData.description}
+              value={formData.description || ''}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Contoh: Makan siang, Gaji, dll"

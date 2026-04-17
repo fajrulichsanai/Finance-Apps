@@ -7,18 +7,15 @@ import { createClient } from '@supabase/supabase-js';
 // ============================================================
 
 // Only configure web-push if all required env vars are present
-// Wrap in try-catch to prevent build-time errors
 try {
-  if (
-    process.env.VAPID_EMAIL &&
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY &&
-    process.env.VAPID_PRIVATE_KEY
-  ) {
-    webpush.setVapidDetails(
-      process.env.VAPID_EMAIL.trim(),
-      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.trim(),
-      process.env.VAPID_PRIVATE_KEY.trim()
-    );
+  const vapidEmail = process.env.VAPID_EMAIL?.trim();
+  const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim();
+  const vapidPrivate = process.env.VAPID_PRIVATE_KEY?.trim();
+  
+  if (vapidEmail && vapidPublic && vapidPrivate) {
+    webpush.setVapidDetails(vapidEmail, vapidPublic, vapidPrivate);
+  } else {
+    console.warn('[Push API] VAPID configuration incomplete at startup');
   }
 } catch (error) {
   console.error('[Push API] VAPID configuration error:', error);
@@ -63,9 +60,42 @@ interface PushSubscription {
 
 export async function POST(request: NextRequest) {
   try {
+    // 0. SECURITY: Authenticate requesting user (prevent unauthorized push)
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing authorization header' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.substring(7);
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_ANON_KEY!
+    );
+
+    const { data: { user: authUser }, error: authError } = await supabaseAuth.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Invalid token' },
+        { status: 401 }
+      );
+    }
+
     // 1. Parse request body
     const body: RequestBody = await request.json();
     const { userId, payload } = body;
+
+    // SECURITY: Only allow users to send to themselves (no cross-user notifications)
+    if (authUser.id !== userId) {
+      console.warn(`[Push API] Unauthorized cross-user attempt: ${authUser.id} -> ${userId}`);
+      return NextResponse.json(
+        { error: 'Forbidden: Cannot send notifications to other users' },
+        { status: 403 }
+      );
+    }
 
     // 2. Validation
     if (!userId || !payload) {

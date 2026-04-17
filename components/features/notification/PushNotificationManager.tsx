@@ -38,7 +38,7 @@ export default function PushNotificationManager({ userId }: Props) {
     };
 
     checkSupport();
-  }, []);
+  }, [userId]); // Re-check when userId changes
 
   // Check if user already has active subscription
   async function checkSubscription() {

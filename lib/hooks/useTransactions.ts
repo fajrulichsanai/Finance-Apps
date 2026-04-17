@@ -32,16 +32,7 @@ export function useTransactions(filters?: TransactionFilters) {
     } finally {
       setLoading(false);
     }
-  }, [
-    // FIX: Depend on specific filter values instead of entire filters object
-    // This prevents unnecessary refetches when filters object reference changes
-    filters?.type,
-    filters?.category_id,
-    filters?.start_date,
-    filters?.end_date,
-    filters?.limit,
-    filters?.offset
-  ]);
+  }, [filters]);
 
   useEffect(() => {
     fetchTransactions();
@@ -64,38 +55,48 @@ export function useTransactions(filters?: TransactionFilters) {
 
   const createTransaction = async (input: CreateTransactionInput) => {
     try {
+      setError(null);
       const newTransaction = await transactionService.createTransaction(input);
       setTransactions(prev => [newTransaction, ...prev]);
       return newTransaction;
     } catch (err) {
-      setError(err as Error);
-      throw err;
+      const error = err as Error;
+      setError(error);
+      throw error;
     }
   };
 
   const updateTransaction = async (id: string, input: UpdateTransactionInput) => {
     try {
+      setError(null);
       const updated = await transactionService.updateTransaction(id, input);
       setTransactions(prev => prev.map(tx => tx.id === id ? updated : tx));
       return updated;
     } catch (err) {
-      setError(err as Error);
-      throw err;
+      const error = err as Error;
+      setError(error);
+      throw error;
     }
   };
 
   const deleteTransaction = async (id: string) => {
     try {
+      setError(null);
       await transactionService.deleteTransaction(id);
       setTransactions(prev => prev.filter(tx => tx.id !== id));
     } catch (err) {
-      setError(err as Error);
-      throw err;
+      const error = err as Error;
+      setError(error);
+      throw error;
     }
   };
 
   const refresh = () => {
     fetchTransactions();
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   return {
@@ -105,7 +106,8 @@ export function useTransactions(filters?: TransactionFilters) {
     createTransaction,
     updateTransaction,
     deleteTransaction,
-    refresh
+    refresh,
+    clearError
   };
 }
 

@@ -36,26 +36,11 @@ export default function MonthlySpendingTrend() {
         </button>
       </div>
 
-      {/* Line Chart SVG */}
-      <svg className="w-full h-[110px] mb-2.5" viewBox="0 0 320 110" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a1a6e" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#1a1a6e" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,70 C30,65 50,40 80,50 C110,60 130,30 160,45 C190,60 210,25 240,35 C270,45 295,55 320,40"
-          fill="none"
-          stroke="#1a1a6e"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M0,70 C30,65 50,40 80,50 C110,60 130,30 160,45 C190,60 210,25 240,35 C270,45 295,55 320,40 L320,110 L0,110 Z"
-          fill="url(#grad)"
-        />
-      </svg>
+      {/* Line Chart SVG - PLACEHOLDER: Replace with real chart library */}
+      <div className="w-full h-[110px] mb-2.5 flex items-center justify-center bg-gray-50 rounded text-xs text-gray-400">
+        {/* TODO: Integrate Recharts with actual monthlyData prop */}
+        Chart visualization pending implementation
+      </div>
 
       {/* Month Labels */}
       <div className="flex justify-between text-[10px] text-[#bbb] font-semibold tracking-wide px-0.5">

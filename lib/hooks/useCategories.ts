@@ -24,7 +24,35 @@ export function useCategories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchCategories = useCallback(async () => {
+  // FIX: Dependencies managed separately to prevent infinite loops
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await categoryService.getAllCategories();
+        if (isMounted) {
+          setCategories(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err as Error);
+          console.error('Error fetching categories:', err);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCategories();
+    return () => { isMounted = false; };
+  }, []);
+
+  const refresh = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -38,10 +66,6 @@ export function useCategories() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
   // Separate categories by type
   const incomeCategories = categories.filter(cat => cat.type === 'income');
   const expenseCategories = categories.filter(cat => cat.type === 'expense');
@@ -52,7 +76,7 @@ export function useCategories() {
     expenseCategories,
     loading,
     error,
-    refresh: fetchCategories
+    refresh
   };
 }
 
