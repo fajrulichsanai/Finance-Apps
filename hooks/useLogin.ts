@@ -60,9 +60,13 @@ export const useLogin = () => {
     };
   }, []);
 
-  // ✅ BUG FIX #6: Check server-side rate limiting (IP-based, prevents race conditions)
-  // Updated to use database-backed RPC for atomicity
-  // Note: Client-side tracking removed (server is authoritative via RPC)
+  // ✅ BUG FIX #6: Rate limiting - track login attempts (client-side)
+  // Server-side rate limiting also implemented as defense layer
+  const loginAttempts = useRef<{ timestamp: number }[]>([]);
+  const MAX_ATTEMPTS = 5;
+  const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+  // ✅ BUG FIX #6: Check server-side rate limiting
   const checkServerRateLimit = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
     try {
       const response = await fetch('/api/auth/rate-limit', {
@@ -70,7 +74,7 @@ export const useLogin = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}), // Empty body - RPC uses IP from headers
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();
@@ -123,6 +127,19 @@ export const useLogin = () => {
         return;
       }
 
+      // ✅ BUG FIX #6: Check client-side rate limiting first (quick check)
+      const now = Date.now();
+      loginAttempts.current = loginAttempts.current.filter(
+        (attempt) => now - attempt.timestamp < RATE_LIMIT_WINDOW_MS
+      );
+      
+      if (loginAttempts.current.length >= MAX_ATTEMPTS) {
+        if (!isMountedRef.current) return;
+        setError('Too many login attempts. Please try again in 15 minutes.');
+        submitInProgress.current = false;
+        return;
+      }
+
       if (!isMountedRef.current) return;
       
       setError('');
@@ -149,7 +166,8 @@ export const useLogin = () => {
         return;
       }
 
-      // ✅ NEW: Timeout protection with cleanup
+      // Record this login attempt (for client-side tracking)
+      loginAttempts.current.push({ timestamp: Date.now() });
       // Use AbortController + Promise.race for proper timeout handling
       let timeoutId: NodeJS.Timeout | null = null;
       
@@ -303,12 +321,11 @@ export const useLogin = () => {
           console.error('[Password Reset Error]:', error.message);
         }
       } else {
-        // ✅ FIXED: Show success message with 10s auto-dismiss
-        // User has time to read, but message auto-clears to avoid UI clutter
+        // ✅ FIXED: Show success message with auto-dismiss
         setSuccessMessage('✓ Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
         setError('');
         
-        // Auto-dismiss after 10 seconds (enough time to read + act)
+        // Auto-dismiss after 10 seconds
         setTimeout(() => {
           if (isMountedRef.current) {
             setSuccessMessage('');
