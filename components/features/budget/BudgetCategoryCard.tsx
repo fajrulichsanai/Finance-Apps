@@ -34,8 +34,20 @@ export default function BudgetCategoryCard({
   onEdit,
   onDelete
 }: BudgetCategoryCardProps) {
-  const percentage = limit > 0 ? (spent / limit) * 100 : 0;
+  // Validate and convert to safe numbers
+  const safeSpent = Number.isFinite(spent) ? spent : 0;
+  const safeLimit = Number.isFinite(limit) ? limit : 0;
+  
+  // Calculate percentage safely
+  const percentage = safeLimit > 0 ? (safeSpent / safeLimit) * 100 : 0;
+  
+  // Guard against NaN
+  if (!Number.isFinite(percentage)) {
+    console.error('[BudgetCategoryCard] Invalid percentage calculated:', { safeSpent, safeLimit });
+  }
+  
   const isWarning = percentage >= 80 && percentage < 100;
+  const isSignificantOverage = percentage > 120; // More than 20% over
 
   const progressColor = isOverBudget 
     ? 'bg-red-500' 
@@ -46,6 +58,8 @@ export default function BudgetCategoryCard({
   const buttonStyle = isOverBudget
     ? 'bg-red-500 text-white hover:bg-red-600'
     : 'bg-gray-100 text-gray-900 hover:bg-gray-200';
+
+  const displayPercentage = Math.min(Math.max(percentage, 0), 100);
 
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-fade-up">
@@ -82,24 +96,31 @@ export default function BudgetCategoryCard({
             Terpakai
           </p>
           <p className={`text-base font-bold ${isOverBudget ? 'text-red-500' : 'text-gray-900'}`}>
-            Rp{spent.toLocaleString('id-ID')}
+            Rp{safeSpent.toLocaleString('id-ID')}
           </p>
+          {percentage > 100 && (
+            <p className="text-xs text-red-500 font-bold mt-1">
+              +{Math.round((percentage - 100))}% over limit
+            </p>
+          )}
         </div>
         <div className="text-right">
           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-0.5">
             Limit
           </p>
           <p className="text-sm font-bold text-gray-600">
-            Rp{limit.toLocaleString('id-ID')}
+            Rp{safeLimit.toLocaleString('id-ID')}
           </p>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+      <div className={`w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3 ${
+        isSignificantOverage ? 'ring-2 ring-red-500' : ''
+      }`}>
         <div 
           className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
-          style={{ width: `${Math.min(percentage, 100)}%` }}
+          style={{ width: `${displayPercentage}%` }}
         />
       </div>
 

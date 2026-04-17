@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plus, ArrowUp, ArrowDown } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown, Wallet } from 'lucide-react';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 import BudgetOverview from '@/components/features/budget/BudgetOverview';
@@ -15,6 +14,7 @@ import { getIconComponent } from '@/lib/utils/icons';
 import type { CategoryWithBudget, CreateCategoryInput, UpdateCategoryInput } from '@/lib/services/categories';
 
 type SortOrder = 'habis-dulu' | 'masih-ada-dulu';
+type OperationType = 'create' | 'edit' | 'delete';
 
 export default function BudgetPage() {
   const { 
@@ -40,42 +40,55 @@ export default function BudgetPage() {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successOperation, setSuccessOperation] = useState<OperationType | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [errorOperation, setErrorOperation] = useState<OperationType | null>(null);
 
   const handleCreateClick = () => {
+    resetPopupState();
     setSelectedCategory(null);
     setModalMode('create');
     setModalOpen(true);
   };
 
   const handleEditClick = (category: CategoryWithBudget) => {
+    resetPopupState();
     setSelectedCategory(category);
     setModalMode('edit');
     setModalOpen(true);
+  };
+
+  // Helper: Clear all popup states
+  const resetPopupState = () => {
+    setSuccessOperation(null);
+    setErrorMessage('');
+    setErrorOperation(null);
   };
 
   const handleSubmit = async (data: CreateCategoryInput | UpdateCategoryInput) => {
     try {
       if (modalMode === 'create') {
         await createCategory(data as CreateCategoryInput);
-      } else if (selectedCategory) {
+      } else if (selectedCategory?.id) {
         await updateCategory(selectedCategory.id, data);
+      } else if (modalMode === 'edit') {
+        throw new Error('No category selected for update');
       }
       
-      // Close modal IMMEDIATELY to prevent reopening
-      setModalOpen(false);
-      
-      // Refresh data
+      // Refresh data BEFORE closing modal
       await refresh();
       
-      // Show success popup
+      // Close modal after refresh succeeds
+      setModalOpen(false);
+      
+      // Track success operation and show popup
+      setSuccessOperation(modalMode);
       setShowSuccessPopup(true);
     } catch (error) {
       console.error('Error saving category:', error);
       setErrorMessage((error as Error).message || 'Failed to save category');
+      setErrorOperation(modalMode);
       setShowErrorPopup(true);
-      throw error;
     }
   };
 
@@ -85,20 +98,27 @@ export default function BudgetPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deleteTargetId) return;
+    // Guard: Prevent race condition on rapid clicks
+    if (!deleteTargetId || deleteLoading) return;
     
     setDeleteLoading(true);
+    const targetId = deleteTargetId; // Capture in closure
+    
     try {
-      await deleteCategory(deleteTargetId);
+      await deleteCategory(targetId);
       setShowConfirmDelete(false);
       setDeleteTargetId(null);
       await refresh();
-      setSuccessMessage('Kategori berhasil dihapus');
+      
+      // Track success operation
+      setSuccessOperation('delete');
       setShowSuccessPopup(true);
     } catch (error) {
       console.error('Error deleting category:', error);
       setErrorMessage((error as Error).message || 'Gagal menghapus kategori');
+      setErrorOperation('delete');
       setShowErrorPopup(true);
+      // Keep deleteTargetId set so user can retry with same target
     } finally {
       setDeleteLoading(false);
     }
@@ -110,9 +130,12 @@ export default function BudgetPage() {
 
   // Sort categories based on remaining budget
   const sortedCategories = useMemo(() => {
+    if (!categories?.length) return [];
+    
     const sorted = [...categories].sort((a, b) => {
-      const remainingA = Number(a.remaining_budget) || 0;
-      const remainingB = Number(b.remaining_budget) || 0;
+      // Validate and convert to numbers safely
+      const remainingA = Number.isFinite(a.remaining_budget) ? Number(a.remaining_budget) : 0;
+      const remainingB = Number.isFinite(b.remaining_budget) ? Number(b.remaining_budget) : 0;
       
       if (sortOrder === 'habis-dulu') {
         return remainingA - remainingB; // Ascending (lowest remaining first)
@@ -121,7 +144,7 @@ export default function BudgetPage() {
       }
     });
     return sorted;
-  }, [categories, sortOrder]);
+  }, [categories?.length, categories?.[0]?.id, sortOrder]);
 
   const utilizationPercentage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
@@ -239,7 +262,7 @@ export default function BudgetPage() {
             /* Empty State */
             <div className="flex flex-col items-center justify-center py-12 px-5">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <Icons.Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+                <Wallet className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Belum ada kategori</h3>
               <p className="text-sm text-gray-500 text-center max-w-[280px]">
@@ -250,14 +273,23 @@ export default function BudgetPage() {
             sortedCategories.map((category) => {
               const Icon = getIconComponent(category.icon);
               
+              // Validate color before using in CSS
+              const isValidColor = /^#[0-9a-f]{6}$/i.test(category.color);
+              const safeColor = isValidColor ? category.color : '#1a237e';
+              
+              // Validate transaction count
+              const safeTransactionCount = Number.isFinite(category.transaction_count) 
+                ? Math.max(Number(category.transaction_count), 0)
+                : 0;
+              
               return (
                 <BudgetCategoryCard
                   key={category.id}
                   name={category.name}
                   icon={Icon}
-                  iconColor={category.color}
-                  iconBgColor={`${category.color}20`}
-                  transactionCount={Number(category.transaction_count) || 0}
+                  iconColor={safeColor}
+                  iconBgColor={`${safeColor}20`}
+                  transactionCount={safeTransactionCount}
                   spent={Number(category.total_spent) || 0}
                   limit={Number(category.budget) || 0}
                   isOverBudget={Number(category.remaining_budget) < 0}
@@ -292,25 +324,31 @@ export default function BudgetPage() {
         {/* SUCCESS POPUP */}
         <SuccessPopup
           isOpen={showSuccessPopup}
-          title={successMessage.includes('dihapus') ? 'Kategori Berhasil Dihapus!' : (modalMode === 'create' ? 'Kategori Berhasil Dibuat!' : 'Kategori Berhasil Diperbarui!')}
-          message={successMessage || 'Budget kategori telah disimpan dan siap digunakan.'}
+          title={successOperation === 'delete' ? 'Kategori Berhasil Dihapus!' : (successOperation === 'create' ? 'Kategori Berhasil Dibuat!' : 'Kategori Berhasil Diperbarui!')}
+          message={successOperation === 'delete' ? 'Kategori telah dihapus dari daftar Anda.' : 'Budget kategori telah disimpan dan siap digunakan.'}
           status="Tersimpan"
           onDone={() => {
             setShowSuccessPopup(false);
-            setSuccessMessage('');
+            resetPopupState();
           }}
         />
 
         {/* ERROR POPUP */}
         <ErrorPopup
           isOpen={showErrorPopup}
-          title="Gagal Menyimpan"
+          title={errorOperation === 'delete' ? 'Gagal Menghapus' : 'Gagal Menyimpan'}
           message={errorMessage}
           onRetry={() => {
             setShowErrorPopup(false);
-            setModalOpen(true);
+            // Only reopen modal for create/edit errors, not delete
+            if (errorOperation === 'create' || errorOperation === 'edit') {
+              setModalOpen(true);
+            }
           }}
-          onCancel={() => setShowErrorPopup(false)}
+          onCancel={() => {
+            setShowErrorPopup(false);
+            resetPopupState();
+          }}
         />
       </div>
 

@@ -4,17 +4,32 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
 import ActivitySearchBar from '@/components/features/activity/ActivitySearchBar';
 import TransactionSection from '@/components/features/activity/TransactionSection';
 import { useTransactions } from '@/lib/hooks/useTransactions';
-import { ActivitySection, ActivityTransaction } from '@/types';
+import { ActivitySection, ActivityTransaction, TransactionIconType } from '@/types';
 
 export default function ActivityPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { transactions, loading } = useTransactions();
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const { transactions, loading, error, refresh } = useTransactions();
+
+  // Debounce search query (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Utility function to get local date string (YYYY-MM-DD)
+  const getLocalDateString = (date: Date): string => {
+    return date.toLocaleDateString('en-CA');
+  };
 
   // Group transactions by date sections
   const groupedSections = useMemo((): ActivitySection[] => {
@@ -24,20 +39,38 @@ export default function ActivityPage() {
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const todayStr = today.toISOString().split('T')[0];
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // FIX: Use local date instead of UTC to prevent timezone issues
+    const todayStr = getLocalDateString(today);
+    const yesterdayStr = getLocalDateString(yesterday);
+    const sevenDaysAgoStr = getLocalDateString(sevenDaysAgo);
 
     const todayTxns: ActivityTransaction[] = [];
     const yesterdayTxns: ActivityTransaction[] = [];
     const thisWeekTxns: ActivityTransaction[] = [];
     const olderTxns: ActivityTransaction[] = [];
 
+    // FIX: Map category icons for better UX
+    const iconMap: Record<string, TransactionIconType> = {
+      'food': 'food',
+      'transport': 'transport',
+      'shopping': 'shopping',
+      'bills': 'bills',
+      'health': 'health'
+    };
+
     transactions.forEach(txn => {
-      const txnDate = txn.transaction_date.split('T')[0];
-      const txnTime = new Date(txn.transaction_date).toLocaleTimeString('id-ID', { 
+      // FIX: Use local date string for consistency
+      const txnDateObj = new Date(txn.transaction_date);
+      const txnDate = getLocalDateString(txnDateObj);
+      const txnTime = txnDateObj.toLocaleTimeString('id-ID', { 
         hour: '2-digit', 
         minute: '2-digit' 
       });
+
+      // FIX: Assign proper icon based on category, fallback to money for income
+      const iconType: TransactionIconType = txn.type === 'income' 
+        ? 'money' 
+        : (iconMap[txn.category_icon] || 'money');
 
       const activityTxn: ActivityTransaction = {
         id: txn.id,
@@ -47,14 +80,14 @@ export default function ActivityPage() {
         amount: txn.amount,
         time: txnTime,
         type: txn.type,
-        icon: 'money' // Default icon, can be enhanced later
+        icon: iconType
       };
 
       if (txnDate === todayStr) {
         todayTxns.push(activityTxn);
       } else if (txnDate === yesterdayStr) {
         yesterdayTxns.push(activityTxn);
-      } else if (new Date(txnDate) >= sevenDaysAgo) {
+      } else if (txnDateObj >= sevenDaysAgo) {
         thisWeekTxns.push(activityTxn);
       } else {
         olderTxns.push(activityTxn);
@@ -79,13 +112,13 @@ export default function ActivityPage() {
     return sections;
   }, [transactions]);
 
-  // Filter transactions based on search query
+  // Filter transactions based on debounced search query
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) {
+    if (!debouncedQuery.trim()) {
       return groupedSections;
     }
 
-    const query = searchQuery.toLowerCase();
+    const query = debouncedQuery.toLowerCase();
     
     return groupedSections
       .map((section) => ({
@@ -98,7 +131,31 @@ export default function ActivityPage() {
         ),
       }))
       .filter((section) => section.transactions.length > 0);
-  }, [searchQuery, groupedSections]);
+  }, [debouncedQuery, groupedSections]);
+
+  // FIX: Display error state
+  if (error && !loading) {
+    return (
+      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
+        <div className="w-full max-w-[430px] mx-auto">
+          <AppHeader />
+          <div className="px-[18px] py-8">
+            <div className="text-center space-y-4">
+              <div className="text-red-500 font-semibold text-lg">⚠️ Gagal memuat transaksi</div>
+              <p className="text-gray-600 text-sm">{error.message}</p>
+              <button 
+                onClick={refresh}
+                className="mt-4 px-6 py-2.5 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+              >
+                Coba Lagi
+              </button>
+            </div>
+          </div>
+          <BottomNav />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -134,14 +191,15 @@ export default function ActivityPage() {
         
         <ActivitySearchBar 
           value={searchQuery} 
-          onChange={setSearchQuery} 
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
         />
 
         <div className="px-[18px]">
           {filteredSections.length > 0 ? (
             filteredSections.map((section, index) => (
               <TransactionSection
-                key={`${section.label}-${index}`}
+                key={`${section.label}-${section.date}-${section.transactions[0]?.id}`}
                 section={section}
                 isLast={index === filteredSections.length - 1}
               />

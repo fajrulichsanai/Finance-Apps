@@ -17,10 +17,17 @@ export default function BudgetUtilization({
   percentage,
   month = 'bulan ini'
 }: BudgetUtilizationProps) {
+  // Validate percentage
+  const safePercentage = Number.isFinite(percentage) ? Math.min(Math.max(percentage, 0), 100) : 0;
+  
+  if (!Number.isFinite(percentage)) {
+    console.warn('[BudgetUtilization] Invalid percentage:', percentage);
+  }
+
   // Calculate stroke-dashoffset for donut chart
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
-  const strokeOffset = circumference - (percentage / 100) * circumference;
+  const strokeOffset = circumference - (safePercentage / 100) * circumference;
 
   return (
     <div className="bg-white rounded-2xl mx-5 my-3 p-5 shadow-sm border border-gray-100">
@@ -57,13 +64,13 @@ export default function BudgetUtilization({
         {/* Percentage text */}
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-2xl font-black text-blue-900">
-            {Math.round(percentage)}%
+            {Math.round(safePercentage)}%
           </span>
         </div>
       </div>
 
       <p className="text-xs text-gray-500 text-center leading-relaxed">
-        Anda telah menggunakan {percentage.toFixed(1)}% dari limit yang<br />
+        Anda telah menggunakan {safePercentage.toFixed(1)}% dari limit yang<br />
         ditetapkan untuk {month}.
       </p>
     </div>

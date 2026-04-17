@@ -66,6 +66,16 @@ export function useTransactionForm() {
 
   const validateForm = useCallback((): string | null => {
     if (formData.amount <= 0) return 'Jumlah harus lebih dari 0';
+    if (formData.amount > 999_999_999) return 'Jumlah transaksi terlalu besar (max: Rp 999.999.999)';
+    
+    // Check for future dates
+    const selectedDate = new Date(formData.transaction_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate > today) {
+      return 'Tanggal transaksi tidak boleh di masa depan';
+    }
+    
     // Category required only for expense
     if (formData.type === 'expense' && !formData.category_id) {
       return 'Pilih kategori untuk pengeluaran';

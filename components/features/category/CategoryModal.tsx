@@ -57,15 +57,44 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     e.preventDefault();
     setError(null);
     
-    // Validation
+    // Validation: Name
     if (!formData.name?.trim()) {
       setError('Category name is required');
       return;
     }
     
-    if (formData.budget && formData.budget < 0) {
-      setError('Budget cannot be negative');
+    if (formData.name.trim().length > 50) {
+      setError('Category name must be less than 50 characters');
       return;
+    }
+    
+    // Validation: Icon
+    if (!CATEGORY_ICONS.includes(formData.icon as any)) {
+      setError('Invalid icon selected');
+      return;
+    }
+    
+    // Validation: Color (hex format check)
+    if (!formData.color || !/^#[0-9a-f]{6}$/i.test(formData.color)) {
+      setError('Invalid color format');
+      return;
+    }
+    
+    // Validation: Budget
+    if (formData.budget) {
+      const budget = Number(formData.budget);
+      if (!Number.isFinite(budget)) {
+        setError('Budget must be a valid number');
+        return;
+      }
+      if (budget < 0) {
+        setError('Budget cannot be negative');
+        return;
+      }
+      if (budget > 999_999_999) {
+        setError('Budget must be less than Rp999,999,999');
+        return;
+      }
     }
 
     setLoading(true);

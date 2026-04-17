@@ -57,6 +57,14 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
 
   const handleDateSelect = (day: number) => {
     const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Prevent selection of future dates
+    if (newDate > today) {
+      return;
+    }
+    
     const dateString = newDate.toISOString().split('T')[0];
     onChange(dateString);
     setIsOpen(false);
@@ -67,7 +75,17 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+    const newMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Don't allow navigation to future months
+    if (newMonth.getFullYear() > today.getFullYear() || 
+        (newMonth.getFullYear() === today.getFullYear() && newMonth.getMonth() > today.getMonth())) {
+      return;
+    }
+    
+    setCurrentMonth(newMonth);
   };
 
   const handleToday = () => {
@@ -93,6 +111,13 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
     return today.getDate() === day &&
       today.getMonth() === currentMonth.getMonth() &&
       today.getFullYear() === currentMonth.getFullYear();
+  };
+
+  const isFutureDate = (day: number) => {
+    const checkDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return checkDate > today;
   };
 
   return (
@@ -156,20 +181,25 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
             {days.map(day => {
               const selected = isSelectedDay(day);
               const today = isToday(day);
+              const future = isFutureDate(day);
               
               return (
                 <button
                   key={day}
                   onClick={() => handleDateSelect(day)}
+                  disabled={future}
                   className={`
                     aspect-square rounded-lg text-sm font-semibold transition-all
-                    ${selected 
-                      ? 'bg-indigo-600 text-white' 
-                      : today
-                        ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                        : 'hover:bg-slate-100 text-slate-700'
+                    ${future
+                      ? 'text-slate-300 cursor-not-allowed bg-slate-50'
+                      : selected 
+                        ? 'bg-indigo-600 text-white' 
+                        : today
+                          ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                          : 'hover:bg-slate-100 text-slate-700'
                     }
                   `}
+                  title={future ? 'Tanggal di masa depan tidak boleh dipilih' : ''}
                 >
                   {day}
                 </button>

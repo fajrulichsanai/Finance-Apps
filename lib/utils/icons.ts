@@ -9,10 +9,21 @@ import type { LucideIcon } from 'lucide-react';
 /**
  * Get Lucide icon component from icon name string
  * Falls back to Wallet icon if not found
+ * Logs warnings for invalid icons to help with debugging
  */
 export const getIconComponent = (iconName: string): LucideIcon => {
+  if (!iconName || typeof iconName !== 'string') {
+    console.warn('[getIconComponent] Invalid icon name (empty or not string):', iconName);
+    return Icons.Wallet;
+  }
+
   const IconComponent = (Icons as any)[iconName];
-  return IconComponent || Icons.Wallet;
+  if (!IconComponent) {
+    console.warn('[getIconComponent] Icon not found:', iconName, '- using Wallet fallback');
+    return Icons.Wallet;
+  }
+  
+  return IconComponent;
 };
 
 /**

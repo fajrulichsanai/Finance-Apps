@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   statisticsService,
   type BalanceSummary,
@@ -221,23 +221,57 @@ export function useDashboardData() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
+    // Cancel previous request if still pending
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+
     try {
+      if (!isMountedRef.current) return;
       setLoading(true);
       setError(null);
       const data = await statisticsService.getDashboardData();
-      setDashboardData(data);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error fetching dashboard data:', err);
+      
+      // Only update state if component still mounted
+      if (isMountedRef.current) {
+        setDashboardData(data);
+      }
+    } catch (err: any) {
+      // Ignore abort errors (component unmounted or cancelled)
+      if (err?.name === 'AbortError') {
+        console.log('[useDashboardData] Fetch cancelled');
+        return;
+      }
+
+      if (isMountedRef.current) {
+        setError(err as Error);
+        console.error('[useDashboardData] Error fetching dashboard data:', err);
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     fetchDashboardData();
+
+    return () => {
+      isMountedRef.current = false;
+      // Cancel any pending request on unmount
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchDashboardData]);
 
   return {

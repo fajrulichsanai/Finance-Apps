@@ -14,11 +14,27 @@ interface BudgetOverviewProps {
   remaining: number;
 }
 
+/**
+ * Format currency safely, handling invalid numbers
+ */
+const formatCurrency = (amount: number): string => {
+  if (!Number.isFinite(amount)) {
+    console.warn('[formatCurrency] Invalid amount:', amount);
+    return '0';
+  }
+  return Math.round(amount).toLocaleString('id-ID');
+};
+
 export default function BudgetOverview({
   totalSpent,
   monthlyGoal,
   remaining
 }: BudgetOverviewProps) {
+  // Validate inputs
+  const safeSpent = Number.isFinite(totalSpent) ? totalSpent : 0;
+  const safeGoal = Number.isFinite(monthlyGoal) ? monthlyGoal : 0;
+  const safeRemaining = Number.isFinite(remaining) ? remaining : 0;
+
   return (
     <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl mx-5 p-5 relative overflow-hidden">
       {/* Decorative circles */}
@@ -32,8 +48,7 @@ export default function BudgetOverview({
         </p>
         
         <h2 className="text-5xl font-black text-white mb-4">
-          Rp{Math.floor(totalSpent / 1000).toLocaleString('id-ID')}
-          <span className="text-3xl">,000</span>
+          Rp{formatCurrency(safeSpent)}
         </h2>
 
         <div className="flex gap-7">
@@ -42,15 +57,15 @@ export default function BudgetOverview({
               Target Bulanan
             </p>
             <p className="text-base font-black text-white">
-              Rp{monthlyGoal.toLocaleString('id-ID')}
+              Rp{formatCurrency(safeGoal)}
             </p>
           </div>
           <div>
             <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wide mb-0.5">
               Sisa
             </p>
-            <p className="text-base font-black text-green-400">
-              Rp{remaining.toLocaleString('id-ID')}
+            <p className={`text-base font-black ${safeRemaining < 0 ? 'text-red-400' : 'text-green-400'}`}>
+              Rp{formatCurrency(safeRemaining)}
             </p>
           </div>
         </div>

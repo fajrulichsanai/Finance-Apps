@@ -38,6 +38,29 @@ export interface ActivitySection {
   transactions: ActivityTransaction[];
 }
 
+// Dashboard Types
+export interface DashboardCategoryData {
+  id?: string;
+  name: string;
+  budget: number | string;
+  total_spent: number | string;
+  category_icon?: string;
+  category_color?: string;
+}
+
+export interface BudgetCategory {
+  name: string;
+  spent: number;
+  limit: number;
+  percentage: number;
+}
+
+export interface DashboardSummary {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+}
+
 // Insight Page Types
 export interface CategoryData {
   name: string;

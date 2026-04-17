@@ -358,13 +358,37 @@ class StatisticsService {
         throw new Error(`Failed to fetch dashboard data: ${error.message}`);
       }
 
-      // Parse JSON fields if they're strings
-      const categoriesData = typeof data?.categories_data === 'string' 
-        ? JSON.parse(data.categories_data) 
-        : data?.categories_data || [];
-      const transactionsData = typeof data?.recent_transactions_data === 'string'
-        ? JSON.parse(data.recent_transactions_data)
-        : data?.recent_transactions_data || [];
+      // Parse and validate JSON fields
+      let categoriesData = [];
+      let transactionsData = [];
+
+      try {
+        categoriesData = typeof data?.categories_data === 'string' 
+          ? JSON.parse(data.categories_data) 
+          : data?.categories_data || [];
+        
+        if (!Array.isArray(categoriesData)) {
+          console.warn('[getDashboardData] Invalid categories format, expected array');
+          categoriesData = [];
+        }
+      } catch (parseErr) {
+        console.error('[getDashboardData] Failed to parse categories:', parseErr);
+        throw new Error('Failed to parse categories data');
+      }
+
+      try {
+        transactionsData = typeof data?.recent_transactions_data === 'string'
+          ? JSON.parse(data.recent_transactions_data)
+          : data?.recent_transactions_data || [];
+        
+        if (!Array.isArray(transactionsData)) {
+          console.warn('[getDashboardData] Invalid transactions format, expected array');
+          transactionsData = [];
+        }
+      } catch (parseErr) {
+        console.error('[getDashboardData] Failed to parse transactions:', parseErr);
+        throw new Error('Failed to parse transactions data');
+      }
 
       return {
         balanceSummary: {

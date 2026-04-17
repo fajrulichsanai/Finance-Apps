@@ -32,10 +32,34 @@ export function useTransactions(filters?: TransactionFilters) {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [
+    // FIX: Depend on specific filter values instead of entire filters object
+    // This prevents unnecessary refetches when filters object reference changes
+    filters?.type,
+    filters?.category_id,
+    filters?.start_date,
+    filters?.end_date,
+    filters?.limit,
+    filters?.offset
+  ]);
 
   useEffect(() => {
     fetchTransactions();
+  }, [fetchTransactions]);
+
+  // FIX: Refresh data when user tabs back to page (after 30+ seconds)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[useTransactions] Page visible again, refreshing data...');
+        fetchTransactions();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchTransactions]);
 
   const createTransaction = async (input: CreateTransactionInput) => {
