@@ -211,3 +211,39 @@ export function useTopSpendingCategories(limit: number = 5) {
     refresh: fetchData
   };
 }
+
+/**
+ * OPTIMIZED: Fetch all dashboard data with single RPC call
+ * Combines balance, month summary, categories, and transactions
+ * Reduces 4 queries to 1 for Free Tier optimization
+ */
+export function useDashboardData() {
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await statisticsService.getDashboardData();
+      setDashboardData(data);
+    } catch (err) {
+      setError(err as Error);
+      console.error('Error fetching dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  return {
+    dashboardData,
+    loading,
+    error,
+    refresh: fetchDashboardData
+  };
+}

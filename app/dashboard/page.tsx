@@ -2,12 +2,10 @@
 
 import React from 'react';
 import { useAuth } from '@/providers/AuthProvider';
-import { useBalanceSummary, useCurrentMonthSummary } from '@/lib/hooks/useStatistics';
-import { useRecentTransactions } from '@/lib/hooks/useTransactions';
-import { useCategoriesWithBudget } from '@/lib/hooks/useCategories';
+import { useDashboardData } from '@/lib/hooks/useStatistics';
 import { getDisplayName } from '@/lib/utils/user';
 import { calculateHealthScore, getHealthStanding } from '@/lib/utils/financial';
-import { RECENT_TRANSACTIONS_LIMIT, TOP_BUDGET_CATEGORIES } from '@/lib/constants/dashboard';
+import { TOP_BUDGET_CATEGORIES } from '@/lib/constants/dashboard';
 import { HealthScoreCard } from '@/components/features/dashboard/HealthScoreCard';
 import { NetWorthCard } from '@/components/features/dashboard/NetWorthCard';
 import { BudgetOverviewCard } from '@/components/features/dashboard/BudgetOverviewCard';
@@ -22,14 +20,17 @@ import DashboardSkeleton from '@/components/features/dashboard/DashboardSkeleton
 export default function DashboardPage() {
   const { user, loading } = useAuth();
 
-  // Data hooks
-  const { summary: balanceSummary, loading: balanceLoading } = useBalanceSummary();
-  const { summary: monthSummary } = useCurrentMonthSummary();
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategoriesWithBudget();
-  const { transactions, loading: transactionsLoading } = useRecentTransactions(RECENT_TRANSACTIONS_LIMIT);
+  // OPTIMIZED: Single RPC query instead of 4 separate queries
+  // Returns: balanceSummary, monthSummary, categories, recentTransactions
+  const { dashboardData, loading: dashboardLoading, error: dashboardError } = useDashboardData();
 
   // Derived data
   const displayName = getDisplayName(user);
+  const monthSummary = dashboardData?.monthSummary;
+  const balanceSummary = dashboardData?.balanceSummary;
+  const categories = dashboardData?.categories || [];
+  const transactions = dashboardData?.recentTransactions || [];
+
   const healthScore = calculateHealthScore(
     monthSummary?.totalIncome || 0,
     monthSummary?.totalExpense || 0
@@ -37,10 +38,10 @@ export default function DashboardPage() {
   const healthStanding = getHealthStanding(healthScore);
 
   // Budget categories with actual limits from database
-  const budgetCategories = !categoriesError ? categories
-    .filter(cat => Number(cat.budget) > 0)
+  const budgetCategories = categories
+    .filter((cat: any) => Number(cat.budget) > 0)
     .slice(0, TOP_BUDGET_CATEGORIES)
-    .map(cat => {
+    .map((cat: any) => {
       const spent = Number(cat.total_spent) || 0;
       const limit = Number(cat.budget) || 0;
       const percentage = limit > 0 ? (spent / limit) * 100 : 0;
@@ -50,9 +51,9 @@ export default function DashboardPage() {
         limit,
         percentage,
       };
-    }) : [];
+    });
 
-  if (loading || balanceLoading) {
+  if (loading || dashboardLoading) {
     return <DashboardSkeleton />;
   }
 
@@ -71,8 +72,8 @@ export default function DashboardPage() {
 
           <BudgetOverviewCard 
             categories={budgetCategories} 
-            loading={categoriesLoading}
-            error={categoriesError}
+            loading={dashboardLoading}
+            error={dashboardError}
           />
 
           <AIInsightCard />
@@ -89,7 +90,7 @@ export default function DashboardPage() {
 
           <RecentActivityList 
             transactions={transactions}
-            loading={transactionsLoading}
+            loading={dashboardLoading}
           />
 
           <div className="h-[60px]" />

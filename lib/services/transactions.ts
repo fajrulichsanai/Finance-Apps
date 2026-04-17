@@ -84,11 +84,14 @@ class TransactionService {
       if (filters.end_date) {
         query = query.lte('transaction_date', filters.end_date);
       }
+      // OPTIMIZED: Add default limit to prevent unbounded queries
       if (filters.limit) {
         query = query.limit(filters.limit);
+      } else {
+        query = query.limit(100); // Default limit to prevent data explosion
       }
       if (filters.offset) {
-        query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
+        query = query.range(filters.offset, filters.offset + (filters.limit || 100) - 1);
       }
 
       const { data, error } = await query;

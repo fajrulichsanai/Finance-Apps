@@ -36,11 +36,29 @@ export interface DailyTrend {
   expense: number;
 }
 
+// RPC Response Types
+export interface BalanceSummaryRPC {
+  total_income: number;
+  total_expense: number;
+  balance: number;
+}
+
+export interface DashboardDataRPC {
+  total_income_all_time: number;
+  total_expense_all_time: number;
+  balance_all_time: number;
+  total_income_month: number;
+  total_expense_month: number;
+  balance_month: number;
+  categories_data: any[];
+  recent_transactions_data: any[];
+}
+
 class StatisticsService {
   private supabase = createClient();
 
   /**
-   * Get total balance summary
+   * Get total balance summary (optimized with RPC - no client-side processing)
    */
   async getBalanceSummary(): Promise<BalanceSummary> {
     try {
@@ -48,26 +66,17 @@ class StatisticsService {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await this.supabase
-        .from('transactions')
-        .select('type, amount')
-        .eq('user_id', user.id);
+        .rpc('get_balance_summary_optimized', {
+          p_user_id: user.id
+        })
+        .single<BalanceSummaryRPC>();
 
       if (error) throw error;
 
-      const totalIncome = (data || [])
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-
-      const totalExpense = (data || [])
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-
-      const balance = totalIncome - totalExpense;
-
       return {
-        totalIncome,
-        totalExpense,
-        balance
+        totalIncome: Number(data?.total_income) || 0,
+        totalExpense: Number(data?.total_expense) || 0,
+        balance: Number(data?.balance) || 0
       };
 
     } catch (error) {
@@ -77,37 +86,25 @@ class StatisticsService {
   }
 
   /**
-   * Get current month income/expense
+   * Get current month income/expense (optimized with RPC)
    */
   async getCurrentMonthSummary(): Promise<BalanceSummary> {
     try {
       const { data: { user } } = await this.supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-        .toISOString().split('T')[0];
-
       const { data, error } = await this.supabase
-        .from('transactions')
-        .select('type, amount')
-        .eq('user_id', user.id)
-        .gte('transaction_date', startOfMonth);
+        .rpc('get_current_month_summary_optimized', {
+          p_user_id: user.id
+        })
+        .single<BalanceSummaryRPC>();
 
       if (error) throw error;
 
-      const totalIncome = (data || [])
-        .filter((t: any) => t.type === 'income')
-        .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
-
-      const totalExpense = (data || [])
-        .filter((t: any) => t.type === 'expense')
-        .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
-
       return {
-        totalIncome,
-        totalExpense,
-        balance: totalIncome - totalExpense
+        totalIncome: Number(data?.total_income) || 0,
+        totalExpense: Number(data?.total_expense) || 0,
+        balance: Number(data?.balance) || 0
       };
 
     } catch (error) {
@@ -134,7 +131,8 @@ class StatisticsService {
         .select('transaction_date, type, amount')
         .eq('user_id', user.id)
         .gte('transaction_date', startDate.toISOString().split('T')[0])
-        .order('transaction_date', { ascending: true });
+        .order('transaction_date', { ascending: true })
+        .limit(10000); // OPTIMIZED: Add limit to prevent huge payloads
 
       if (error) throw error;
 
@@ -270,7 +268,8 @@ class StatisticsService {
         .select('transaction_date, type, amount')
         .eq('user_id', user.id)
         .gte('transaction_date', startDate.toISOString().split('T')[0])
-        .order('transaction_date', { ascending: true });
+        .order('transaction_date', { ascending: true })
+        .limit(1000); // OPTIMIZED: Add limit to prevent huge payloads
 
       if (error) throw error;
 
@@ -328,6 +327,63 @@ class StatisticsService {
 
     const breakdown = await this.getCategoryBreakdown('expense', startOfMonth, endOfMonth);
     return breakdown.slice(0, limit);
+  }
+
+  /**
+   * OPTIMIZED: Get all dashboard data in single RPC call
+   * Combines: balance summary, month summary, categories with budget, recent transactions
+   * Reduces 4 queries to 1 - critical for Supabase Free Tier
+   */
+  async getDashboardData() {
+    try {
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('[getDashboardData] Auth error:', authError.message);
+        throw new Error(`Authentication failed: ${authError.message}`);
+      }
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await this.supabase
+        .rpc('get_dashboard_data', {
+          p_user_id: user.id
+        })
+        .single<DashboardDataRPC>();
+
+      if (error) {
+        console.error('[getDashboardData] RPC error:', {
+          message: error.message,
+          details: error.details,
+          code: error.code
+        });
+        throw new Error(`Failed to fetch dashboard data: ${error.message}`);
+      }
+
+      // Parse JSON fields if they're strings
+      const categoriesData = typeof data?.categories_data === 'string' 
+        ? JSON.parse(data.categories_data) 
+        : data?.categories_data || [];
+      const transactionsData = typeof data?.recent_transactions_data === 'string'
+        ? JSON.parse(data.recent_transactions_data)
+        : data?.recent_transactions_data || [];
+
+      return {
+        balanceSummary: {
+          totalIncome: Number(data?.total_income_all_time) || 0,
+          totalExpense: Number(data?.total_expense_all_time) || 0,
+          balance: Number(data?.balance_all_time) || 0
+        },
+        monthSummary: {
+          totalIncome: Number(data?.total_income_month) || 0,
+          totalExpense: Number(data?.total_expense_month) || 0,
+          balance: Number(data?.balance_month) || 0
+        },
+        categories: categoriesData,
+        recentTransactions: transactionsData
+      };
+    } catch (error) {
+      console.error('[getDashboardData] Error:', error);
+      throw error;
+    }
   }
 }
 
