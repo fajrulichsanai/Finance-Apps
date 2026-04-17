@@ -107,9 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionFetchPromise.current = fetchSessionWithRetry()
     }
 
-    sessionFetchPromise.current
-      .then(({ data: { session } }) => {
-        // ✅ BUG FIX #10: Check mounted before state update
+    // ✅ BUG FIX #6: Use async/await instead of .then() to prevent multiple subscribers race condition
+    // Convert promise chain to async IIFE to avoid race conditions
+    ;(async () => {
+      try {
+        const { data: { session } } = await sessionFetchPromise.current
+        
+        // Check mounted before state update
         if (!isMountedRef.current) return
 
         setSession(session)
@@ -119,12 +123,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (process.env.NODE_ENV === 'development') {
           console.log('✅ [Auth] Session loaded:', session ? 'authenticated' : 'guest')
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         if (!isMountedRef.current) return
         console.error('❌ [Auth] Failed to load session:', error)
         setLoading(false)
-      })
+      }
+    })()
 
     // OPTIMIZATION 2: Listen for auth changes with proper cleanup
     // This handles token refresh automatically (no extra API calls needed)

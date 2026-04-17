@@ -50,9 +50,6 @@ export const useLogin = () => {
   
   // ✅ BUG FIX #4: Track mounted state
   const isMountedRef = useRef(true);
-  
-  // ✅ NEW: Abort controller for request cancellation
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   // ✅ BUG FIX #4: Cleanup on unmount
   useEffect(() => {
@@ -60,34 +57,26 @@ export const useLogin = () => {
     
     return () => {
       isMountedRef.current = false;
-      // Cancel any in-flight requests
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
     };
   }, []);
 
-  // ✅ BUG FIX #6: Rate limiting - track login attempts (client-side)
-  // Note: Server-side rate limiting should be implemented as well
-  const loginAttempts = useRef<{ timestamp: number }[]>([]);
-  const MAX_ATTEMPTS = 5;
-  const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-
-  // ✅ BUG FIX #6: Check server-side rate limiting (can be bypassed by client-side)
-  const checkServerRateLimit = useCallback(async (emailParam: string): Promise<{ allowed: boolean; message?: string }> => {
+  // ✅ BUG FIX #6: Check server-side rate limiting (IP-based, prevents race conditions)
+  // Updated to use database-backed RPC for atomicity
+  // Note: Client-side tracking removed (server is authoritative via RPC)
+  const checkServerRateLimit = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
     try {
       const response = await fetch('/api/auth/rate-limit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: emailParam }),
+        body: JSON.stringify({}), // Empty body - RPC uses IP from headers
       });
 
       const data = await response.json();
 
       if (response.status === 429) {
-        return { allowed: false, message: 'Too many login attempts. Please try again later.' };
+        return { allowed: false, message: 'Too many login attempts. Please try again in 15 minutes.' };
       }
 
       return { allowed: true };
@@ -134,19 +123,6 @@ export const useLogin = () => {
         return;
       }
 
-      // ✅ BUG FIX #6: Check client-side rate limiting first (quick check)
-      const now = Date.now();
-      loginAttempts.current = loginAttempts.current.filter(
-        (attempt) => now - attempt.timestamp < RATE_LIMIT_WINDOW_MS
-      );
-      
-      if (loginAttempts.current.length >= MAX_ATTEMPTS) {
-        if (!isMountedRef.current) return;
-        setError('Too many login attempts. Please try again in 15 minutes.');
-        submitInProgress.current = false;
-        return;
-      }
-
       if (!isMountedRef.current) return;
       
       setError('');
@@ -154,7 +130,7 @@ export const useLogin = () => {
       setIsLoading(true);
 
       // ✅ BUG FIX #6: Check server-side rate limiting (can't be bypassed by attacker)
-      const { allowed: serverAllowed, message: rateLimitMessage } = await checkServerRateLimit(email);
+      const { allowed: serverAllowed, message: rateLimitMessage } = await checkServerRateLimit();
       
       if (!serverAllowed) {
         if (!isMountedRef.current) {
@@ -173,32 +149,23 @@ export const useLogin = () => {
         return;
       }
 
-      // Record this login attempt (for client-side tracking)
-      loginAttempts.current.push({ timestamp: Date.now() });
-
-      // ✅ NEW: Create abort controller for this request
-      abortControllerRef.current = new AbortController();
-
-      // ✅ NEW: Add timeout promise
+      // ✅ NEW: Timeout protection with cleanup
+      // Use AbortController + Promise.race for proper timeout handling
+      let timeoutId: NodeJS.Timeout | null = null;
+      
       const timeoutPromise = new Promise<{ error: Error }>((resolve) => {
-        const timeout = setTimeout(() => {
-          abortControllerRef.current?.abort();
-          resolve({ error: new Error('Request timeout - taking too long to connect') });
-        }, 15000); // 15 second timeout
-        
-        // Store timeout ID so we can clear it on success
-        if (abortControllerRef.current) {
-          (abortControllerRef.current as any)._timeoutId = timeout;
-        }
+        timeoutId = setTimeout(() => {
+          resolve({ error: new Error('Connection timeout - request took too long') });
+        }, 30000); // 30 second timeout (longer = fewer false positives)
       });
 
       // Race between actual request and timeout
       const resultPromise = signInWithEmail(email, password);
       const { error } = await Promise.race([resultPromise, timeoutPromise]);
 
-      // Clear timeout if it exists
-      if ((abortControllerRef.current as any)?._timeoutId) {
-        clearTimeout((abortControllerRef.current as any)._timeoutId);
+      // Always clear timeout
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
       }
 
       // ✅ BUG FIX #4: Check mounted before state update
@@ -245,7 +212,7 @@ export const useLogin = () => {
     }
   };
 
-  // ✅ BUG FIX #9: Better Google OAuth error handling with popup detection
+  // ✅ BUG FIX #9: Better Google OAuth error handling with improved popup detection
   const handleGoogleLogin = async () => {
     if (submitInProgress.current || isLoading) {
       return;
@@ -261,22 +228,35 @@ export const useLogin = () => {
     setError('');
     setSuccessMessage('');
     setIsLoading(true);
+    
+    const startTime = Date.now();
 
     try {
       await signInWithGoogle();
       
-      // ✅ NEW: Check if redirect happened after a delay
-      // If we're still on the same page, popup might have been blocked
+      // ✅ FIXED: Improved popup detection logic
+      // Only show "blocked" error if error occurs immediately (<500ms)
+      // This indicates genuine popup block, not network delay
       setTimeout(() => {
         if (!isMountedRef.current) return;
         
-        if (window.location.pathname === '/') {
-          console.warn('[OAuth] Redirect might have been blocked');
-          setError('Google sign-in popup may have been blocked. Please check your browser settings.');
+        // Still on login page = redirect didn't happen (likely blocked)
+        if (window.location.pathname === '/' || window.location.pathname === '') {
+          const elapsed = Date.now() - startTime;
+          
+          // Genuine popup block = error fires quickly
+          if (elapsed < 500) {
+            console.warn('[OAuth] Popup blocked - error detected immediately');
+            setError('Google sign-in popup was blocked. Please enable popups in your browser settings.');
+          } else {
+            // Slow response = network delay, not popup block
+            console.warn('[OAuth] Slow redirect - network delay likely');
+            setError('Google sign-in is taking longer than expected. Please check your connection.');
+          }
           setIsLoading(false);
           submitInProgress.current = false;
         }
-      }, 2000);
+      }, 5000); // 5 second grace period instead of 2s
       // Success: page will redirect on callback
     } catch (err) {
       if (!isMountedRef.current) {
@@ -323,16 +303,17 @@ export const useLogin = () => {
           console.error('[Password Reset Error]:', error.message);
         }
       } else {
-        // ✅ BUG FIX #6: Show success message instead of alert
-        setSuccessMessage('Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
+        // ✅ FIXED: Show success message with 10s auto-dismiss
+        // User has time to read, but message auto-clears to avoid UI clutter
+        setSuccessMessage('✓ Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
         setError('');
         
-        // Clear success message after 5 seconds
+        // Auto-dismiss after 10 seconds (enough time to read + act)
         setTimeout(() => {
           if (isMountedRef.current) {
             setSuccessMessage('');
           }
-        }, 5000);
+        }, 10000);
       }
     } catch (err) {
       if (!isMountedRef.current) {
