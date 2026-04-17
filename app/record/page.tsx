@@ -97,6 +97,11 @@ export default function RecordPage() {
   // Filter categories based on transaction type
   const filteredCategories = categories.filter(cat => cat.type === formData.type);
 
+  // Dynamic placeholder based on transaction type
+  const descriptionPlaceholder = formData.type === 'income'
+    ? 'Untuk apa? (cth: gaji bulanan, freelance, bonus)'
+    : 'Untuk apa? (cth: makan pecel, bensin, bayar listrik)';
+
   // Enhanced validation with amount limits and date checks
   const validateFormWithLimits = (): string | null => {
     if (formData.amount <= 0) return 'Jumlah harus lebih dari 0';
@@ -218,6 +223,7 @@ export default function RecordPage() {
           <DescriptionInput
             value={formData.description}
             onChange={updateDescription}
+            placeholder={descriptionPlaceholder}
           />
 
           {/* Category Selector - Only show for expense transactions with smooth transition */}

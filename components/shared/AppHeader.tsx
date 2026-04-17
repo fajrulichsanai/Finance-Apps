@@ -35,25 +35,25 @@ export default function AppHeader() {
   };
 
   return (
-    <header className="bg-gray-50 px-5 pt-5 pb-2 sticky top-0 z-10 flex items-center justify-between">
+    <header className="bg-gray-50 dark:bg-gray-900 px-5 pt-5 pb-2 sticky top-0 z-10 flex items-center justify-between transition-colors">
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center border-2 border-blue-900">
+        <div className="w-10 h-10 rounded-full bg-blue-900 dark:bg-blue-600 flex items-center justify-center border-2 border-blue-900 dark:border-blue-600 transition-colors">
           <User className="w-6 h-6 text-white" />
         </div>
         <div className="flex flex-col">
-          <span className="text-xs font-medium text-gray-500">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
             {getGreeting()}
           </span>
-          <span className="text-base font-extrabold text-gray-900">
+          <span className="text-base font-extrabold text-gray-900 dark:text-gray-100">
             {getUserName()}
           </span>
         </div>
       </div>
       <button 
         onClick={() => router.push('/notification')}
-        className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:bg-gray-100 active:scale-95 transition-all"
+        className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all"
       >
-        <Bell className="w-5 h-5 text-gray-900" />
+        <Bell className="w-5 h-5 text-gray-900 dark:text-gray-100" />
       </button>
     </header>
   );

@@ -15,6 +15,7 @@ import CategoryAllocation from '@/components/features/insight/CategoryAllocation
 import SmartRecommendations from '@/components/features/insight/SmartRecommendations';
 import MonthlySpendingTrend from '@/components/features/insight/MonthlySpendingTrend';
 import StatCard from '@/components/features/insight/StatCard';
+import InsightSkeleton from '@/components/features/insight/InsightSkeleton';
 import { useBalanceSummary, useCurrentMonthSummary, useCategoryBreakdown, useMonthlyData } from '@/lib/hooks/useStatistics';
 import { formatIDR } from '@/lib/utils/currency';
 
@@ -67,21 +68,11 @@ export default function InsightPage() {
   }));
 
   if (balanceLoading || categoryLoading) {
-    return (
-      <div className="min-h-screen bg-[#f2f2f5] relative pb-24">
-        <div className="w-full max-w-[430px] mx-auto">
-          <AppHeader />
-          <div className="px-4 py-8">
-            <p className="text-center text-gray-500">Memuat data...</p>
-          </div>
-          <BottomNav />
-        </div>
-      </div>
-    );
+    return <InsightSkeleton />;
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f2f5] relative pb-24">
+    <div className="min-h-screen bg-[#f2f2f5] dark:bg-gray-900 relative pb-24 transition-colors">
       <div className="w-full max-w-[430px] mx-auto">
         <AppHeader />
 

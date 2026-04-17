@@ -62,12 +62,12 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     
     // Validation: Name
     if (!formData.name?.trim()) {
-      setError('Category name is required');
+      setError('Nama kategori harus diisi');
       return;
     }
     
     if (formData.name.trim().length > 50) {
-      setError('Category name must be less than 50 characters');
+      setError('Nama kategori maksimal 50 karakter');
       return;
     }
     
@@ -116,10 +116,18 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     } catch (err: any) {
       console.error('Error submitting category:', err);
       // Extract meaningful error message
-      const errorMessage = err?.message || 
-                          err?.error?.message || 
-                          err?.toString() || 
-                          'Failed to save category. Please try again.';
+      let errorMessage = err?.message || 
+                         err?.error?.message || 
+                         err?.toString() || 
+                         'Gagal menyimpan kategori. Silakan coba lagi.';
+      
+      // Handle duplicate category name error
+      if (errorMessage.includes('categories_user_name_unique') || 
+          errorMessage.includes('duplicate key value') ||
+          errorMessage.includes('already exists')) {
+        errorMessage = `Kategori dengan nama "${formData.name}" sudah ada. Gunakan nama lain.`;
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);

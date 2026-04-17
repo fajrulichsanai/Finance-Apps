@@ -13,7 +13,7 @@ interface DescriptionInputProps {
 export default function DescriptionInput({ 
   value, 
   onChange, 
-  placeholder = "Untuk apa? (cth: makan pecel, bensin, bayar listrik)" 
+  placeholder = "Untuk apa? (cth: gaji bulanan, freelance, bonus)" 
 }: DescriptionInputProps) {
   const maxLength = 200;
   const charCount = value.length;

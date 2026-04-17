@@ -15,7 +15,10 @@ import { ActivitySection, ActivityTransaction, TransactionIconType } from '@/typ
 export default function ActivityPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const { transactions, loading, error, refresh } = useTransactions();
+  const [dateRange, setDateRange] = useState<{ start: string | null; end: string | null }>({ start: null, end: null });
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { transactions, loading, error, refresh, deleteTransaction } = useTransactions();
 
   // Debounce search query (300ms)
   useEffect(() => {
@@ -30,6 +33,37 @@ export default function ActivityPage() {
   const getLocalDateString = (date: Date): string => {
     return date.toLocaleDateString('en-CA');
   };
+
+  // Handle transaction deletion
+  const handleDeleteTransaction = async (id: string) => {
+    try {
+      setDeletingId(id);
+      await deleteTransaction(id);
+      await refresh();
+    } catch (err) {
+      console.error('Failed to delete transaction:', err);
+      alert('Gagal menghapus transaksi. Silakan coba lagi.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Apply date range filter
+  const filteredByDateRange = useMemo(() => {
+    if (!dateRange.start && !dateRange.end) {
+      return transactions;
+    }
+    
+    return transactions.filter(txn => {
+      const txnDate = new Date(txn.transaction_date);
+      const txnDateStr = getLocalDateString(txnDate);
+      
+      if (dateRange.start && txnDateStr < dateRange.start) return false;
+      if (dateRange.end && txnDateStr > dateRange.end) return false;
+      
+      return true;
+    });
+  }, [transactions, dateRange]);
 
   // Group transactions by date sections
   const groupedSections = useMemo((): ActivitySection[] => {
@@ -58,7 +92,7 @@ export default function ActivityPage() {
       'health': 'health'
     };
 
-    transactions.forEach(txn => {
+    filteredByDateRange.forEach(txn => {
       // FIX: Use local date string for consistency
       const txnDateObj = new Date(txn.transaction_date);
       const txnDate = getLocalDateString(txnDateObj);
@@ -110,7 +144,7 @@ export default function ActivityPage() {
     }
 
     return sections;
-  }, [transactions]);
+  }, [filteredByDateRange]);
 
   // Filter transactions based on debounced search query
   const filteredSections = useMemo(() => {
@@ -136,7 +170,7 @@ export default function ActivityPage() {
   // FIX: Display error state
   if (error && !loading) {
     return (
-      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
+      <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-[18px] py-8">
@@ -159,7 +193,7 @@ export default function ActivityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
+      <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-[18px] py-8">
@@ -185,15 +219,67 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
+    <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
       <div className="w-full max-w-[430px] mx-auto">
         <AppHeader />
         
-        <ActivitySearchBar 
-          value={searchQuery} 
-          onChange={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-        />
+        <div className="px-[18px] mb-4">
+          <ActivitySearchBar 
+            value={searchQuery} 
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+          />
+          
+          {/* Date Range Filter */}
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => setShowDateFilter(!showDateFilter)}
+              className="px-4 py-2 bg-white rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200"
+            >
+              {dateRange.start || dateRange.end ? '🗓️ Filter Aktif' : '🗓️ Filter Tanggal'}
+            </button>
+            {(dateRange.start || dateRange.end) && (
+              <button
+                onClick={() => setDateRange({ start: null, end: null })}
+                className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+          
+          {/* Date Range Picker */}
+          {showDateFilter && (
+            <div className="mt-3 bg-white rounded-2xl p-4 shadow-sm space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Dari Tanggal</label>
+                <input
+                  type="date"
+                  value={dateRange.start || ''}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value || null }))}
+                  max={dateRange.end || undefined}
+                  className="w-full px-3 py-2 bg-gray-50 rounded-lg text-sm border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Sampai Tanggal</label>
+                <input
+                  type="date"
+                  value={dateRange.end || ''}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value || null }))}
+                  min={dateRange.start || undefined}
+                  className="w-full px-3 py-2 bg-gray-50 rounded-lg text-sm border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <button
+                onClick={() => setShowDateFilter(false)}
+                className="w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+              >
+                Terapkan Filter
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="px-[18px]">
           {filteredSections.length > 0 ? (
@@ -202,6 +288,8 @@ export default function ActivityPage() {
                 key={`${section.label}-${section.date}-${section.transactions[0]?.id}`}
                 section={section}
                 isLast={index === filteredSections.length - 1}
+                onDeleteTransaction={handleDeleteTransaction}
+                deletingId={deletingId}
               />
             ))
           ) : (

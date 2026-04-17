@@ -20,6 +20,7 @@ interface BudgetCategoryCardProps {
   isOverBudget?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  disableDelete?: boolean;
 }
 
 export default function BudgetCategoryCard({
@@ -32,7 +33,8 @@ export default function BudgetCategoryCard({
   limit,
   isOverBudget = false,
   onEdit,
-  onDelete
+  onDelete,
+  disableDelete = false
 }: BudgetCategoryCardProps) {
   // Validate and convert to safe numbers
   const safeSpent = Number.isFinite(spent) ? spent : 0;
@@ -79,10 +81,15 @@ export default function BudgetCategoryCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              if (!disableDelete) onDelete();
             }}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-            title="Hapus kategori"
+            disabled={disableDelete}
+            className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
+              disableDelete 
+                ? 'text-gray-300 cursor-not-allowed' 
+                : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+            }`}
+            title={disableDelete ? 'Kategori dengan transaksi tidak dapat dihapus' : 'Hapus kategori'}
           >
             <Trash2 className="w-5 h-5" strokeWidth={1.5} />
           </button>

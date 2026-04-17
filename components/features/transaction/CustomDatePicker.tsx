@@ -121,30 +121,41 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
   };
 
   return (
-    <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-sm relative">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-        Tanggal Transaksi
-      </p>
-      
-      {/* Display Field */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 w-full text-left group"
-      >
-        <Calendar className="w-5 h-5 text-indigo-600" strokeWidth={1.8} />
-        <span className="text-sm font-semibold text-slate-900 flex-1">
-          {formatDisplayDate(date)}
-        </span>
-        <ChevronRight 
-          className={`w-4 h-4 text-slate-400 transition-transform ${
-            isOpen ? 'rotate-90' : ''
-          }`} 
-        />
-      </button>
+    <>
+      <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-sm">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">
+          Tanggal Transaksi
+        </p>
+        
+        {/* Display Field */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2.5 w-full text-left group"
+        >
+          <Calendar className="w-5 h-5 text-indigo-600" strokeWidth={1.8} />
+          <span className="text-sm font-semibold text-slate-900 flex-1">
+            {formatDisplayDate(date)}
+          </span>
+          <ChevronRight 
+            className={`w-4 h-4 text-slate-400 transition-transform ${
+              isOpen ? 'rotate-90' : ''
+            }`} 
+          />
+        </button>
+      </div>
 
-      {/* Calendar Dropdown */}
+      {/* Calendar Modal - Center of screen */}
       {isOpen && (
-        <div className="absolute left-5 right-5 mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 animate-fade-in-up">
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/40 z-50 animate-fade-in"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Modal */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-5 pointer-events-none">
+            <div className="bg-white rounded-2xl shadow-2xl p-5 max-w-sm w-full pointer-events-auto animate-scale-in">
           {/* Month Navigation */}
           <div className="flex items-center justify-between mb-4">
             <button
@@ -174,7 +185,7 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-1 mb-4">
             {emptyDays.map(i => (
               <div key={`empty-${i}`} className="aspect-square" />
             ))}
@@ -208,30 +219,24 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
           </div>
 
           {/* Quick Actions */}
-          <div className="mt-3 pt-3 border-t border-slate-200 flex gap-2">
+          <div className="flex gap-2">
             <button
               onClick={handleToday}
-              className="flex-1 py-2 px-3 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors"
+              className="flex-1 py-2.5 bg-indigo-100 text-indigo-600 rounded-lg font-semibold text-sm hover:bg-indigo-200 transition-colors"
             >
               Hari Ini
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="flex-1 py-2 px-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
+              className="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors"
             >
               Tutup
             </button>
           </div>
-        </div>
+            </div>
+          </div>
+        </>
       )}
-
-      {/* Overlay to close */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-    </div>
+    </>
   );
 }

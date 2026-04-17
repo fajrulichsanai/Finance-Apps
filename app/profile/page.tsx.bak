@@ -54,7 +54,7 @@ export default function ProfilePage() {
           <FinancialPreferences />
           
           <Section label="Export Reports">
-            <ExportSection userId={user?.id || ""} />
+            <ExportSection />
           </Section>
           
           <DataContinuity />

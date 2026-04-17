@@ -9,9 +9,16 @@ import TransactionCard from './TransactionCard';
 interface TransactionSectionProps {
   section: ActivitySection;
   isLast: boolean;
+  onDeleteTransaction?: (id: string) => void;
+  deletingId?: string | null;
 }
 
-export default function TransactionSection({ section, isLast }: TransactionSectionProps) {
+export default function TransactionSection({ 
+  section, 
+  isLast, 
+  onDeleteTransaction,
+  deletingId 
+}: TransactionSectionProps) {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-3">
@@ -24,7 +31,12 @@ export default function TransactionSection({ section, isLast }: TransactionSecti
       </div>
 
       {section.transactions.map((transaction) => (
-        <TransactionCard key={transaction.id} transaction={transaction} />
+        <TransactionCard 
+          key={transaction.id} 
+          transaction={transaction}
+          onDelete={onDeleteTransaction}
+          deleting={deletingId === transaction.id}
+        />
       ))}
 
       {!isLast && <div className="h-[18px]" />}

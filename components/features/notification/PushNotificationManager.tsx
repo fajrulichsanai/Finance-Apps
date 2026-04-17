@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Bell, BellOff, Check, AlertCircle, Info } from 'lucide-react';
 
 interface PushSubscriptionData {
   endpoint: string;
@@ -21,7 +22,6 @@ export default function PushNotificationManager({ userId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
 
-  // Check browser support & existing permission
   useEffect(() => {
     const checkSupport = () => {
       const supported = 
@@ -38,27 +38,21 @@ export default function PushNotificationManager({ userId }: Props) {
     };
 
     checkSupport();
-  }, [userId]); // Re-check when userId changes
+  }, [userId]);
 
-  // Check if user already has active subscription
   async function checkSubscription() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       setIsSubscribed(!!subscription);
-      
-      if (subscription) {
-        console.log('✅ Existing subscription found');
-      }
     } catch (err) {
       console.error('Error checking subscription:', err);
     }
   }
 
-  // Subscribe to push notifications
   async function subscribeToPush() {
     if (!isSupported || permission !== 'granted') {
-      setError('Permission belum diberikan');
+      setError('Izin notifikasi belum diberikan');
       return;
     }
 
@@ -66,29 +60,20 @@ export default function PushNotificationManager({ userId }: Props) {
     setError(null);
 
     try {
-      // 1. Register Service Worker
-      console.log('📝 Registering Service Worker...');
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
         updateViaCache: 'none'
       });
 
-      // Wait for SW to be ready
       await navigator.serviceWorker.ready;
-      console.log('✅ Service Worker ready');
 
-      // 2. Subscribe to Push Manager
-      console.log('🔔 Subscribing to Push Manager...');
       const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true, // Required by spec
+        userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
           process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
         ) as BufferSource
       });
 
-      console.log('✅ Push subscription created');
-
-      // 3. Convert subscription to JSON
       const subscriptionJson = subscription.toJSON();
       
       if (!subscriptionJson.keys) {
@@ -101,8 +86,6 @@ export default function PushNotificationManager({ userId }: Props) {
         auth: subscriptionJson.keys.auth,
       };
 
-      // 4. Save subscription to Supabase
-      console.log('💾 Saving subscription to database...');
       const { error: dbError } = await supabase
         .from('push_subscriptions')
         .upsert({
@@ -119,20 +102,18 @@ export default function PushNotificationManager({ userId }: Props) {
       if (dbError) throw dbError;
 
       setIsSubscribed(true);
-      console.log('✅ Push subscription saved successfully');
       
     } catch (err: any) {
-      console.error('❌ Error subscribing to push:', err);
+      console.error('Error subscribing to push:', err);
       setError(err.message || 'Gagal mengaktifkan notifikasi');
     } finally {
       setLoading(false);
     }
   }
 
-  // Request notification permission
   async function requestPermission() {
     if (!isSupported) {
-      setError('Browser tidak mendukung push notifications');
+      setError('Browser tidak mendukung notifikasi push');
       return;
     }
 
@@ -140,44 +121,37 @@ export default function PushNotificationManager({ userId }: Props) {
     setError(null);
 
     try {
-      console.log('🔐 Requesting notification permission...');
       const result = await Notification.requestPermission();
       setPermission(result);
 
       if (result === 'granted') {
-        console.log('✅ Permission granted');
         await subscribeToPush();
       } else if (result === 'denied') {
-        setError('Permission ditolak. Silakan aktifkan di pengaturan browser.');
+        setError('Izin ditolak. Aktifkan di pengaturan browser.');
       } else {
-        setError('Permission dibatalkan');
+        setError('Izin dibatalkan');
       }
     } catch (err: any) {
       console.error('Error requesting permission:', err);
-      setError(err.message || 'Gagal meminta permission');
+      setError(err.message || 'Gagal meminta izin notifikasi');
     } finally {
       setLoading(false);
     }
   }
 
-  // Unsubscribe from push notifications
   async function unsubscribe() {
     setLoading(true);
     setError(null);
 
     try {
-      console.log('🔕 Unsubscribing from push...');
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
 
       if (subscription) {
         const endpoint = subscription.endpoint;
         
-        // Unsubscribe from browser
         await subscription.unsubscribe();
-        console.log('✅ Browser unsubscribed');
 
-        // Delete from database
         const { error: dbError } = await supabase
           .from('push_subscriptions')
           .delete()
@@ -187,44 +161,27 @@ export default function PushNotificationManager({ userId }: Props) {
         if (dbError) throw dbError;
 
         setIsSubscribed(false);
-        console.log('✅ Subscription removed from database');
       }
     } catch (err: any) {
-      console.error('❌ Error unsubscribing:', err);
+      console.error('Error unsubscribing:', err);
       setError(err.message || 'Gagal menonaktifkan notifikasi');
     } finally {
       setLoading(false);
     }
   }
 
-  // Test notification
-  async function sendTestNotification() {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      await registration.showNotification('Test Notification', {
-        body: 'Push notifications berfungsi dengan baik! 🎉',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-72.png',
-        tag: 'test',
-        data: { url: '/dashboard' }
-      });
-      console.log('✅ Test notification shown');
-    } catch (err: any) {
-      console.error('Error showing test notification:', err);
-      setError(err.message);
-    }
-  }
-
-  // UI: Browser not supported
   if (!isSupported) {
     return (
-      <div className="p-4 bg-gray-100 rounded-lg border border-gray-300">
-        <p className="text-sm text-gray-600">
-          ⚠️ Push notifications tidak didukung di browser ini.
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          Gunakan Chrome, Edge, atau Safari terbaru.
-        </p>
+      <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors">
+        <AlertCircle className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Notifikasi Tidak Tersedia
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Browser Anda tidak mendukung notifikasi push. Silakan gunakan Chrome, Edge, atau Safari versi terbaru.
+          </p>
+        </div>
       </div>
     );
   }
@@ -232,105 +189,132 @@ export default function PushNotificationManager({ userId }: Props) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div>
-        <h3 className="text-lg font-semibold mb-1">Push Notifications</h3>
-        <p className="text-sm text-gray-600">
-          Terima notifikasi untuk transaksi dan reminder penting
-        </p>
+      <div className="flex items-start gap-3">
+        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg transition-colors">
+          <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+            Notifikasi Push
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Dapatkan pemberitahuan real-time untuk transaksi dan pengingat penting
+          </p>
+        </div>
       </div>
 
-      {/* Status */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-gray-600">Status:</span>
-        <span className={`font-medium ${
-          permission === 'granted' ? 'text-green-600' :
-          permission === 'denied' ? 'text-red-600' :
-          'text-gray-600'
-        }`}>
-          {permission === 'granted' ? '✅ Aktif' :
-           permission === 'denied' ? '❌ Ditolak' :
-           '⏸️ Belum Diaktifkan'}
-        </span>
+      {/* Status Card */}
+      <div className={`p-4 rounded-xl border transition-colors ${
+        permission === 'granted' && isSubscribed
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+          : permission === 'denied'
+          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
+      }`}>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+            permission === 'granted' && isSubscribed
+              ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400'
+              : permission === 'denied'
+              ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+          }`}>
+            {permission === 'granted' && isSubscribed ? (
+              <>
+                <Check className="w-3 h-3" />
+                Aktif
+              </>
+            ) : permission === 'denied' ? (
+              <>
+                <BellOff className="w-3 h-3" />
+                Dinonaktifkan
+              </>
+            ) : (
+              <>
+                <Bell className="w-3 h-3" />
+                Belum Aktif
+              </>
+            )}
+          </span>
+        </div>
+        
+        <p className="text-xs text-gray-600 dark:text-gray-400">
+          {permission === 'granted' && isSubscribed
+            ? 'Anda akan menerima notifikasi untuk aktivitas penting'
+            : permission === 'denied'
+            ? 'Notifikasi dinonaktifkan untuk aplikasi ini'
+            : 'Aktifkan notifikasi untuk tetap mendapat update'}
+        </p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">❌ {error}</p>
+        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 transition-colors">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {/* Actions */}
       <div className="space-y-3">
-        {/* Request Permission */}
         {permission === 'default' && (
           <button
             onClick={requestPermission}
             disabled={loading}
-            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? '⏳ Loading...' : '🔔 Aktifkan Notifikasi'}
+            <Bell className="w-4 h-4" />
+            {loading ? 'Memproses...' : 'Aktifkan Notifikasi'}
           </button>
         )}
 
-        {/* Permission Denied */}
         {permission === 'denied' && (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800 mb-2">
-              <strong>Permission ditolak</strong>
-            </p>
-            <p className="text-xs text-yellow-700">
-              Untuk mengaktifkan notifikasi, buka pengaturan browser dan ubah permission untuk situs ini.
-            </p>
+          <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 transition-colors">
+            <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-400 mb-1">
+                Izin Notifikasi Ditolak
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-500">
+                Untuk mengaktifkan kembali, buka pengaturan browser dan ubah izin notifikasi untuk situs ini.
+              </p>
+            </div>
           </div>
         )}
 
-        {/* Subscribe (permission granted but not subscribed) */}
         {permission === 'granted' && !isSubscribed && (
           <button
             onClick={subscribeToPush}
             disabled={loading}
-            className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors"
           >
-            {loading ? '⏳ Loading...' : '✅ Subscribe to Push'}
+            <Bell className="w-4 h-4" />
+            {loading ? 'Memproses...' : 'Langganan Notifikasi'}
           </button>
         )}
 
-        {/* Already Subscribed */}
         {isSubscribed && (
-          <div className="space-y-3">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">
-                ✅ Notifikasi aktif! Anda akan menerima update penting.
-              </p>
-            </div>
-
-            {/* Test Notification Button */}
-            <button
-              onClick={sendTestNotification}
-              className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors"
-            >
-              🧪 Test Notifikasi
-            </button>
-
-            {/* Unsubscribe Button */}
-            <button
-              onClick={unsubscribe}
-              disabled={loading}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium transition-colors"
-            >
-              {loading ? '⏳ Loading...' : '🔕 Nonaktifkan Notifikasi'}
-            </button>
-          </div>
+          <button
+            onClick={unsubscribe}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+          >
+            <BellOff className="w-4 h-4" />
+            {loading ? 'Memproses...' : 'Nonaktifkan Notifikasi'}
+          </button>
         )}
       </div>
 
-      {/* Info */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-xs text-blue-800">
-          💡 <strong>Tip:</strong> Untuk iOS, pastikan PWA sudah di-install ke Home Screen agar notifikasi berfungsi.
-        </p>
-      </div>
+      {/* Info Footer for iOS */}
+      {getDeviceType() === 'ios' && (
+        <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 transition-colors">
+          <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-700 dark:text-blue-400">
+            <span className="font-semibold">Pengguna iOS:</span> Pastikan aplikasi sudah diinstal ke Home Screen agar notifikasi dapat berfungsi dengan baik.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -339,10 +323,6 @@ export default function PushNotificationManager({ userId }: Props) {
 // UTILITY FUNCTIONS
 // ============================================================
 
-/**
- * Convert VAPID key dari base64 string ke Uint8Array
- * Required untuk subscribe to Push Manager
- */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
@@ -359,9 +339,6 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-/**
- * Detect device type dari User Agent
- */
 function getDeviceType(): 'ios' | 'android' | 'desktop' {
   const ua = navigator.userAgent.toLowerCase();
   
