@@ -10,23 +10,53 @@ let isInitializing = false
 let hasCleanedLocks = false
 
 /**
- * Clear stale locks on first initialization
+ * Clear stale locks on first initialization with timestamp validation
+ * ✅ BUG FIX #3: Multi-tab safe lock clearing
  */
 function clearStaleLocks() {
   if (hasCleanedLocks || typeof window === 'undefined') return
   
   try {
+    const now = Date.now()
+    const LOCK_EXPIRY_MS = 10000 // 10 seconds - locks older than this are definitely stale
     const keysToRemove: string[] = []
+    
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      // Only remove lock keys, not the auth token itself
       if (key && key.includes('lock:sb-') && !key.includes('auth-token')) {
-        keysToRemove.push(key)
+        try {
+          // Check if lock is actually stale before removing
+          const lockValue = localStorage.getItem(key)
+          if (lockValue) {
+            try {
+              const lockData = JSON.parse(lockValue)
+              const lockAge = now - (lockData.timestamp || 0)
+              
+              // Only remove if lock is older than expiry time
+              if (lockAge > LOCK_EXPIRY_MS) {
+                keysToRemove.push(key)
+              }
+            } catch {
+              // If can't parse, assume it's corrupt and remove
+              keysToRemove.push(key)
+            }
+          } else {
+            // Empty lock value, safe to remove
+            keysToRemove.push(key)
+          }
+        } catch {
+          // If checking fails, skip this key (safer than removing)
+        }
       }
     }
     
+    // Remove stale locks (with error handling for each removal)
     keysToRemove.forEach(key => {
-      localStorage.removeItem(key)
+      try {
+        localStorage.removeItem(key)
+      } catch {
+        // Individual removal might fail due to quota or race condition, ignore
+      }
     })
     
     if (process.env.NODE_ENV === 'development' && keysToRemove.length > 0) {
@@ -34,6 +64,9 @@ function clearStaleLocks() {
     }
   } catch (error) {
     // Fail silently - this is just a cleanup operation
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[Supabase] Lock cleanup failed:', error)
+    }
   }
   
   hasCleanedLocks = true

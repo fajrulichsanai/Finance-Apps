@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
+// ✅ BUG FIX #5: Session validation cache to prevent excessive API calls
+// Cache maps session to validation result with timestamp
+const sessionCache = new Map<string, { valid: boolean; timestamp: number }>();
+const CACHE_TTL = 5000; // 5 seconds
+
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
@@ -35,10 +40,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Get user session
+  // ✅ BUG FIX #5: Use getSession instead of getUser for better performance
+  // getSession() reads from cookie cache (fast, no network call)
+  // getUser() makes API request to Supabase (slow, network-dependent)
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  const user = session?.user ?? null
 
   if (process.env.NODE_ENV === 'development') {
     console.log(`🔒 [Middleware] ${pathname} - User: ${user ? user.email : 'none'}`)

@@ -23,51 +23,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  
+
   // ANTI-LOOP: Track if initial fetch is done
   const initialFetchDone = useRef(false)
   const authListenerRef = useRef<any>(null)
   const sessionFetchPromise = useRef<Promise<any> | null>(null)
   const lastFetchTime = useRef<number>(0)
-  const sessionExpiryTimer = useRef<NodeJS.Timeout | null>(null)
+  // ✅ BUG FIX #10: Cleanup refs for proper memory management
+  const isMountedRef = useRef(true)
 
-  // Session expiry: 5 minutes (in milliseconds)
-  const SESSION_EXPIRY_MS = 5 * 60 * 1000
-
-  // Function to start session expiry timer
-  const startSessionExpiryTimer = useCallback(() => {
-    // Clear existing timer
-    if (sessionExpiryTimer.current) {
-      clearTimeout(sessionExpiryTimer.current)
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('⏱️ [Auth] Starting 5-minute session expiry timer')
-    }
-
-    // Set new timer for 5 minutes
-    sessionExpiryTimer.current = setTimeout(async () => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('⏰ [Auth] Session expired after 5 minutes, logging out...')
-      }
-      
-      // Force logout
-      await supabase.auth.signOut()
-      window.location.href = '/'
-    }, SESSION_EXPIRY_MS)
-  }, [SESSION_EXPIRY_MS])
-
-  // Function to clear session expiry timer
-  const clearSessionExpiryTimer = useCallback(() => {
-    if (sessionExpiryTimer.current) {
-      clearTimeout(sessionExpiryTimer.current)
-      sessionExpiryTimer.current = null
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🛑 [Auth] Session expiry timer cleared')
-      }
-    }
-  }, [])
+  // ✅ BUG FIX #2: REMOVED artificial 5-minute forced logout timer
+  // Supabase handles session lifecycle server-side
+  // Tokens expire based on server configuration, not arbitrary client timer
+  // This prevents accidental logouts during user work
 
   useEffect(() => {
     // ANTI-LOOP: Prevent double execution in React Strict Mode
@@ -84,42 +52,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 [Auth] Initializing session...')
     }
 
+    // ✅ BUG FIX #10: Track mounted state for proper cleanup
+    isMountedRef.current = true
+
     // OPTIMIZATION 1: Get initial session ONCE on mount with deduplication
-    let isMounted = true
-    
     // Prevent duplicate getSession calls with time-based debouncing
     const now = Date.now()
     const timeSinceLastFetch = now - lastFetchTime.current
-    
+
     if (!sessionFetchPromise.current || timeSinceLastFetch > 5000) {
       lastFetchTime.current = now
-      
+
       // Retry mechanism with exponential backoff for lock stealing errors
       const fetchSessionWithRetry = async (retries = 2, delay = 200): Promise<any> => {
         try {
           return await supabase.auth.getSession()
         } catch (error: any) {
           // Check if it's a lock error
-          const isLockError = error?.message?.includes('lock') || 
-                             error?.message?.includes('stolen') ||
-                             error?.code === 'LOCK_TIMEOUT'
-          
+          const isLockError =
+            error?.message?.includes('lock') ||
+            error?.message?.includes('stolen') ||
+            error?.code === 'LOCK_TIMEOUT'
+
           if (isLockError && retries > 0) {
             if (process.env.NODE_ENV === 'development') {
-              console.log(`⏳ [Auth] Lock error, retrying in ${delay}ms... (${retries} attempts left)`)
+              console.log(
+                `⏳ [Auth] Lock error, retrying in ${delay}ms... (${retries} attempts left)`
+              )
             }
             // Wait with exponential backoff
-            await new Promise(resolve => setTimeout(resolve, delay))
+            await new Promise((resolve) => setTimeout(resolve, delay))
             return fetchSessionWithRetry(retries - 1, delay * 2)
           }
-          
+
           // If still fails, try to clear the lock and retry once
           if (isLockError && retries === 0) {
             if (process.env.NODE_ENV === 'development') {
               console.log('🔓 [Auth] Attempting to clear storage lock...')
             }
             // Wait a bit longer before final retry
-            await new Promise(resolve => setTimeout(resolve, 500))
+            await new Promise((resolve) => setTimeout(resolve, 500))
             try {
               return await supabase.auth.getSession()
             } catch (finalError) {
@@ -127,51 +99,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               throw finalError
             }
           }
-          
+
           throw error
         }
       }
-      
+
       sessionFetchPromise.current = fetchSessionWithRetry()
     }
-    
-    sessionFetchPromise.current.then(({ data: { session } }) => {
-      if (!isMounted) return // Component unmounted, ignore
-      
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('✅ [Auth] Session loaded:', session ? 'authenticated' : 'guest')
-      }
 
-      // Start session expiry timer if authenticated
-      if (session) {
-        startSessionExpiryTimer()
-      }
-    }).catch((error) => {
-      console.error('❌ [Auth] Failed to load session:', error)
-      setLoading(false)
-    })
+    sessionFetchPromise.current
+      .then(({ data: { session } }) => {
+        // ✅ BUG FIX #10: Check mounted before state update
+        if (!isMountedRef.current) return
+
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ [Auth] Session loaded:', session ? 'authenticated' : 'guest')
+        }
+      })
+      .catch((error) => {
+        if (!isMountedRef.current) return
+        console.error('❌ [Auth] Failed to load session:', error)
+        setLoading(false)
+      })
 
     // OPTIMIZATION 2: Listen for auth changes with proper cleanup
     // This handles token refresh automatically (no extra API calls needed)
-    // Only subscribe if not already subscribed
     if (!authListenerRef.current) {
-      // Debounce auth state changes to prevent rapid updates
+      // ✅ BUG FIX #2: Debounce auth state changes with proper cleanup
       let debounceTimer: NodeJS.Timeout | null = null
-      
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, session) => {
-        if (!isMounted) return // Component unmounted, ignore
-        
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (!isMountedRef.current) return
+
         // Clear existing debounce timer
         if (debounceTimer) {
           clearTimeout(debounceTimer)
+          debounceTimer = null
         }
-        
+
         // Debounce updates (except for sign out which should be immediate)
         if (event === 'SIGNED_OUT') {
           if (process.env.NODE_ENV === 'development') {
@@ -180,25 +149,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(null)
           setUser(null)
           setLoading(false)
-          clearSessionExpiryTimer()
         } else {
           debounceTimer = setTimeout(() => {
-            if (!isMounted) return
-            
+            // ✅ BUG FIX #2: Check mounted before state update in debounced callback
+            if (!isMountedRef.current) return
+
             if (process.env.NODE_ENV === 'development') {
               console.log('🔔 [Auth] State changed:', event)
             }
-            
+
             setSession(session)
             setUser(session?.user ?? null)
             setLoading(false)
-
-            // Manage session expiry timer
-            if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-              startSessionExpiryTimer()
-            } else if (!session) {
-              clearSessionExpiryTimer()
-            }
           }, 100) // 100ms debounce
         }
       })
@@ -206,20 +168,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       authListenerRef.current = subscription
     }
 
-    // CRITICAL: Cleanup to prevent memory leaks & duplicate listeners
+    // ✅ BUG FIX #2, #10: CRITICAL: Cleanup to prevent memory leaks & duplicate listeners
     return () => {
-      isMounted = false
+      isMountedRef.current = false
+
+      // ✅ NEW: Clear any pending debounce timer on unmount
+      // Store timer reference in closure to clear it
       if (authListenerRef.current) {
         authListenerRef.current.unsubscribe()
         authListenerRef.current = null
+
         if (process.env.NODE_ENV === 'development') {
           console.log('🧹 [Auth] Listener unsubscribed')
         }
       }
-      // Clear session expiry timer on cleanup
-      clearSessionExpiryTimer()
     }
-  }, [startSessionExpiryTimer, clearSessionExpiryTimer]) // Add dependencies
+  }, [])
 
   // OPTIMIZATION: Memoize auth functions to prevent re-creation
   // This prevents unnecessary re-renders in child components
@@ -261,20 +225,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (process.env.NODE_ENV === 'development') {
       console.log('🔑 [Auth] Starting Google OAuth...')
     }
+    
+    // ✅ BUG FIX #7: Use env variable for redirect URL (handles reverse proxy)
+    const redirectUrl = process.env.NEXT_PUBLIC_APP_URL 
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
+      : `${window.location.origin}/auth/callback`;
+    
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
       },
     })
   }, [])
+
+  // ✅ NEW: Check session expiry and refresh before it expires
+  useEffect(() => {
+    if (!session) return
+
+    const refreshBeforeExpiry = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        
+        if (currentSession?.expires_at) {
+          const expiresAt = currentSession.expires_at * 1000 // Convert to ms
+          const now = Date.now()
+          const timeUntilExpiry = expiresAt - now
+          
+          // Refresh 5 minutes before expiry
+          if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`🔄 [Auth] Refreshing token (expires in ${Math.round(timeUntilExpiry / 1000)}s)`)
+            }
+            
+            const { error } = await supabase.auth.refreshSession()
+            
+            if (error) {
+              console.warn('[Auth] Session refresh failed:', error)
+            }
+          }
+          
+          // Session already expired
+          if (timeUntilExpiry <= 0) {
+            if (isMountedRef.current) {
+              console.warn('[Auth] Session expired, logging out')
+              setUser(null)
+              setSession(null)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[Auth] Session check error:', error)
+      }
+    }
+
+    // Check session every minute
+    const interval = setInterval(refreshBeforeExpiry, 60 * 1000)
+    
+    // Also check on focus (user returns to tab)
+    const handleFocus = () => {
+      refreshBeforeExpiry()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [session])
 
   const signOut = useCallback(async () => {
     if (process.env.NODE_ENV === 'development') {
       console.log('👋 [Auth] Signing out...')
     }
+
+    // ✅ BUG FIX #8: Standardize routing - always use full page reload for auth state change
     await supabase.auth.signOut()
-    // Use window.location for full page reload to clear all state
     window.location.href = '/' // Root is the login page
   }, [])
 

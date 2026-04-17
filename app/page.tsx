@@ -16,18 +16,17 @@ export default function LoginPage() {
     password,
     setPassword,
     error,
+    successMessage, // ✅ NEW: Get success message
     isLoading,
     handleEmailLogin,
     handleGoogleLogin,
+    handleForgotPassword,
   } = useLogin();
 
-  // Client-side redirect for authenticated users (initial page load only)
-  useEffect(() => {
-    if (!loading && user) {
-      // Use hard redirect to ensure session cookies are sent to server
-      window.location.href = '/dashboard';
-    }
-  }, [user, loading]);
+  // ✅ BUG FIX #1: REMOVED double redirect logic
+  // Middleware already handles redirects for authenticated users
+  // This useEffect is NO LONGER NEEDED - it was causing race conditions
+  // Just let middleware do its job silently in the background
 
   // Show loading state while checking auth
   if (loading) {
@@ -41,18 +40,11 @@ export default function LoginPage() {
     );
   }
 
-  // If user exists, middleware will redirect to /dashboard
-  // Show loading state while middleware processes the redirect
-  if (user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f0f0f0]">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#1a1a6e] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-[#6b6b80] text-sm">Redirecting to dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // ✅ BUG FIX #1: REMOVED conditional render for authenticated users
+  // Middleware will silently redirect authenticated users to /dashboard
+  // No need to show a "Redirecting..." screen - middleware handles it server-side
+  // If middleware hasn't redirected yet, just show the login form
+  // (This shouldn't happen but is a safety fallback)
 
   return (
     <div 
@@ -67,9 +59,11 @@ export default function LoginPage() {
           password={password}
           setPassword={setPassword}
           error={error}
+          successMessage={successMessage} // ✅ NEW: Pass success message
           isLoading={isLoading}
           onEmailLogin={handleEmailLogin}
           onGoogleLogin={handleGoogleLogin}
+          onForgotPassword={handleForgotPassword}
         />
       </div>
     </div>

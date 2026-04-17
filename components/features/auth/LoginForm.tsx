@@ -11,9 +11,11 @@ interface LoginFormProps {
   password: string;
   setPassword: (value: string) => void;
   error: string;
+  successMessage?: string; // ✅ NEW: Success message prop
   isLoading: boolean;
   onEmailLogin: (e: React.FormEvent) => void;
   onGoogleLogin: () => void;
+  onForgotPassword: () => void;
 }
 
 const GoogleIcon = () => (
@@ -33,15 +35,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   password,
   setPassword,
   error,
+  successMessage, // ✅ NEW: Receive success message
   isLoading,
   onEmailLogin,
   onGoogleLogin,
+  onForgotPassword,
 }) => {
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password functionality
-    console.log('Forgot password clicked');
-  };
-
   return (
     <div className="bg-white rounded-3xl p-8 sm:p-10 w-full shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
       {/* Header */}
@@ -53,6 +52,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           Please enter your credentials to access your dashboard.
         </p>
       </div>
+
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm">
+          ✓ {successMessage}
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -83,7 +89,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           required
           actionButton={{
             label: 'FORGOT PASSWORD?',
-            onClick: handleForgotPassword,
+            onClick: onForgotPassword, // ✅ BUG FIX #4: Call forgot password handler
           }}
         />
 
