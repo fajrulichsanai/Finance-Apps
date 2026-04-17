@@ -77,7 +77,7 @@ export default function DashboardPage() {
   // Error display with retry option
   if (dashboardError) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 flex flex-col items-center justify-center px-4 transition-colors">
+      <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-[430px]">
           <AppHeader />
           <div className="flex flex-col items-center justify-center py-12">
@@ -102,7 +102,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-gray-900 relative pb-20 transition-colors">
+    <div className="min-h-screen bg-[#f5f5f7] relative pb-20">
       <div className="w-full max-w-[430px] mx-auto">
         <AppHeader />
 

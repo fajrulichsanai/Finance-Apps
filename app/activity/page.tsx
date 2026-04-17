@@ -170,7 +170,7 @@ export default function ActivityPage() {
   // FIX: Display error state
   if (error && !loading) {
     return (
-      <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
+      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-[18px] py-8">
@@ -193,7 +193,7 @@ export default function ActivityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
+      <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-[18px] py-8">
@@ -219,7 +219,7 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f2f4] dark:bg-gray-900 relative pb-24 transition-colors">
+    <div className="min-h-screen bg-[#f2f2f4] relative pb-24">
       <div className="w-full max-w-[430px] mx-auto">
         <AppHeader />
         

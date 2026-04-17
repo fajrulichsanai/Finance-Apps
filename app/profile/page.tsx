@@ -12,7 +12,6 @@ import FinancialPreferences from '@/components/features/profile/FinancialPrefere
 import ExportSection from '@/components/features/profile/ExportSection';
 import DataContinuity from '@/components/features/profile/DataContinuity';
 import ProCard from '@/components/features/profile/ProCard';
-import DarkModeToggle from '@/components/features/profile/DarkModeToggle';
 import ProfileFooter from '@/components/features/profile/ProfileFooter';
 import Section from '@/components/features/profile/Section';
 import PushNotificationManager from '@/components/features/notification/PushNotificationManager';
@@ -20,7 +19,6 @@ import PushNotificationManager from '@/components/features/notification/PushNoti
 export default function ProfilePage() {
   const router = useRouter();
   const { user, signOut, loading } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const displayName = getDisplayName(user);
@@ -30,11 +28,6 @@ export default function ProfilePage() {
     setIsSigningOut(true);
     await signOut();
     router.push('/');
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // TODO: Implement dark mode logic
   };
 
   if (loading) {
@@ -60,12 +53,6 @@ export default function ProfilePage() {
           <DataContinuity />
           
           <ProCard />
-          
-          <Section label="App Experience">
-            <div className="bg-white rounded-[18px] shadow-sm">
-              <DarkModeToggle enabled={isDarkMode} onToggle={toggleDarkMode} />
-            </div>
-          </Section>
           
           {user && (
             <Section label="Push Notifications">

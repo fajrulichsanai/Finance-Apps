@@ -172,13 +172,13 @@ export default function PushNotificationManager({ userId }: Props) {
 
   if (!isSupported) {
     return (
-      <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors">
-        <AlertCircle className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+        <AlertCircle className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <p className="text-sm font-medium text-gray-700 mb-1">
             Notifikasi Tidak Tersedia
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500">
             Browser Anda tidak mendukung notifikasi push. Silakan gunakan Chrome, Edge, atau Safari versi terbaru.
           </p>
         </div>
@@ -190,35 +190,35 @@ export default function PushNotificationManager({ userId }: Props) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg transition-colors">
-          <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <div className="p-2 bg-blue-50 rounded-lg">
+          <Bell className="w-5 h-5 text-blue-600" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+          <h3 className="text-base font-semibold text-gray-900 mb-1">
             Notifikasi Push
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600">
             Dapatkan pemberitahuan real-time untuk transaksi dan pengingat penting
           </p>
         </div>
       </div>
 
       {/* Status Card */}
-      <div className={`p-4 rounded-xl border transition-colors ${
+      <div className={`p-4 rounded-xl border ${
         permission === 'granted' && isSubscribed
-          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+          ? 'bg-green-50 border-green-200'
           : permission === 'denied'
-          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
+          ? 'bg-red-50 border-red-200'
+          : 'bg-gray-50 border-gray-200'
       }`}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
+          <span className="text-sm font-medium text-gray-700">Status</span>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
             permission === 'granted' && isSubscribed
-              ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400'
+              ? 'bg-green-100 text-green-700'
               : permission === 'denied'
-              ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              ? 'bg-red-100 text-red-700'
+              : 'bg-gray-200 text-gray-700'
           }`}>
             {permission === 'granted' && isSubscribed ? (
               <>
@@ -239,7 +239,7 @@ export default function PushNotificationManager({ userId }: Props) {
           </span>
         </div>
         
-        <p className="text-xs text-gray-600 dark:text-gray-400">
+        <p className="text-xs text-gray-600">
           {permission === 'granted' && isSubscribed
             ? 'Anda akan menerima notifikasi untuk aktivitas penting'
             : permission === 'denied'
@@ -250,9 +250,9 @@ export default function PushNotificationManager({ userId }: Props) {
 
       {/* Error Message */}
       {error && (
-        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 transition-colors">
-          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-200">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
@@ -262,7 +262,7 @@ export default function PushNotificationManager({ userId }: Props) {
           <button
             onClick={requestPermission}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Bell className="w-4 h-4" />
             {loading ? 'Memproses...' : 'Aktifkan Notifikasi'}
@@ -270,13 +270,13 @@ export default function PushNotificationManager({ userId }: Props) {
         )}
 
         {permission === 'denied' && (
-          <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 transition-colors">
-            <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-amber-900 dark:text-amber-400 mb-1">
+              <p className="text-sm font-medium text-amber-900 mb-1">
                 Izin Notifikasi Ditolak
               </p>
-              <p className="text-xs text-amber-700 dark:text-amber-500">
+              <p className="text-xs text-amber-700">
                 Untuk mengaktifkan kembali, buka pengaturan browser dan ubah izin notifikasi untuk situs ini.
               </p>
             </div>
@@ -287,7 +287,7 @@ export default function PushNotificationManager({ userId }: Props) {
           <button
             onClick={subscribeToPush}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl disabled:opacity-50"
           >
             <Bell className="w-4 h-4" />
             {loading ? 'Memproses...' : 'Langganan Notifikasi'}
@@ -298,7 +298,7 @@ export default function PushNotificationManager({ userId }: Props) {
           <button
             onClick={unsubscribe}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 disabled:opacity-50"
           >
             <BellOff className="w-4 h-4" />
             {loading ? 'Memproses...' : 'Nonaktifkan Notifikasi'}
@@ -308,9 +308,9 @@ export default function PushNotificationManager({ userId }: Props) {
 
       {/* Info Footer for iOS */}
       {getDeviceType() === 'ios' && (
-        <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 transition-colors">
-          <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700 dark:text-blue-400">
+        <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-700">
             <span className="font-semibold">Pengguna iOS:</span> Pastikan aplikasi sudah diinstal ke Home Screen agar notifikasi dapat berfungsi dengan baik.
           </p>
         </div>

@@ -153,7 +153,7 @@ export default function BudgetPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 transition-colors">
+      <div className="min-h-screen bg-gray-50 pb-24">
         <div className="w-full max-w-[430px] mx-auto">
           <AppHeader />
           <div className="px-5 py-6 space-y-3">
@@ -191,7 +191,7 @@ export default function BudgetPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 transition-colors">
+      <div className="min-h-screen bg-gray-50 pb-24">
         <AppHeader />
         <div className="flex flex-col items-center justify-center py-20 px-5">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
@@ -216,7 +216,7 @@ export default function BudgetPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 transition-colors">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <div className="w-full max-w-[430px] mx-auto">
         {/* GLOBAL HEADER */}
         <AppHeader />

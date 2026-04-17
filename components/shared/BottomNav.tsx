@@ -11,7 +11,7 @@ export default function BottomNav() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-gray-800 flex items-center justify-around px-4 z-50 transition-colors">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-20 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex items-center justify-around px-4 z-50">
       <button 
         onClick={() => router.push('/dashboard')}
         className={`flex flex-col items-center gap-1 transition-colors ${

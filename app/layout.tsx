@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/providers/AuthProvider';
-import { ThemeProvider } from '@/providers/ThemeProvider';
 
 // Import utility to expose lock clearing function to console
 if (typeof window !== 'undefined') {
@@ -53,11 +52,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={nunito.variable}>
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

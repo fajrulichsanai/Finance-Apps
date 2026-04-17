@@ -14,11 +14,11 @@ export default function ProfileBlock({ displayName, email }: ProfileBlockProps) 
         <ProfileAvatar />
         
         <div className="flex-1 pt-1">
-          <h2 className="text-[26px] font-black text-gray-900 dark:text-gray-100 mb-1 leading-tight transition-colors">
+          <h2 className="text-[26px] font-black text-gray-900 mb-1 leading-tight">
             {displayName}
           </h2>
           
-          <p className="text-[13px] text-gray-400 dark:text-gray-500 font-medium mb-3 transition-colors">
+          <p className="text-[13px] text-gray-400 font-medium mb-3">
             {email}
           </p>
           
