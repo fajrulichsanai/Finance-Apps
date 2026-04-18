@@ -292,58 +292,10 @@ export const useLogin = () => {
   };
 
   // ✅ BUG FIX #6: Password reset handler with better UX
-  const handleForgotPassword = useCallback(async () => {
-    if (!email || !isValidEmail(email)) {
-      setError('Please enter a valid email address to reset password');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
-
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
-
-      if (!isMountedRef.current) {
-        setIsLoading(false);
-        return;
-      }
-
-      if (error) {
-        // ✅ BUG FIX #8: Don't leak internal error details
-        setError('Failed to send reset email. Please check your email address and try again.');
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.error('[Password Reset Error]:', error.message);
-        }
-      } else {
-        // ✅ FIXED: Show success message with auto-dismiss
-        setSuccessMessage('✓ Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
-        setError('');
-        
-        // Auto-dismiss after 10 seconds
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setSuccessMessage('');
-          }
-        }, 10000);
-      }
-    } catch (err) {
-      if (!isMountedRef.current) {
-        setIsLoading(false);
-        return;
-      }
-
-      console.error('❌ [Login] Password reset error:', err);
-      setError('Unexpected error during password reset. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email]);
+  const handleForgotPassword = useCallback(() => {
+    // ✅ UPDATED: Navigate to forgot password page instead of sending email from login page
+    router.push('/auth/forgot-password');
+  }, [router]);
 
   return {
     email,
