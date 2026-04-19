@@ -28,9 +28,6 @@ const normalizeAuthError = (error: any): string => {
   if (message.includes('email not confirmed')) {
     return 'Silakan konfirmasi email Anda terlebih dahulu. Periksa inbox Anda.';
   }
-  if (message.includes('too many requests')) {
-    return 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.';
-  }
   if (message.includes('timeout') || message.includes('abort')) {
     return 'Batas waktu koneksi. Periksa internet Anda dan coba lagi.';
   }
@@ -61,36 +58,7 @@ export const useLogin = () => {
     };
   }, []);
 
-  // ✅ BUG FIX #6: Rate limiting - track login attempts (client-side)
-  // Server-side rate limiting also implemented as defense layer
-  const loginAttempts = useRef<{ timestamp: number }[]>([]);
-  const MAX_ATTEMPTS = 5;
-  const RATE_LIMIT_WINDOW_MS = 1 * 60 * 1000; // 1 minute
 
-  // ✅ BUG FIX #6: Check server-side rate limiting
-  const checkServerRateLimit = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
-    try {
-      const response = await fetch('/api/auth/rate-limit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 429) {
-        return { allowed: false, message: 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.' };
-      }
-
-      return { allowed: true };
-    } catch (error) {
-      // On network error, allow request to proceed (fail open)
-      console.warn('[Rate Limit] Failed to check server rate limit:', error);
-      return { allowed: true };
-    }
-  }, []);
 
   // ✅ NEW: Check if user is registered first
   const checkUserExists = useCallback(async (userEmail: string): Promise<{ exists: boolean; message?: string }> => {
@@ -157,44 +125,11 @@ export const useLogin = () => {
         return;
       }
 
-      // ✅ BUG FIX #6: Check client-side rate limiting first (quick check)
-      const now = Date.now();
-      loginAttempts.current = loginAttempts.current.filter(
-        (attempt) => now - attempt.timestamp < RATE_LIMIT_WINDOW_MS
-      );
-      
-      if (loginAttempts.current.length >= MAX_ATTEMPTS) {
-        if (!isMountedRef.current) return;
-        setError('Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.');
-        submitInProgress.current = false;
-        return;
-      }
-
       if (!isMountedRef.current) return;
       
       setError('');
       setSuccessMessage('');
       setIsLoading(true);
-
-      // ✅ BUG FIX #6: Check server-side rate limiting (can't be bypassed by attacker)
-      const { allowed: serverAllowed, message: rateLimitMessage } = await checkServerRateLimit();
-      
-      if (!serverAllowed) {
-        if (!isMountedRef.current) {
-          submitInProgress.current = false;
-          return;
-        }
-        
-        setError(rateLimitMessage || 'Too many login attempts. Please try again later.');
-        setIsLoading(false);
-        submitInProgress.current = false;
-        return;
-      }
-
-      if (!isMountedRef.current) {
-        submitInProgress.current = false;
-        return;
-      }
 
       // ✅ NEW: Check if user is registered FIRST before validating password
       const { exists: userExists, message: notFoundMessage } = await checkUserExists(email);
@@ -205,15 +140,11 @@ export const useLogin = () => {
       }
 
       if (!userExists) {
-        // User not found - don't increment login attempts
         setError(notFoundMessage || 'Akun tidak ditemukan');
         setIsLoading(false);
         submitInProgress.current = false;
         return;
       }
-
-      // Record this login attempt (for client-side tracking) - only after checking user exists
-      loginAttempts.current.push({ timestamp: Date.now() });
       // Use AbortController + Promise.race for proper timeout handling
       let timeoutId: NodeJS.Timeout | null = null;
       
