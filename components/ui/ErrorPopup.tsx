@@ -9,7 +9,7 @@ export interface ErrorPopupProps {
 }
 
 export const ErrorPopup: React.FC<ErrorPopupProps> = ({
-  title = "Action Failed",
+  title = "Tindakan Gagal",
   message,
   onRetry,
   onCancel,
@@ -60,7 +60,7 @@ export const ErrorPopup: React.FC<ErrorPopupProps> = ({
                 <polyline points="1 4 1 10 7 10"/>
                 <path d="M3.51 15a9 9 0 1 0 .49-4.33"/>
               </svg>
-              Retry
+              Coba Lagi
             </button>
           )}
           
@@ -69,7 +69,7 @@ export const ErrorPopup: React.FC<ErrorPopupProps> = ({
               onClick={onCancel}
               className="w-full text-slate-600 font-bold text-sm py-2.5 hover:text-slate-900 transition-colors"
             >
-              Cancel
+              Batalkan
             </button>
           )}
         </div>

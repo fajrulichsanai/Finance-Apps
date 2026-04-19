@@ -62,7 +62,7 @@ export default function TagsInput({ tags, onAddTag, onRemoveTag }: TagsInputProp
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             onBlur={handleAdd}
-            placeholder="Enter tag..."
+            placeholder="Masukkan tag..."
             autoFocus
             className="bg-white border border-indigo-300 rounded-full px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none focus:border-indigo-500 min-w-[100px]"
           />

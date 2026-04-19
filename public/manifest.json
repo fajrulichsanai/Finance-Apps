@@ -1,7 +1,7 @@
 {
-  "name": "Finance App - Track Your Money",
-  "short_name": "Finance App",
-  "description": "Modern finance tracking app with beautiful UI",
+  "name": "Aplikasi Keuangan - Kelola Uang Anda",
+  "short_name": "Aplikasi Keuangan",
+  "description": "Aplikasi pelacakan keuangan modern dengan antarmuka yang indah",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -62,9 +62,9 @@
   "categories": ["finance", "productivity", "lifestyle"],
   "shortcuts": [
     {
-      "name": "Add Transaction",
-      "short_name": "Add",
-      "description": "Quickly add a new transaction",
+      "name": "Tambah Transaksi",
+      "short_name": "Tambah",
+      "description": "Tambahkan transaksi baru dengan cepat",
       "url": "/record",
       "icons": [
         {
@@ -74,9 +74,9 @@
       ]
     },
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your financial overview",
+      "name": "Dasbor",
+      "short_name": "Dasbor",
+      "description": "Lihat ikhtisar keuangan Anda",
       "url": "/dashboard",
       "icons": [
         {

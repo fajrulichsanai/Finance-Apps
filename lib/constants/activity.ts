@@ -6,14 +6,14 @@ import { ActivityTransaction, ActivitySection } from '@/types';
 
 export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
   {
-    label: 'Today',
-    date: 'Oct 24, 2023',
+    label: 'Hari Ini',
+    date: '24 Okt, 2023',
     transactions: [
       {
         id: '1',
         name: 'Blueberry Hill Bistro',
-        category: 'Food & Dining',
-        description: 'Breakfast with client',
+        category: 'Makanan & Makan',
+        description: 'Sarapan dengan klien',
         amount: -42.50,
         time: '10:24 AM',
         type: 'expense',
@@ -22,8 +22,8 @@ export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
       {
         id: '2',
         name: 'Stripe Dividend',
-        category: 'Income',
-        description: 'Investment yield',
+        category: 'Pendapatan',
+        description: 'Hasil investasi',
         amount: 1240.00,
         time: '09:15 AM',
         type: 'income',
@@ -32,14 +32,14 @@ export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
     ]
   },
   {
-    label: 'Yesterday',
-    date: 'Oct 23, 2023',
+    label: 'Kemarin',
+    date: '23 Okt, 2023',
     transactions: [
       {
         id: '3',
         name: 'Uber Technologies',
-        category: 'Transport',
-        description: 'Commute to office',
+        category: 'Transportasi',
+        description: 'Perjalanan ke kantor',
         amount: -18.20,
         time: '06:45 PM',
         type: 'expense',
@@ -48,8 +48,8 @@ export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
       {
         id: '4',
         name: 'Apple Store Soho',
-        category: 'Electronics',
-        description: 'MagSafe Charger',
+        category: 'Elektronik',
+        description: 'Charger MagSafe',
         amount: -53.00,
         time: '02:30 PM',
         type: 'expense',
@@ -58,8 +58,8 @@ export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
       {
         id: '5',
         name: 'ConEd Utility',
-        category: 'Bills',
-        description: 'Monthly Electricity',
+        category: 'Tagihan',
+        description: 'Listrik Bulanan',
         amount: -115.40,
         time: '11:00 AM',
         type: 'expense',
@@ -68,14 +68,14 @@ export const MOCK_ACTIVITY_DATA: ActivitySection[] = [
     ]
   },
   {
-    label: 'October 22',
-    date: 'Sun',
+    label: '22 Oktober',
+    date: 'Min',
     transactions: [
       {
         id: '6',
         name: 'Equinox Gym',
-        category: 'Health',
-        description: 'Membership',
+        category: 'Kesehatan',
+        description: 'Keanggotaan',
         amount: -220.00,
         time: '08:00 AM',
         type: 'expense',

@@ -16,25 +16,25 @@ const normalizeAuthError = (error: any): string => {
   const message = error?.message?.toLowerCase() || '';
 
   if (message.includes('invalid login credentials')) {
-    return 'Invalid email or password';
+    return 'Email atau kata sandi tidak valid';
   }
   if (message.includes('email not confirmed')) {
-    return 'Please confirm your email first. Check your inbox.';
+    return 'Silakan konfirmasi email Anda terlebih dahulu. Periksa inbox Anda.';
   }
   if (message.includes('user not found')) {
-    return 'Invalid email or password';
+    return 'Email atau kata sandi tidak valid';
   }
   if (message.includes('password')) {
-    return 'Invalid email or password';
+    return 'Email atau kata sandi tidak valid';
   }
   if (message.includes('too many requests')) {
-    return 'Too many login attempts. Please try again later.';
+    return 'Terlalu banyak percobaan masuk. Silakan coba lagi nanti.';
   }
   if (message.includes('timeout') || message.includes('abort')) {
-    return 'Connection timeout. Please check your internet and try again.';
+    return 'Batas waktu koneksi. Periksa internet Anda dan coba lagi.';
   }
 
-  return 'Login failed. Please try again.';
+  return 'Masuk gagal. Silakan coba lagi.';
 };
 
 export const useLogin = () => {
@@ -80,7 +80,7 @@ export const useLogin = () => {
       const data = await response.json();
 
       if (response.status === 429) {
-        return { allowed: false, message: 'Too many login attempts. Please try again in 15 minutes.' };
+        return { allowed: false, message: 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 15 menit.' };
       }
 
       return { allowed: true };
@@ -98,7 +98,7 @@ export const useLogin = () => {
     // ATOMIC CHECK: Use submitInProgress.current as single source of truth
     if (submitInProgress.current) {
       // Show feedback for duplicate clicks
-      setError('Login in progress, please wait...');
+      setError('Masuk sedang berlangsung, silakan tunggu...');
       setTimeout(() => {
         if (isMountedRef.current) {
           setError('');
@@ -114,7 +114,7 @@ export const useLogin = () => {
       // ✅ BUG FIX #3: Validation - email format
       if (!email || !isValidEmail(email)) {
         if (!isMountedRef.current) return;
-        setError('Please enter a valid email address');
+        setError('Silakan masukkan alamat email yang valid');
         submitInProgress.current = false;
         return;
       }
@@ -122,7 +122,7 @@ export const useLogin = () => {
       // ✅ BUG FIX #3: Validation - password length
       if (!password || password.length < 6) {
         if (!isMountedRef.current) return;
-        setError('Password must be at least 6 characters');
+        setError('Kata sandi minimal harus 6 karakter');
         submitInProgress.current = false;
         return;
       }
@@ -135,7 +135,7 @@ export const useLogin = () => {
       
       if (loginAttempts.current.length >= MAX_ATTEMPTS) {
         if (!isMountedRef.current) return;
-        setError('Too many login attempts. Please try again in 15 minutes.');
+        setError('Terlalu banyak percobaan masuk. Silakan coba lagi dalam 15 menit.');
         submitInProgress.current = false;
         return;
       }
@@ -217,14 +217,14 @@ export const useLogin = () => {
 
       // Check if error is from abort
       if (err instanceof Error && err.name === 'AbortError') {
-        setError('Login cancelled.');
+        setError('Masuk dibatalkan.');
         setIsLoading(false);
         submitInProgress.current = false;
         return;
       }
 
       console.error('❌ [Login] Unexpected error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
       setIsLoading(false);
       submitInProgress.current = false;
     }
@@ -265,11 +265,11 @@ export const useLogin = () => {
           // Genuine popup block = error fires quickly
           if (elapsed < 500) {
             console.warn('[OAuth] Popup blocked - error detected immediately');
-            setError('Google sign-in popup was blocked. Please enable popups in your browser settings.');
+            setError('Popup masuk Google diblokir. Silakan aktifkan popup di pengaturan browser Anda.');
           } else {
             // Slow response = network delay, not popup block
             console.warn('[OAuth] Slow redirect - network delay likely');
-            setError('Google sign-in is taking longer than expected. Please check your connection.');
+            setError('Masuk Google memakan waktu lebih lama dari yang diharapkan. Silakan periksa koneksi Anda.');
           }
           setIsLoading(false);
           submitInProgress.current = false;
@@ -294,7 +294,7 @@ export const useLogin = () => {
   // ✅ BUG FIX #6: Password reset handler with better UX
   const handleForgotPassword = useCallback(async () => {
     if (!email || !isValidEmail(email)) {
-      setError('Please enter a valid email address to reset password');
+      setError('Silakan masukkan alamat email yang valid untuk mengatur ulang kata sandi');
       return;
     }
 
@@ -315,14 +315,14 @@ export const useLogin = () => {
 
       if (error) {
         // ✅ BUG FIX #8: Don't leak internal error details
-        setError('Failed to send reset email. Please check your email address and try again.');
+        setError('Gagal mengirim email pengaturan ulang. Silakan periksa alamat email Anda dan coba lagi.');
         
         if (process.env.NODE_ENV === 'development') {
           console.error('[Password Reset Error]:', error.message);
         }
       } else {
         // ✅ FIXED: Show success message with auto-dismiss
-        setSuccessMessage('✓ Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
+        setSuccessMessage('✓ Email pengaturan ulang kata sandi terkirim! Periksa inbox Anda untuk instruksi. Tautan akan kadaluarsa dalam 1 jam.');
         setError('');
         
         // Auto-dismiss after 10 seconds
@@ -339,7 +339,7 @@ export const useLogin = () => {
       }
 
       console.error('❌ [Login] Password reset error:', err);
-      setError('Unexpected error during password reset. Please try again.');
+      setError('Kesalahan yang tidak terduga saat pengaturan ulang kata sandi. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }

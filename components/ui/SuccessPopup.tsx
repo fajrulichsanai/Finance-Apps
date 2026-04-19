@@ -10,8 +10,8 @@ export interface SuccessPopupProps {
 }
 
 export const SuccessPopup: React.FC<SuccessPopupProps> = ({
-  title = "Transaction Saved Successfully!",
-  message = "Your balance has been updated in real-time.",
+  title = "Transaksi Berhasil Disimpan!",
+  message = "Saldo Anda telah diperbarui secara real-time.",
   status,
   transactionId,
   onDone,
@@ -66,7 +66,7 @@ export const SuccessPopup: React.FC<SuccessPopupProps> = ({
             {transactionId && (
               <div className="flex-1 pl-3">
                 <div className="text-[9px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">
-                  Ledger ID
+                  ID Buku Besar
                 </div>
                 <div className="text-sm font-bold text-gray-900">
                   {transactionId}
@@ -81,7 +81,7 @@ export const SuccessPopup: React.FC<SuccessPopupProps> = ({
           onClick={onDone}
           className="w-full bg-[#1a237e] text-white rounded-full py-3.5 px-4 font-bold text-[15px] shadow-lg shadow-indigo-900/30 hover:opacity-90 active:scale-[0.98] transition-all"
         >
-          Done
+          Selesai
         </button>
       </div>
     </div>

@@ -11,10 +11,10 @@ export interface DeleteConfirmPopupProps {
 }
 
 export const DeleteConfirmPopup: React.FC<DeleteConfirmPopupProps> = ({
-  title = "Delete Transaction?",
+  title = "Hapus Transaksi?",
   message,
-  confirmLabel = "Delete",
-  cancelLabel = "Keep it",
+  confirmLabel = "Hapus",
+  cancelLabel = "Pertahankan",
   onConfirm,
   onCancel,
   isOpen

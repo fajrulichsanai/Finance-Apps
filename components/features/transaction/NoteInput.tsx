@@ -13,7 +13,7 @@ interface NoteInputProps {
 export default function NoteInput({ 
   value, 
   onChange, 
-  placeholder = "What was this for?" 
+  placeholder = "Untuk apa? (contoh: gaji, freelance, bonus)" 
 }: NoteInputProps) {
   const maxLength = 200;
   const charCount = value.length;

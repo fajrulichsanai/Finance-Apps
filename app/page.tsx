@@ -16,11 +16,10 @@ export default function LoginPage() {
     password,
     setPassword,
     error,
-    successMessage, // ✅ NEW: Get success message
+    successMessage,
     isLoading,
     handleEmailLogin,
     handleGoogleLogin,
-    handleForgotPassword,
   } = useLogin();
 
   // ✅ BUG FIX #1: REMOVED double redirect logic
@@ -34,7 +33,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#f0f0f0]">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[#1a1a6e] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-[#6b6b80] text-sm">Loading...</p>
+          <p className="mt-4 text-[#6b6b80] text-sm">Memuat...</p>
         </div>
       </div>
     );
@@ -59,11 +58,10 @@ export default function LoginPage() {
           password={password}
           setPassword={setPassword}
           error={error}
-          successMessage={successMessage} // ✅ NEW: Pass success message
+          successMessage={successMessage}
           isLoading={isLoading}
           onEmailLogin={handleEmailLogin}
           onGoogleLogin={handleGoogleLogin}
-          onForgotPassword={handleForgotPassword}
         />
       </div>
     </div>

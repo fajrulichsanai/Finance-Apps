@@ -11,10 +11,10 @@ export interface WarningPopupProps {
 }
 
 export const WarningPopup: React.FC<WarningPopupProps> = ({
-  title = "Approaching Budget Limit",
+  title = "Mendekati Batas Anggaran",
   message,
-  confirmLabel = "Save Anyway",
-  cancelLabel = "Cancel",
+  confirmLabel = "Simpan Saja",
+  cancelLabel = "Batalkan",
   onConfirm,
   onCancel,
   isOpen

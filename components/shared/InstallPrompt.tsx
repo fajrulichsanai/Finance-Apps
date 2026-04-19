@@ -67,7 +67,7 @@ export default function InstallPrompt() {
       <button
         onClick={handleDismiss}
         className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-        aria-label="Close"
+        aria-label="Tutup"
       >
         <X className="w-4 h-4" />
       </button>

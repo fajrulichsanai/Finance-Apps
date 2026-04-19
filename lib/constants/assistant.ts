@@ -17,36 +17,36 @@ export interface SpendingAnomaly {
 }
 
 export const QUICK_REPLY_SUGGESTIONS = [
-  'Why is my spending high?',
-  'How can I save more?',
-  'Set a budget',
+  'Mengapa pengeluaran saya tinggi?',
+  'Bagaimana cara saya menghemat lebih banyak?',
+  'Tetapkan anggaran',
 ] as const;
 
 export const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
     type: 'ai',
-    content: "Hello! I'm Stitch, your personal Financial Architect. I've analyzed your accounts. Your net worth grew by <span class='text-emerald-500 font-bold'>4.2%</span> this month. How can I help you optimize your wealth today?",
+    content: "Halo! Saya Stitch, Arsitek Keuangan pribadi Anda. Saya telah menganalisis akun Anda. Kekayaan bersih Anda tumbuh sebesar <span class='text-emerald-500 font-bold'>4.2%</span> bulan ini. Bagaimana cara saya membantu Anda mengoptimalkan kekayaan Anda hari ini?",
     timestamp: new Date(),
   },
   {
     id: '2',
     type: 'user',
-    content: 'Why is my spending higher than last month?',
+    content: 'Mengapa pengeluaran saya lebih tinggi dari bulan lalu?',
     timestamp: new Date(),
   },
   {
     id: '3',
     type: 'ai',
-    content: 'Your spending increased primarily due to "Uncategorized Lifestyle" purchases. Here is a breakdown of the key drivers:',
+    content: 'Pengeluaran Anda meningkat terutama karena pembelian "Gaya Hidup Tanpa Kategori". Berikut adalah rincian driver utama:',
     timestamp: new Date(),
   },
 ];
 
 export const MOCK_SPENDING_ANOMALY: SpendingAnomaly = {
-  category: 'Dining &\nEntertainment',
+  category: 'Makan &\nHiburan',
   amount: 450.00,
-  vsAverage: 'vs average',
+  vsAverage: 'vs rata-rata',
   chartData: [
     { height: 30, level: 'low' },
     { height: 38, level: 'low' },
@@ -59,4 +59,4 @@ export const MOCK_SPENDING_ANOMALY: SpendingAnomaly = {
 };
 
 export const AI_FOLLOW_UP_MESSAGE = 
-  'Would you like me to set a strict dining budget for next month or find subscriptions you can cancel to offset this?';
+  'Apakah Anda ingin saya menetapkan anggaran makan yang ketat untuk bulan depan atau mencari langganan yang dapat Anda batalkan untuk mengimbangi ini?';

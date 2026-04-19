@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 interface AuthInputProps {
   id: string;
@@ -8,9 +9,11 @@ interface AuthInputProps {
   onChange: (value: string) => void;
   placeholder: string;
   required?: boolean;
+  disabled?: boolean;
   actionButton?: {
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
+    href?: string;
   };
 }
 
@@ -22,6 +25,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   onChange,
   placeholder,
   required = false,
+  disabled = false,
   actionButton,
 }) => {
   return (
@@ -33,7 +37,14 @@ export const AuthInput: React.FC<AuthInputProps> = ({
         >
           {label}
         </label>
-        {actionButton && (
+        {actionButton && actionButton.href ? (
+          <Link 
+            href={actionButton.href}
+            className="text-[11px] font-bold text-[#1a1a6e] tracking-[0.3px] hover:underline"
+          >
+            {actionButton.label}
+          </Link>
+        ) : actionButton && actionButton.onClick ? (
           <button 
             type="button" 
             onClick={actionButton.onClick}
@@ -41,14 +52,15 @@ export const AuthInput: React.FC<AuthInputProps> = ({
           >
             {actionButton.label}
           </button>
-        )}
+        ) : null}
       </div>
       <input
         type={type}
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors"
+        disabled={disabled}
+        className="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         placeholder={placeholder}
         required={required}
       />

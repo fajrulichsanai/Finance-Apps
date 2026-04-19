@@ -20,7 +20,7 @@ export default function Header({ title, showAvatar = true }: HeaderProps) {
       <button
         onClick={() => router.back()}
         className="flex items-center gap-2 group"
-        aria-label="Go back"
+        aria-label="Kembali"
       >
         <div className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">
           <ChevronLeft className="w-5 h-5 text-slate-900" strokeWidth={2.5} />

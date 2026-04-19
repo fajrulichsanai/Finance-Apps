@@ -234,7 +234,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Health & Fitness"
+                  placeholder="cth: Kesehatan & Kebugaran"
                   className="w-full px-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none text-[14.5px] text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
                 />
               </div>

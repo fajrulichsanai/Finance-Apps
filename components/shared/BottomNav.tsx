@@ -21,7 +21,7 @@ export default function BottomNav() {
         }`}
       >
         <Home size={24} />
-        <span className="text-[10px] font-medium">Home</span>
+        <span className="text-[10px] font-medium">Beranda</span>
       </button>
       
       <button 
@@ -33,7 +33,7 @@ export default function BottomNav() {
         }`}
       >
         <TrendingUp size={24} />
-        <span className="text-[10px] font-medium">Insight</span>
+        <span className="text-[10px] font-medium">Analisis</span>
       </button>
       
       {/* Floating Action Button - Direct to Record Page */}
@@ -58,7 +58,7 @@ export default function BottomNav() {
         }`}
       >
         <Wallet size={24} />
-        <span className="text-[10px] font-medium">Budget</span>
+        <span className="text-[10px] font-medium">Anggaran</span>
       </button>
       
       <button 

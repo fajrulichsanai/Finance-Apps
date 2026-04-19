@@ -23,6 +23,17 @@ interface RegisterFormProps {
   onGoogleRegister: () => void;
 }
 
+const GoogleIcon = () => (
+  <div className="w-5 h-5 bg-[#0d0d2b] rounded flex items-center justify-center flex-shrink-0">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <rect x="1" y="1" width="4" height="4" fill="white"/>
+      <rect x="7" y="1" width="4" height="4" fill="white" opacity="0.7"/>
+      <rect x="1" y="7" width="4" height="4" fill="white" opacity="0.7"/>
+      <rect x="7" y="7" width="4" height="4" fill="white" opacity="0.5"/>
+    </svg>
+  </div>
+);
+
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   name,
   email,
@@ -52,7 +63,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       {/* Success Message */}
       {success && (
         <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-600 text-sm">
-          Account created successfully! Redirecting to login...
+          Akun berhasil dibuat! Mengalihkan ke login...
         </div>
       )}
 
@@ -60,7 +71,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {/* Full Name */}
         <AuthInput
           id="fullname"
-          label="Full Name"
+          label="Nama Lengkap"
           type="text"
           value={name}
           onChange={onNameChange}
@@ -71,7 +82,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {/* Email */}
         <AuthInput
           id="email"
-          label="Institutional Email"
+          label="Email Institusional"
           type="email"
           value={email}
           onChange={onEmailChange}
@@ -82,7 +93,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {/* Password */}
         <AuthInput
           id="password"
-          label="Secure Password"
+          label="Kata Sandi Aman"
           type="password"
           value={password}
           onChange={onPasswordChange}
@@ -93,7 +104,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {/* Confirm Password */}
         <AuthInput
           id="confirmPassword"
-          label="Confirm Password"
+          label="Konfirmasi Kata Sandi"
           type="password"
           value={confirmPassword}
           onChange={onConfirmPasswordChange}
@@ -113,13 +124,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           />
           <p className="text-[13px] text-[#6b6b80] leading-relaxed">
             <label htmlFor="agree" className="cursor-pointer">
-              I agree to the{' '}
+              Saya setuju dengan{' '}
               <a href="#" className="text-[#1a1a6e] font-semibold no-underline">
-                Terms of Service
+                Syarat Layanan
               </a>
-              {' '}and{' '}
+              {' '}dan{' '}
               <a href="#" className="text-[#1a1a6e] font-semibold no-underline">
-                Privacy Policy
+                Kebijakan Privasi
               </a>
               .
             </label>
@@ -132,19 +143,35 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           disabled={isLoading}
           variant="primary"
         >
-          {isLoading ? 'Creating Account...' : 'Create Account'}
+          {isLoading ? 'Membuat Akun...' : 'Buat Akun'}
           {!isLoading && <span className="text-lg font-normal">→</span>}
         </AuthButton>
       </form>
 
       {/* Divider */}
-      <div className="w-10 h-[3px] bg-[#e0e0ea] rounded mx-auto my-5"></div>
+      <div className="flex items-center gap-3 my-6">
+        <div className="flex-1 h-px bg-[#e8e8ee]" />
+        <span className="text-[11px] text-[#b0b0c0] tracking-[0.8px] font-medium">
+          ATAU DAFTAR DENGAN
+        </span>
+        <div className="flex-1 h-px bg-[#e8e8ee]" />
+      </div>
+
+      {/* Google Register */}
+      <AuthButton
+        onClick={onGoogleRegister}
+        disabled={isLoading}
+        variant="secondary"
+        icon={<GoogleIcon />}
+      >
+        Daftar dengan Google
+      </AuthButton>
 
       {/* Login Link */}
-      <div className="text-center text-sm text-[#6b6b80] pb-1">
-        Already have an account?{' '}
+      <div className="text-center mt-8 pt-6 border-t-[1.5px] border-[#f0f0f5] text-sm text-[#6b6b80]">
+        Sudah memiliki akun?{' '}
         <Link href="/login" className="text-[#1a1a6e] font-bold no-underline">
-          Log In
+          Masuk
         </Link>
       </div>
     </div>

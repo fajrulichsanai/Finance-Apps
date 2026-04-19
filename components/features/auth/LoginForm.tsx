@@ -11,11 +11,10 @@ interface LoginFormProps {
   password: string;
   setPassword: (value: string) => void;
   error: string;
-  successMessage?: string; // ✅ NEW: Success message prop
+  successMessage?: string;
   isLoading: boolean;
   onEmailLogin: (e: React.FormEvent) => void;
   onGoogleLogin: () => void;
-  onForgotPassword: () => void;
 }
 
 const GoogleIcon = () => (
@@ -35,21 +34,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   password,
   setPassword,
   error,
-  successMessage, // ✅ NEW: Receive success message
+  successMessage,
   isLoading,
   onEmailLogin,
   onGoogleLogin,
-  onForgotPassword,
 }) => {
   return (
     <div className="bg-white rounded-3xl p-8 sm:p-10 w-full shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[32px] font-extrabold text-[#0d0d2b] mb-2.5 tracking-tight">
-          Welcome back
+          Selamat Datang Kembali
         </h1>
         <p className="text-sm text-[#6b6b80] leading-relaxed">
-          Please enter your credentials to access your dashboard.
+          Silakan masukkan kredensial Anda untuk mengakses dasbor.
         </p>
       </div>
 
@@ -71,25 +69,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <form onSubmit={onEmailLogin} className="space-y-4 mb-6">
         <AuthInput
           id="email"
-          label="Email Address"
+          label="Alamat Email"
           type="email"
           value={email}
           onChange={setEmail}
-          placeholder="name@firm.com"
+          placeholder="nama@perusahaan.com"
           required
         />
 
         <AuthInput
           id="password"
-          label="Password"
+          label="Kata Sandi"
           type="password"
           value={password}
           onChange={setPassword}
           placeholder="••••••••"
           required
           actionButton={{
-            label: 'FORGOT PASSWORD?',
-            onClick: onForgotPassword, // ✅ BUG FIX #4: Call forgot password handler
+            label: 'LUPA KATA SANDI?',
+            href: '/auth/forgot-password',
           }}
         />
 
@@ -98,7 +96,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           disabled={isLoading}
           variant="primary"
         >
-          {isLoading ? 'Logging in...' : 'Login'}
+          {isLoading ? 'Masuk...' : 'Masuk'}
           {!isLoading && <span className="text-lg font-normal">→</span>}
         </AuthButton>
       </form>
@@ -107,7 +105,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <div className="flex items-center gap-3 my-6">
         <div className="flex-1 h-px bg-[#e8e8ee]" />
         <span className="text-[11px] text-[#b0b0c0] tracking-[0.8px] font-medium">
-          OR CONTINUE WITH
+          ATAU LANJUTKAN DENGAN
         </span>
         <div className="flex-1 h-px bg-[#e8e8ee]" />
       </div>
@@ -119,14 +117,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         variant="secondary"
         icon={<GoogleIcon />}
       >
-        Login with Google
+        Masuk dengan Google
       </AuthButton>
 
       {/* Sign Up Link */}
       <div className="text-center mt-8 pt-6 border-t-[1.5px] border-[#f0f0f5] text-sm text-[#6b6b80]">
-        Don&apos;t have an account?{' '}
+        Belum memiliki akun?{' '}
         <Link href="/register" className="text-[#1a1a6e] font-bold no-underline hover:underline">
-          Sign Up
+          Daftar
         </Link>
       </div>
     </div>
