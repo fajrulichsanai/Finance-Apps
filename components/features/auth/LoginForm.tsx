@@ -86,7 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           placeholder="••••••••"
           required
           actionButton={{
-            label: 'LUPA KATA SANDI?',
+            label: 'Lupa Password?',
             href: '/auth/forgot-password',
           }}
         />

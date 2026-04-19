@@ -2,16 +2,20 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { AuthLogo } from '@/components/features/auth/AuthLogo';
 import { AuthInput } from '@/components/features/auth/AuthInput';
 import { AuthButton } from '@/components/features/auth/AuthButton';
+import { SuccessPopup } from '@/components/ui/SuccessPopup';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const router = useRouter();
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -49,12 +53,12 @@ export default function ForgotPasswordPage() {
       }
 
       if (resetError) {
-        setError('Failed to send reset email. Please check your email address and try again.');
+        setError('Gagal mengirim email pengaturan ulang. Silakan periksa alamat email Anda dan coba lagi.');
         if (process.env.NODE_ENV === 'development') {
           console.error('[Password Reset Error]:', resetError.message);
         }
       } else {
-        setSuccessMessage('✓ Password reset email sent! Check your inbox for instructions. The link will expire in 1 hour.');
+        setShowSuccessPopup(true);
         setEmail('');
       }
     } catch (err) {
@@ -87,13 +91,6 @@ export default function ForgotPasswordPage() {
             </p>
           </div>
 
-          {/* Success Message */}
-          {successMessage && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm leading-relaxed">
-              {successMessage}
-            </div>
-          )}
-
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm leading-relaxed">
@@ -111,12 +108,12 @@ export default function ForgotPasswordPage() {
               onChange={setEmail}
               placeholder="nama@perusahaan.com"
               required
-              disabled={isLoading || !!successMessage}
+              disabled={isLoading}
             />
 
             <AuthButton 
               type="submit" 
-              disabled={isLoading || !!successMessage}
+              disabled={isLoading}
               variant="primary"
             >
               {isLoading ? 'Sending...' : 'Send Reset Link'}
@@ -138,6 +135,17 @@ export default function ForgotPasswordPage() {
           <p>We'll never ask for your password via email.</p>
         </div>
       </div>
+
+      {/* Success Popup */}
+      <SuccessPopup
+        isOpen={showSuccessPopup}
+        title="Email Terkirim!"
+        message="Kami telah mengirim link pengaturan ulang kata sandi ke email Anda. Silakan periksa inbox Anda dalam beberapa menit."
+        onDone={() => {
+          setShowSuccessPopup(false);
+          router.push('/');
+        }}
+      />
     </div>
   );
 }

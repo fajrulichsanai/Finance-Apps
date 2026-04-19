@@ -11,24 +11,25 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-// ✅ BUG FIX #8: Normalize error messages to prevent info leak
+// ✅ BUG FIX #8: Normalize error messages with specific guidance
 const normalizeAuthError = (error: any): string => {
   const message = error?.message?.toLowerCase() || '';
 
-  if (message.includes('invalid login credentials')) {
-    return 'Email atau kata sandi tidak valid';
+  // Check for user not found first
+  if (message.includes('user not found')) {
+    return 'Akun tidak ditemukan. Silakan daftar terlebih dahulu atau periksa email Anda.';
   }
+  
+  // Check for password-specific errors
+  if (message.includes('invalid login credentials') || message.includes('password')) {
+    return 'Kata sandi salah. Silakan coba lagi atau gunakan "Lupa Password?" untuk mereset.';
+  }
+  
   if (message.includes('email not confirmed')) {
     return 'Silakan konfirmasi email Anda terlebih dahulu. Periksa inbox Anda.';
   }
-  if (message.includes('user not found')) {
-    return 'Email atau kata sandi tidak valid';
-  }
-  if (message.includes('password')) {
-    return 'Email atau kata sandi tidak valid';
-  }
   if (message.includes('too many requests')) {
-    return 'Terlalu banyak percobaan masuk. Silakan coba lagi nanti.';
+    return 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.';
   }
   if (message.includes('timeout') || message.includes('abort')) {
     return 'Batas waktu koneksi. Periksa internet Anda dan coba lagi.';
@@ -64,7 +65,7 @@ export const useLogin = () => {
   // Server-side rate limiting also implemented as defense layer
   const loginAttempts = useRef<{ timestamp: number }[]>([]);
   const MAX_ATTEMPTS = 5;
-  const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+  const RATE_LIMIT_WINDOW_MS = 1 * 60 * 1000; // 1 minute
 
   // ✅ BUG FIX #6: Check server-side rate limiting
   const checkServerRateLimit = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
@@ -80,7 +81,7 @@ export const useLogin = () => {
       const data = await response.json();
 
       if (response.status === 429) {
-        return { allowed: false, message: 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 15 menit.' };
+        return { allowed: false, message: 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.' };
       }
 
       return { allowed: true };
@@ -88,6 +89,35 @@ export const useLogin = () => {
       // On network error, allow request to proceed (fail open)
       console.warn('[Rate Limit] Failed to check server rate limit:', error);
       return { allowed: true };
+    }
+  }, []);
+
+  // ✅ NEW: Check if user is registered first
+  const checkUserExists = useCallback(async (userEmail: string): Promise<{ exists: boolean; message?: string }> => {
+    try {
+      // Attempt password reset to check if email exists
+      // This is safer than attempting login as it doesn't record failed attempts
+      const supabase = createClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      // If no error, user exists
+      // If error contains "user_not_found", user doesn't exist
+      if (!error) {
+        return { exists: true };
+      }
+
+      if (error.message?.toLowerCase().includes('user') || error.message?.toLowerCase().includes('not found')) {
+        return { exists: false, message: 'Akun tidak ditemukan. Silakan daftar terlebih dahulu atau periksa email Anda.' };
+      }
+
+      // If other error, assume user exists (fail open)
+      return { exists: true };
+    } catch (err) {
+      console.error('[User Check Error]:', err);
+      // Assume user exists if we can't verify (fail open)
+      return { exists: true };
     }
   }, []);
 
@@ -135,7 +165,7 @@ export const useLogin = () => {
       
       if (loginAttempts.current.length >= MAX_ATTEMPTS) {
         if (!isMountedRef.current) return;
-        setError('Terlalu banyak percobaan masuk. Silakan coba lagi dalam 15 menit.');
+        setError('Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.');
         submitInProgress.current = false;
         return;
       }
@@ -166,7 +196,23 @@ export const useLogin = () => {
         return;
       }
 
-      // Record this login attempt (for client-side tracking)
+      // ✅ NEW: Check if user is registered FIRST before validating password
+      const { exists: userExists, message: notFoundMessage } = await checkUserExists(email);
+      
+      if (!isMountedRef.current) {
+        submitInProgress.current = false;
+        return;
+      }
+
+      if (!userExists) {
+        // User not found - don't increment login attempts
+        setError(notFoundMessage || 'Akun tidak ditemukan');
+        setIsLoading(false);
+        submitInProgress.current = false;
+        return;
+      }
+
+      // Record this login attempt (for client-side tracking) - only after checking user exists
       loginAttempts.current.push({ timestamp: Date.now() });
       // Use AbortController + Promise.race for proper timeout handling
       let timeoutId: NodeJS.Timeout | null = null;
