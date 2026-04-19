@@ -1,0 +1,1251 @@
+
+> finance-app-nextjs@0.1.0 test
+> playwright test
+
+
+Running 76 tests using 5 workers
+
+[1A[2K[1/76] [chromium] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message
+[1A[2K[2/76] [chromium] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register
+[1A[2K[3/76] [chromium] › tests/auth/login.spec.ts:19:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P01: Login dengan Email dan Password Valid
+[1A[2K[4/76] [chromium] › tests/auth/login.spec.ts:42:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P03: Navigasi ke Lupa Password
+[1A[2K[5/76] [chromium] › tests/auth/login.spec.ts:91:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N01: Login dengan Email Kosong
+[1A[2K  1) [chromium] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a[href*="register"], text=Daftar, text=Sign Up". Did you mean to CSS.escape it?
+
+      61 |       // Find and click register link
+      62 |       const registerLink = page.locator('a[href*="register"], text=Daftar, text=Sign Up');
+    > 63 |       if (await registerLink.count() > 0) {
+         |                              ^
+      64 |         await registerLink.click();
+      65 |       } else {
+      66 |         await page.locator('text=/Daftar|Register/i').click();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:63:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-chromium/error-context.md
+
+
+[1A[2K[6/76] [chromium] › tests/auth/login.spec.ts:128:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N03: Login dengan Email Format Invalid
+[1A[2K[7/76] [chromium] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah
+[1A[2K[8/76] [chromium] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar
+[1A[2K[9/76] [chromium] › tests/auth/login.spec.ts:110:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N02: Login dengan Password Kosong
+[1A[2K  2) [chromium] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="success"], [class*="alert-success"], text=/berhasil|success/i". Did you mean to CSS.escape it?
+
+      81 |       
+      82 |       // Wait for success message to appear (if it exists)
+    > 83 |       if (await successMessage.count() > 0) {
+         |                                ^
+      84 |         await expect(successMessage).toBeVisible();
+      85 |       }
+      86 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:83:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-chromium/error-context.md
+
+
+[1A[2K[10/76] [chromium] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts
+[1A[2K  3) [chromium] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i[22m
+
+
+      158 |       // Wait for error message
+      159 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i');
+    > 160 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      161 |
+      162 |       // Expected: Error message contains "Invalid login credentials"
+      163 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:160:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-chromium/error-context.md
+
+
+[1A[2K[11/76] [chromium] › tests/auth/login.spec.ts:193:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N06: Tombol Disable Saat Loading
+[1A[2K  4) [chromium] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal/i[22m
+
+
+      183 |       // Wait for error message
+      184 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal/i');
+    > 185 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      186 |
+      187 |       // Expected: Error message "Invalid login credentials"
+      188 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:185:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-chromium/error-context.md
+
+
+[1A[2K[12/76] [chromium] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline
+[1A[2K  5) [chromium] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      247 |         // Verify error message appears each time
+      248 |         const errorText = await errorMessage.textContent();
+    > 249 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      250 |
+      251 |         // Short wait before next attempt
+      252 |         if (i < 2) {
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:249:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-chromium/error-context.md
+
+
+[1A[2K[13/76] [chromium] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt
+[1A[2K[14/76] [chromium] › tests/auth/login.spec.ts:294:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E01: Login dengan Whitespace di Email
+[1A[2K[15/76] [chromium] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification)
+[1A[2K[16/76] [chromium] › tests/auth/login.spec.ts:370:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E04: Responsive UI Mobile (375px)
+[1A[2K  6) [chromium] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31m""[39m
+
+      338 |         const errorText = await errorMessage.textContent();
+      339 |         // Error should be clear, not database error
+    > 340 |         expect(errorText).toBeTruthy();
+          |                           ^
+      341 |       }
+      342 |     });
+      343 |
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:340:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-chromium/error-context.md
+
+
+[1A[2K[17/76] [chromium] › tests/auth/login.spec.ts:414:9 › Login Page Tests › 🔧 Additional Tests › Login Form Structure is Complete
+[1A[2K  7) [chromium] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      276 |       if (await errorMessage.count() > 0) {
+      277 |         const errorText = await errorMessage.textContent();
+    > 278 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      279 |       }
+      280 |
+      281 |       // Verify user is still on login page (not redirected to dashboard)
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:278:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-chromium/error-context.md
+
+
+[1A[2K[18/76] [chromium] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible
+[1A[2K[19/76] [chromium] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title
+[1A[2K[20/76] [firefox] › tests/auth/login.spec.ts:42:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P03: Navigasi ke Lupa Password
+[1A[2K[21/76] [firefox] › tests/auth/login.spec.ts:19:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P01: Login dengan Email dan Password Valid
+[1A[2K  8) [chromium] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "button:has-text("Google"), text=/Google|Masuk dengan Google/i". Did you mean to CSS.escape it?
+
+      406 |       const googleButton = page.locator('button:has-text("Google"), text=/Google|Masuk dengan Google/i');
+      407 |       
+    > 408 |       if (await googleButton.count() > 0) {
+          |                              ^
+      409 |         await expect(googleButton).toBeVisible();
+      410 |       }
+      411 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:408:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-chromium/error-context.md
+
+
+[1A[2K  9) [chromium] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"login"[39m
+    Received string:    [31m"finance app - track your money"[39m
+
+      427 |     test('Login Page Has Correct Title', async ({ page }) => {
+      428 |       const title = await page.title();
+    > 429 |       expect(title.toLowerCase()).toContain('login');
+          |                                   ^
+      430 |     });
+      431 |   });
+      432 | });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:429:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-chromium/error-context.md
+
+
+[1A[2K[22/76] [firefox] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register
+[1A[2K[23/76] [firefox] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message
+[1A[2K  10) [chromium] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('input[type="email"]')
+    Expected pattern: [32m/email|on/i[39m
+    Received string:  [31m""[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('input[type="email"]')[22m
+    [2m    8 × locator resolved to <input value="" id="email" required="" type="email" placeholder="nama@perusahaan.com" class="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"/>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      350 |
+      351 |       // Set autocomplete attributes
+    > 352 |       await expect(emailInput).toHaveAttribute('autocomplete', /email|on/i);
+          |                                ^
+      353 |       await expect(passwordInput).toHaveAttribute('autocomplete', /password|on/i);
+      354 |
+      355 |       // Manually fill as if autofilled
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:352:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--chromium/error-context.md
+
+
+[1A[2K[24/76] [firefox] › tests/auth/login.spec.ts:91:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N01: Login dengan Email Kosong
+[1A[2K[25/76] [firefox] › tests/auth/login.spec.ts:110:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N02: Login dengan Password Kosong
+[1A[2K  11) [firefox] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a[href*="register"], text=Daftar, text=Sign Up". Did you mean to CSS.escape it?
+
+      61 |       // Find and click register link
+      62 |       const registerLink = page.locator('a[href*="register"], text=Daftar, text=Sign Up');
+    > 63 |       if (await registerLink.count() > 0) {
+         |                              ^
+      64 |         await registerLink.click();
+      65 |       } else {
+      66 |         await page.locator('text=/Daftar|Register/i').click();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:63:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-firefox/error-context.md
+
+
+[1A[2K[26/76] [firefox] › tests/auth/login.spec.ts:128:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N03: Login dengan Email Format Invalid
+[1A[2K[27/76] [firefox] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah
+[1A[2K[28/76] [firefox] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar
+[1A[2K[29/76] [firefox] › tests/auth/login.spec.ts:193:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N06: Tombol Disable Saat Loading
+[1A[2K  12) [firefox] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="success"], [class*="alert-success"], text=/berhasil|success/i". Did you mean to CSS.escape it?
+
+      81 |       
+      82 |       // Wait for success message to appear (if it exists)
+    > 83 |       if (await successMessage.count() > 0) {
+         |                                ^
+      84 |         await expect(successMessage).toBeVisible();
+      85 |       }
+      86 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:83:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-firefox/error-context.md
+
+
+[1A[2K[30/76] [firefox] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts
+[1A[2K  13) [firefox] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i[22m
+
+
+      158 |       // Wait for error message
+      159 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i');
+    > 160 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      161 |
+      162 |       // Expected: Error message contains "Invalid login credentials"
+      163 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:160:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-firefox/error-context.md
+
+
+[1A[2K[31/76] [firefox] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt
+[1A[2K[32/76] [firefox] › tests/auth/login.spec.ts:294:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E01: Login dengan Whitespace di Email
+[1A[2K  14) [firefox] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal/i[22m
+
+
+      183 |       // Wait for error message
+      184 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal/i');
+    > 185 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      186 |
+      187 |       // Expected: Error message "Invalid login credentials"
+      188 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:185:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-firefox/error-context.md
+
+
+[1A[2K[33/76] [firefox] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification)
+[1A[2K[34/76] [firefox] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline
+[1A[2K[35/76] [firefox] › tests/auth/login.spec.ts:370:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E04: Responsive UI Mobile (375px)
+[1A[2K  15) [firefox] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      247 |         // Verify error message appears each time
+      248 |         const errorText = await errorMessage.textContent();
+    > 249 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      250 |
+      251 |         // Short wait before next attempt
+      252 |         if (i < 2) {
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:249:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-firefox/error-context.md
+
+
+[1A[2K[36/76] [firefox] › tests/auth/login.spec.ts:414:9 › Login Page Tests › 🔧 Additional Tests › Login Form Structure is Complete
+[1A[2K[37/76] [firefox] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible
+[1A[2K[38/76] [firefox] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title
+[1A[2K  16) [firefox] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      276 |       if (await errorMessage.count() > 0) {
+      277 |         const errorText = await errorMessage.textContent();
+    > 278 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      279 |       }
+      280 |
+      281 |       // Verify user is still on login page (not redirected to dashboard)
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:278:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-firefox/error-context.md
+
+
+[1A[2K  17) [firefox] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('input[type="email"]')
+    Expected pattern: [32m/email|on/i[39m
+    Received string:  [31m""[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('input[type="email"]')[22m
+    [2m    6 × locator resolved to <input value="" id="email" required="" type="email" placeholder="nama@perusahaan.com" class="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"/>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      350 |
+      351 |       // Set autocomplete attributes
+    > 352 |       await expect(emailInput).toHaveAttribute('autocomplete', /email|on/i);
+          |                                ^
+      353 |       await expect(passwordInput).toHaveAttribute('autocomplete', /password|on/i);
+      354 |
+      355 |       // Manually fill as if autofilled
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:352:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--firefox/error-context.md
+
+
+[1A[2K[39/76] [webkit] › tests/auth/login.spec.ts:19:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P01: Login dengan Email dan Password Valid
+[1A[2K[40/76] [webkit] › tests/auth/login.spec.ts:42:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P03: Navigasi ke Lupa Password
+[1A[2K  18) [firefox] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"login"[39m
+    Received string:    [31m"finance app - track your money"[39m
+
+      427 |     test('Login Page Has Correct Title', async ({ page }) => {
+      428 |       const title = await page.title();
+    > 429 |       expect(title.toLowerCase()).toContain('login');
+          |                                   ^
+      430 |     });
+      431 |   });
+      432 | });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:429:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-firefox/error-context.md
+
+
+[1A[2K  19) [firefox] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31m""[39m
+
+      338 |         const errorText = await errorMessage.textContent();
+      339 |         // Error should be clear, not database error
+    > 340 |         expect(errorText).toBeTruthy();
+          |                           ^
+      341 |       }
+      342 |     });
+      343 |
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:340:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-firefox/error-context.md
+
+
+[1A[2K  20) [firefox] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "button:has-text("Google"), text=/Google|Masuk dengan Google/i". Did you mean to CSS.escape it?
+
+      406 |       const googleButton = page.locator('button:has-text("Google"), text=/Google|Masuk dengan Google/i');
+      407 |       
+    > 408 |       if (await googleButton.count() > 0) {
+          |                              ^
+      409 |         await expect(googleButton).toBeVisible();
+      410 |       }
+      411 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:408:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-firefox/error-context.md
+
+
+[1A[2K[41/76] [webkit] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register
+[1A[2K[42/76] [webkit] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message
+[1A[2K[43/76] [webkit] › tests/auth/login.spec.ts:91:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N01: Login dengan Email Kosong
+[1A[2K[44/76] [webkit] › tests/auth/login.spec.ts:110:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N02: Login dengan Password Kosong
+[1A[2K[45/76] [webkit] › tests/auth/login.spec.ts:128:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N03: Login dengan Email Format Invalid
+[1A[2K[46/76] [webkit] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah
+[1A[2K  21) [webkit] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a[href*="register"], text=Daftar, text=Sign Up". Did you mean to CSS.escape it?
+
+      61 |       // Find and click register link
+      62 |       const registerLink = page.locator('a[href*="register"], text=Daftar, text=Sign Up');
+    > 63 |       if (await registerLink.count() > 0) {
+         |                              ^
+      64 |         await registerLink.click();
+      65 |       } else {
+      66 |         await page.locator('text=/Daftar|Register/i').click();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:63:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-webkit/error-context.md
+
+
+[1A[2K[47/76] [webkit] › tests/auth/login.spec.ts:193:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N06: Tombol Disable Saat Loading
+[1A[2K[48/76] [webkit] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts
+[1A[2K  22) [webkit] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="success"], [class*="alert-success"], text=/berhasil|success/i". Did you mean to CSS.escape it?
+
+      81 |       
+      82 |       // Wait for success message to appear (if it exists)
+    > 83 |       if (await successMessage.count() > 0) {
+         |                                ^
+      84 |         await expect(successMessage).toBeVisible();
+      85 |       }
+      86 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:83:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-webkit/error-context.md
+
+
+[1A[2K[49/76] [webkit] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar
+[1A[2K[50/76] [webkit] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt
+[1A[2K  23) [webkit] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i[22m
+
+
+      158 |       // Wait for error message
+      159 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i');
+    > 160 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      161 |
+      162 |       // Expected: Error message contains "Invalid login credentials"
+      163 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:160:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-webkit/error-context.md
+
+
+[1A[2K  24) [webkit] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      247 |         // Verify error message appears each time
+      248 |         const errorText = await errorMessage.textContent();
+    > 249 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      250 |
+      251 |         // Short wait before next attempt
+      252 |         if (i < 2) {
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:249:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-webkit/error-context.md
+
+
+[1A[2K[51/76] [webkit] › tests/auth/login.spec.ts:294:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E01: Login dengan Whitespace di Email
+[1A[2K[52/76] [webkit] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification)
+[1A[2K[53/76] [webkit] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline
+[1A[2K  25) [webkit] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal/i[22m
+
+
+      183 |       // Wait for error message
+      184 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal/i');
+    > 185 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      186 |
+      187 |       // Expected: Error message "Invalid login credentials"
+      188 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:185:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-webkit/error-context.md
+
+
+[1A[2K[54/76] [webkit] › tests/auth/login.spec.ts:370:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E04: Responsive UI Mobile (375px)
+[1A[2K[55/76] [webkit] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible
+[1A[2K  26) [webkit] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      276 |       if (await errorMessage.count() > 0) {
+      277 |         const errorText = await errorMessage.textContent();
+    > 278 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      279 |       }
+      280 |
+      281 |       // Verify user is still on login page (not redirected to dashboard)
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:278:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-webkit/error-context.md
+
+
+[1A[2K  27) [webkit] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31m""[39m
+
+      338 |         const errorText = await errorMessage.textContent();
+      339 |         // Error should be clear, not database error
+    > 340 |         expect(errorText).toBeTruthy();
+          |                           ^
+      341 |       }
+      342 |     });
+      343 |
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:340:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-webkit/error-context.md
+
+
+[1A[2K[56/76] [webkit] › tests/auth/login.spec.ts:414:9 › Login Page Tests › 🔧 Additional Tests › Login Form Structure is Complete
+[1A[2K  28) [webkit] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('input[type="email"]')
+    Expected pattern: [32m/email|on/i[39m
+    Received string:  [31m""[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('input[type="email"]')[22m
+    [2m    9 × locator resolved to <input value="" id="email" required="" type="email" placeholder="nama@perusahaan.com" class="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"/>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      350 |
+      351 |       // Set autocomplete attributes
+    > 352 |       await expect(emailInput).toHaveAttribute('autocomplete', /email|on/i);
+          |                                ^
+      353 |       await expect(passwordInput).toHaveAttribute('autocomplete', /password|on/i);
+      354 |
+      355 |       // Manually fill as if autofilled
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:352:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--webkit/error-context.md
+
+
+[1A[2K  29) [webkit] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "button:has-text("Google"), text=/Google|Masuk dengan Google/i". Did you mean to CSS.escape it?
+
+      406 |       const googleButton = page.locator('button:has-text("Google"), text=/Google|Masuk dengan Google/i');
+      407 |       
+    > 408 |       if (await googleButton.count() > 0) {
+          |                              ^
+      409 |         await expect(googleButton).toBeVisible();
+      410 |       }
+      411 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:408:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-webkit/error-context.md
+
+
+[1A[2K[57/76] [webkit] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title
+[1A[2K[58/76] [Mobile Chrome] › tests/auth/login.spec.ts:19:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P01: Login dengan Email dan Password Valid
+[1A[2K[59/76] [Mobile Chrome] › tests/auth/login.spec.ts:42:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P03: Navigasi ke Lupa Password
+[1A[2K[60/76] [Mobile Chrome] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register
+[1A[2K  30) [Mobile Chrome] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a[href*="register"], text=Daftar, text=Sign Up". Did you mean to CSS.escape it?
+
+      61 |       // Find and click register link
+      62 |       const registerLink = page.locator('a[href*="register"], text=Daftar, text=Sign Up');
+    > 63 |       if (await registerLink.count() > 0) {
+         |                              ^
+      64 |         await registerLink.click();
+      65 |       } else {
+      66 |         await page.locator('text=/Daftar|Register/i').click();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:63:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-331f9-avigasi-ke-Halaman-Register-Mobile-Chrome/error-context.md
+
+
+[1A[2K[61/76] [Mobile Chrome] › tests/auth/login.spec.ts:110:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N02: Login dengan Password Kosong
+[1A[2K[62/76] [Mobile Chrome] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message
+[1A[2K  31) [webkit] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"login"[39m
+    Received string:    [31m"finance app - track your money"[39m
+
+      427 |     test('Login Page Has Correct Title', async ({ page }) => {
+      428 |       const title = await page.title();
+    > 429 |       expect(title.toLowerCase()).toContain('login');
+          |                                   ^
+      430 |     });
+      431 |   });
+      432 | });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:429:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-webkit/error-context.md
+
+
+[1A[2K[63/76] [Mobile Chrome] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah
+[1A[2K[64/76] [Mobile Chrome] › tests/auth/login.spec.ts:91:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N01: Login dengan Email Kosong
+[1A[2K[65/76] [Mobile Chrome] › tests/auth/login.spec.ts:128:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N03: Login dengan Email Format Invalid
+[1A[2K[66/76] [Mobile Chrome] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar
+[1A[2K  32) [Mobile Chrome] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i[22m
+
+
+      158 |       // Wait for error message
+      159 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal|credentials/i');
+    > 160 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      161 |
+      162 |       // Expected: Error message contains "Invalid login credentials"
+      163 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:160:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-60437-Login-dengan-Password-Salah-Mobile-Chrome/error-context.md
+
+
+[1A[2K[67/76] [Mobile Chrome] › tests/auth/login.spec.ts:193:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N06: Tombol Disable Saat Loading
+[1A[2K  33) [Mobile Chrome] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "[class*="success"], [class*="alert-success"], text=/berhasil|success/i". Did you mean to CSS.escape it?
+
+      81 |       
+      82 |       // Wait for success message to appear (if it exists)
+    > 83 |       if (await successMessage.count() > 0) {
+         |                                ^
+      84 |         await expect(successMessage).toBeVisible();
+      85 |       }
+      86 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:83:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-6de28-P05-Display-Success-Message-Mobile-Chrome/error-context.md
+
+
+[1A[2K[68/76] [Mobile Chrome] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt
+[1A[2K[69/76] [Mobile Chrome] › tests/auth/login.spec.ts:294:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E01: Login dengan Whitespace di Email
+[1A[2K  34) [Mobile Chrome] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: [class*="error"], [role="alert"], text=/Invalid|Gagal/i
+    Expected: visible
+    Error: Unexpected token "=" while parsing css selector "[class*="error"], [role="alert"], text=/Invalid|Gagal/i". Did you mean to CSS.escape it?
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for [class*="error"], [role="alert"], text=/Invalid|Gagal/i[22m
+
+
+      183 |       // Wait for error message
+      184 |       const errorMessage = page.locator('[class*="error"], [role="alert"], text=/Invalid|Gagal/i');
+    > 185 |       await expect(errorMessage).toBeVisible({ timeout: 5000 });
+          |                                  ^
+      186 |
+      187 |       // Expected: Error message "Invalid login credentials"
+      188 |       const errorText = await errorMessage.textContent();
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:185:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f07a6-dengan-User-Tidak-Terdaftar-Mobile-Chrome/error-context.md
+
+
+[1A[2K[70/76] [Mobile Chrome] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts
+[1A[2K[71/76] [Mobile Chrome] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline
+[1A[2K[72/76] [Mobile Chrome] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification)
+[1A[2K[73/76] [Mobile Chrome] › tests/auth/login.spec.ts:370:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E04: Responsive UI Mobile (375px)
+[1A[2K  35) [Mobile Chrome] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      276 |       if (await errorMessage.count() > 0) {
+      277 |         const errorText = await errorMessage.textContent();
+    > 278 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      279 |       }
+      280 |
+      281 |       // Verify user is still on login page (not redirected to dashboard)
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:278:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-f6e3d-N-N08-SQL-Injection-Attempt-Mobile-Chrome/error-context.md
+
+
+[1A[2K  36) [Mobile Chrome] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"invalid"[39m
+    Received string:    [31m""[39m
+
+      247 |         // Verify error message appears each time
+      248 |         const errorText = await errorMessage.textContent();
+    > 249 |         expect(errorText?.toLowerCase()).toContain('invalid');
+          |                                          ^
+      250 |
+      251 |         // Short wait before next attempt
+      252 |         if (i < 2) {
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:249:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-c0317-tiple-Failed-Login-Attempts-Mobile-Chrome/error-context.md
+
+
+[1A[2K[74/76] [Mobile Chrome] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible
+[1A[2K[75/76] [Mobile Chrome] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title
+[1A[2K[76/76] [Mobile Chrome] › tests/auth/login.spec.ts:414:9 › Login Page Tests › 🔧 Additional Tests › Login Form Structure is Complete
+[1A[2K  37) [Mobile Chrome] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31m""[39m
+
+      338 |         const errorText = await errorMessage.textContent();
+      339 |         // Error should be clear, not database error
+    > 340 |         expect(errorText).toBeTruthy();
+          |                           ^
+      341 |       }
+      342 |     });
+      343 |
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:340:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-13fe7-ord-dengan-Trailing-Newline-Mobile-Chrome/error-context.md
+
+
+[1A[2K  38) [Mobile Chrome] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"login"[39m
+    Received string:    [31m"finance app - track your money"[39m
+
+      427 |     test('Login Page Has Correct Title', async ({ page }) => {
+      428 |       const title = await page.title();
+    > 429 |       expect(title.toLowerCase()).toContain('login');
+          |                                   ^
+      430 |     });
+      431 |   });
+      432 | });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:429:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-8e511-ogin-Page-Has-Correct-Title-Mobile-Chrome/error-context.md
+
+
+[1A[2K  39) [Mobile Chrome] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "button:has-text("Google"), text=/Google|Masuk dengan Google/i". Did you mean to CSS.escape it?
+
+      406 |       const googleButton = page.locator('button:has-text("Google"), text=/Google|Masuk dengan Google/i');
+      407 |       
+    > 408 |       if (await googleButton.count() > 0) {
+          |                              ^
+      409 |         await expect(googleButton).toBeVisible();
+      410 |       }
+      411 |     });
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:408:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-d2900-gle-Login-Button-is-Visible-Mobile-Chrome/error-context.md
+
+
+[1A[2K  40) [Mobile Chrome] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('input[type="email"]')
+    Expected pattern: [32m/email|on/i[39m
+    Received string:  [31m""[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('input[type="email"]')[22m
+    [2m    9 × locator resolved to <input value="" id="email" required="" type="email" placeholder="nama@perusahaan.com" class="w-full px-[18px] py-3.5 border-none rounded-xl bg-[#f2f2f5] text-sm text-[#0d0d2b] placeholder-[#b0b0c0] outline-none focus:bg-[#eaeaf0] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"/>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      350 |
+      351 |       // Set autocomplete attributes
+    > 352 |       await expect(emailInput).toHaveAttribute('autocomplete', /email|on/i);
+          |                                ^
+      353 |       await expect(passwordInput).toHaveAttribute('autocomplete', /password|on/i);
+      354 |
+      355 |       // Manually fill as if autofilled
+        at /Users/fajrulichsankamil/Desktop/Project/Finance Apps/tests/auth/login.spec.ts:352:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-login-Login-Page-Test-61c06-tofill-Manual-Verification--Mobile-Chrome/error-context.md
+
+
+[1A[2K  40 failed
+    [chromium] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+    [chromium] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+    [chromium] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+    [chromium] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+    [chromium] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+    [chromium] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+    [chromium] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+    [chromium] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+    [chromium] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+    [chromium] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+    [firefox] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+    [firefox] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+    [firefox] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+    [firefox] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+    [firefox] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+    [firefox] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+    [firefox] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+    [firefox] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+    [firefox] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+    [firefox] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+    [webkit] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+    [webkit] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+    [webkit] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+    [webkit] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+    [webkit] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+    [webkit] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+    [webkit] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+    [webkit] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+    [webkit] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+    [webkit] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+    [Mobile Chrome] › tests/auth/login.spec.ts:60:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P04: Navigasi ke Halaman Register 
+    [Mobile Chrome] › tests/auth/login.spec.ts:75:9 › Login Page Tests › ✅ Positive Test Cases › TC-LOGIN-P05: Display Success Message 
+    [Mobile Chrome] › tests/auth/login.spec.ts:146:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N04: Login dengan Password Salah 
+    [Mobile Chrome] › tests/auth/login.spec.ts:171:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N05: Login dengan User Tidak Terdaftar 
+    [Mobile Chrome] › tests/auth/login.spec.ts:226:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N07: Multiple Failed Login Attempts 
+    [Mobile Chrome] › tests/auth/login.spec.ts:259:9 › Login Page Tests › ❌ Negative Test Cases › TC-LOGIN-N08: SQL Injection Attempt 
+    [Mobile Chrome] › tests/auth/login.spec.ts:318:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E02: Copy-Paste Password dengan Trailing Newline 
+    [Mobile Chrome] › tests/auth/login.spec.ts:345:9 › Login Page Tests › ⚠️ Edge Cases › TC-LOGIN-E03: Browser Autofill (Manual Verification) 
+    [Mobile Chrome] › tests/auth/login.spec.ts:405:9 › Login Page Tests › 🔧 Additional Tests › Google Login Button is Visible 
+    [Mobile Chrome] › tests/auth/login.spec.ts:427:9 › Login Page Tests › 🔧 Additional Tests › Login Page Has Correct Title 
+  36 passed (1.5m)
+
+[36m  Serving HTML report at http://localhost:61189. Press Ctrl+C to quit.[39m

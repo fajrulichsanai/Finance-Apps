@@ -24,11 +24,11 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({ score, standin
       </div>
       <div className="flex-1">
         <div className="text-[9px] font-bold text-gray-400 tracking-[0.8px] uppercase mb-0.5">
-          Financial Health Score
+          Skor Kesehatan Keuangan
         </div>
         <div className="text-[15px] font-bold text-[#0d0d2b]">{standing}</div>
         <div className="text-[11px] text-gray-500 leading-tight mt-0.5">
-          <span className="font-bold text-[#0d0d2b]">Quick Insight:</span> Your savings rate is {score}% this month.
+          <span className="font-bold text-[#0d0d2b]">Wawasan Cepat:</span> Tingkat tabungan Anda {score}% bulan ini.
         </div>
       </div>
     </div>

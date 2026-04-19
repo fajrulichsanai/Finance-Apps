@@ -1,8 +1,6 @@
-page login :
-2. nah klau misalnya tidak terdaftar bilang aja langsung tidak terdaftar (feedback :ini cba check dlu usernya, apakah usernya terdaftar atau tidak, baru check passwordnay)
-3. case ini Multiple Failed Login Attempts, itu waktu tunggunya 1 menit aja (feedback : ini cba countdown)
+page dashboard :
 
-
-page lupa password:
-1. klau misalnya berhasil krim email, kasih popup gtu lah
-
+page record :
+1. button color buat kategory budgetnya itu samakan warnanya dengan color tab income dan expenseve
+2. nah klau switch tab income dan expenseve, itu setiap fieldnya di kosongkan lagi
+3

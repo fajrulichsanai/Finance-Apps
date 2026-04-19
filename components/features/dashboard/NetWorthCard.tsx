@@ -12,10 +12,10 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({ balance, displayName
   return (
     <>
       <div className="text-[9px] font-bold text-gray-400 tracking-[0.8px] uppercase mb-1">
-        Portfolio Summary
+        Ringkasan Portofolio
       </div>
       <div className="text-[28px] font-extrabold text-[#0d0d2b] mb-2">
-        Hello, {displayName}!
+        Halo, {displayName}!
       </div>
       <div className="inline-flex items-center gap-1.5 bg-[#e6f9f0] rounded-[20px] px-3 py-1.5 mb-3.5">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
@@ -26,22 +26,22 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({ balance, displayName
       </div>
 
       <div 
-        className={`rounded-[20px] px-5 py-[18px] mb-3.5 ${isDeficit ? 'border-2 border-red-400' : ''}`}
-        style={{ background: isDeficit ? 'linear-gradient(135deg, #8B0000 0%, #DC143C 60%, #B22222 100%)' : 'linear-gradient(135deg, #1a1a6e 0%, #2a2a8e 60%, #1e3a8a 100%)' }}
+        className="rounded-[20px] px-5 py-[18px] mb-3.5"
+        style={{ background: 'linear-gradient(135deg, #1a1a6e 0%, #2a2a8e 60%, #1e3a8a 100%)' }}
       >
         <div className="text-[9px] font-bold text-white/55 tracking-[0.8px] uppercase mb-1.5">
-          {isDeficit ? 'Outstanding Balance' : 'Total Net Worth'}
+          Total Kekayaan Bersih
         </div>
         <div className="text-[36px] font-extrabold text-white tracking-tight mb-3">
           <sup className="text-[20px] font-bold align-super">Rp</sup>
-          {isDeficit && '-'}{displayBalance.toLocaleString('id-ID')}
+          {displayBalance.toLocaleString('id-ID')}
         </div>
         <div className="inline-flex items-center gap-1.5 bg-white/[0.12] rounded-[20px] px-3 py-1.5">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             <polyline points="17,6 23,6 23,12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="text-xs font-bold text-white">Tracking your wealth</span>
+          <span className="text-xs font-bold text-white">Pantau kekayaan Anda</span>
         </div>
       </div>
     </>
