@@ -55,7 +55,7 @@ export default function CategorySelector({
         </div>
         <a
           href="/budget"
-          className="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 active:scale-95 transition-all"
+          className="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-900 text-white text-sm font-semibold rounded-xl hover:bg-indigo-800 active:scale-95 transition-all"
         >
           Buat Kategori Budget
         </a>
@@ -65,10 +65,10 @@ export default function CategorySelector({
 
   return (
     <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4 text-center">
         Pilih Kategori {hasManyCats && <span className="text-slate-300">({categories.length})</span>}
       </p>
-      <div className={`grid grid-cols-3 gap-3 ${
+      <div className={`grid grid-cols-3 gap-3 justify-items-center ${
         hasManyCats ? 'max-h-[280px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100' : ''
       }`}>
         {categories.map(category => {

@@ -69,6 +69,7 @@ export default function AmountInput({ value, onChange, type = 'expense' }: Amoun
         <span className="font-nunito text-2xl font-black text-slate-600">Rp</span>
         <input
           type="text"
+          inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -79,16 +80,7 @@ export default function AmountInput({ value, onChange, type = 'expense' }: Amoun
           style={{ minWidth: '120px' }}
         />
       </div>
-      {value > 0 && (
-        <p className="text-xs text-slate-500 mt-3">
-          {new Intl.NumberFormat('id-ID', { 
-            style: 'currency', 
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-          }).format(value)}
-        </p>
-      )}
+
     </div>
   );
 }

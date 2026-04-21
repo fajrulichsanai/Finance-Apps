@@ -45,9 +45,37 @@ class CategoryService {
 
   /**
    * Get all user categories (templates + user's own)
+   * Optionally sorted by transaction count
    */
-  async getAllCategories() {
+  async getAllCategories(sortByUsage: boolean = false): Promise<Category[]> {
     try {
+      if (sortByUsage) {
+        // Use RPC to get categories with transaction counts and sort by usage
+        const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+        if (authError || !user) {
+          // Fallback to regular query if not authenticated
+          return this.getAllCategories(false);
+        }
+
+        const { data, error } = await this.supabase
+          .rpc('get_categories_with_budget', {
+            p_user_id: user.id
+          });
+
+        if (error) {
+          console.error('Error fetching categories with usage:', error);
+          // Fallback to regular query
+          return this.getAllCategories(false);
+        }
+
+        // Sort by transaction count (descending) - most used first
+        return (data || []).sort((a: any, b: any) => {
+          const countA = Number(a.transaction_count) || 0;
+          const countB = Number(b.transaction_count) || 0;
+          return countB - countA;
+        }) as Category[];
+      }
+
       const { data, error } = await this.supabase
         .from('categories')
         .select('*')

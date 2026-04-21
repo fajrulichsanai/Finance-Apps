@@ -169,7 +169,7 @@ export const LoginTestHelpers = {
    */
   async checkForSecurityIssues(page: Page): Promise<string[]> {
     const issues: string[] = [];
-    const pageText = await page.textContent();
+    const pageText = await page.textContent('body');
 
     if (pageText?.includes('database')) issues.push('Database error exposed');
     if (pageText?.includes('SQL')) issues.push('SQL error exposed');

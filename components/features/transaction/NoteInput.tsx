@@ -13,7 +13,7 @@ interface NoteInputProps {
 export default function NoteInput({ 
   value, 
   onChange, 
-  placeholder = "Untuk apa? (contoh: gaji, freelance, bonus)" 
+  placeholder = "" 
 }: NoteInputProps) {
   const maxLength = 200;
   const charCount = value.length;
@@ -22,7 +22,7 @@ export default function NoteInput({
     <div className="bg-white rounded-2xl mx-5 mb-4 p-4 shadow-md">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Note (Optional)
+          Catatan (Opsional)
         </p>
         <span className="text-[10px] text-slate-400">
           {charCount}/{maxLength}

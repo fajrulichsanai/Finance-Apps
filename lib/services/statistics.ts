@@ -364,6 +364,17 @@ class StatisticsService {
         throw new Error(`Failed to fetch dashboard data: ${error.message}`);
       }
 
+      console.log('[getDashboardData] Raw RPC response:', {
+        total_income_all_time: data?.total_income_all_time,
+        total_expense_all_time: data?.total_expense_all_time,
+        balance_all_time: data?.balance_all_time,
+        total_income_month: data?.total_income_month,
+        total_expense_month: data?.total_expense_month,
+        balance_month: data?.balance_month,
+        has_categories: !!data?.categories_data,
+        has_transactions: !!data?.recent_transactions_data
+      });
+
       // Parse and validate JSON fields
       let categoriesData = [];
       let transactionsData = [];

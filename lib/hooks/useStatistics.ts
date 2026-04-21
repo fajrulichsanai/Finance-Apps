@@ -239,6 +239,14 @@ export function useDashboardData() {
       setError(null);
       const data = await statisticsService.getDashboardData();
       
+      // Debug logging to help identify data issues
+      console.log('[useDashboardData] Fetched dashboard data:', {
+        balanceSummary: data?.balanceSummary,
+        monthSummary: data?.monthSummary,
+        categoriesCount: data?.categories?.length || 0,
+        transactionsCount: data?.recentTransactions?.length || 0
+      });
+      
       // Only update state if component still mounted
       if (isMountedRef.current) {
         setDashboardData(data);

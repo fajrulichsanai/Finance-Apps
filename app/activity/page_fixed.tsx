@@ -52,9 +52,6 @@ export default function ActivityPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
     const txDate = new Date(date);
     txDate.setHours(0, 0, 0, 0);
     
@@ -162,21 +159,6 @@ export default function ActivityPage() {
       if (observerRef.current) observerRef.current.disconnect();
     };
   }, [loadMore, loading]);
-
-  // Handle delete
-  const handleDelete = async (id: string) => {
-    if (!confirm('Hapus transaksi ini?')) return;
-    try {
-      setDeletingId(id);
-      await deleteTransaction(id);
-      await refresh();
-    } catch (err) {
-      console.error('Failed to delete:', err);
-      alert('Gagal menghapus transaksi');
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   // Reset date range
   const resetDateRange = () => {
@@ -403,7 +385,7 @@ export default function ActivityPage() {
                           </div>
                         </div>
                         {tx.note && (
-                          <p className="text-xs text-gray-500 mt-2 pl-15">{tx.note}</p>
+                          <p className="text-xs text-gray-500 mt-2 pl-3">{tx.note}</p>
                         )}
                       </div>
                     );

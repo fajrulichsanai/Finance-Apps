@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
               Reset Password
             </h1>
             <p className="text-sm text-[#6b6b80] leading-relaxed">
-              Enter your email address and we'll send you instructions to reset your password.
+              Enter your email address and we&apos;ll send you instructions to reset your password.
             </p>
           </div>
 
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage() {
 
         {/* Security Footer */}
         <div className="mt-6 text-center text-xs text-[#9999aa]">
-          <p>We'll never ask for your password via email.</p>
+          <p>We&apos;ll never ask for your password via email.</p>
         </div>
       </div>
 

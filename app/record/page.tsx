@@ -60,7 +60,7 @@ export default function RecordPage() {
   }, [router, supabase]);
 
   const { createTransaction } = useTransactions();
-  const { categories, loading: categoriesLoading } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories(true); // Sort by usage
 
   const {
     formData,
@@ -107,11 +107,9 @@ export default function RecordPage() {
     if (formData.amount <= 0) return 'Jumlah harus lebih dari 0';
     if (formData.amount > 999_999_999) return 'Jumlah transaksi terlalu besar (max: Rp 999.999.999)';
     
-    // Check for future dates
-    const selectedDate = new Date(formData.transaction_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (selectedDate > today) {
+    // Check for future dates (use string comparison to avoid timezone issues)
+    const today = new Date().toISOString().split('T')[0];
+    if (formData.transaction_date > today) {
       return 'Tanggal transaksi tidak boleh di masa depan';
     }
     
@@ -183,23 +181,7 @@ export default function RecordPage() {
   };
 
   // Show loading while checking auth
-  if (authChecking) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center pb-24">
-        <div className="w-full max-w-[430px] mx-auto px-5">
-          <div className="animate-pulse">
-            <div className="h-12 bg-slate-200 rounded-lg mb-4"></div>
-            <div className="h-24 bg-slate-200 rounded-lg mb-4"></div>
-            <div className="h-16 bg-slate-200 rounded-lg mb-4"></div>
-            <div className="h-16 bg-slate-200 rounded-lg mb-4"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // If not authenticated, don't render form
-  if (!isAuthed) {
+  if (authChecking || !isAuthed) {
     return null;
   }
 
@@ -267,6 +249,8 @@ export default function RecordPage() {
             onClick={handleSave}
             disabled={
               submission.status === 'loading' || 
+              formData.amount <= 0 ||
+              !formData.description.trim() ||
               (formData.type === 'expense' && categoriesLoading) || 
               (formData.type === 'expense' && !formData.category_id)
             }
@@ -276,6 +260,10 @@ export default function RecordPage() {
                 ? 'Menunggu kategori dimuat...' 
                 : (!formData.category_id && formData.type === 'expense')
                 ? 'Pilih kategori terlebih dahulu'
+                : formData.amount <= 0
+                ? 'Masukkan jumlah transaksi'
+                : !formData.description.trim()
+                ? 'Masukkan deskripsi transaksi'
                 : 'Simpan transaksi'
             }
           >

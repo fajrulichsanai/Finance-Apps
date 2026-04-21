@@ -18,8 +18,9 @@ import {
 /**
  * Hook for fetching all categories (user's own + templates)
  * Returns separated income and expense categories
+ * @param sortByUsage - Sort categories by transaction count (most used first)
  */
-export function useCategories() {
+export function useCategories(sortByUsage: boolean = false) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -32,7 +33,7 @@ export function useCategories() {
       try {
         setLoading(true);
         setError(null);
-        const data = await categoryService.getAllCategories();
+        const data = await categoryService.getAllCategories(sortByUsage);
         if (isMounted) {
           setCategories(data);
         }
@@ -50,13 +51,13 @@ export function useCategories() {
 
     fetchCategories();
     return () => { isMounted = false; };
-  }, []);
+  }, [sortByUsage]);
 
   const refresh = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await categoryService.getAllCategories();
+      const data = await categoryService.getAllCategories(sortByUsage);
       setCategories(data);
     } catch (err) {
       setError(err as Error);
@@ -64,7 +65,7 @@ export function useCategories() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sortByUsage]);
 
   // Separate categories by type
   const incomeCategories = categories.filter(cat => cat.type === 'income');

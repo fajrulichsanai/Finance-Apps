@@ -25,7 +25,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     name: '',
     icon: 'ShoppingCart',
     color: '#1a237e',
-    type: 'expense',
+    type: 'expense', // Always expense since we removed type selector
     budget: 0
   });
   const [loading, setLoading] = useState(false);
@@ -73,31 +73,29 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
     
     // Validation: Icon
     if (!CATEGORY_ICONS.includes(formData.icon as any)) {
-      setError('Invalid icon selected');
+      setError('Ikon tidak valid');
       return;
     }
     
     // Validation: Color (hex format check)
     if (!formData.color || !/^#[0-9a-f]{6}$/i.test(formData.color)) {
-      setError('Invalid color format');
+      setError('Format warna tidak valid');
       return;
     }
     
-    // Validation: Budget
-    if (formData.budget) {
-      const budget = Number(formData.budget);
-      if (!Number.isFinite(budget)) {
-        setError('Budget must be a valid number');
-        return;
-      }
-      if (budget < 0) {
-        setError('Budget cannot be negative');
-        return;
-      }
-      if (budget > 999_999_999) {
-        setError('Budget must be less than Rp999,999,999');
-        return;
-      }
+    // Validation: Budget (required)
+    const budget = Number(formData.budget);
+    if (!budget || budget <= 0) {
+      setError('Budget bulanan harus diisi dan lebih dari 0');
+      return;
+    }
+    if (!Number.isFinite(budget)) {
+      setError('Budget harus berupa angka yang valid');
+      return;
+    }
+    if (budget > 999_999_999) {
+      setError('Budget maksimal Rp 999.999.999');
+      return;
     }
 
     setLoading(true);
@@ -167,7 +165,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[22px] font-black text-gray-900" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                {mode === 'create' ? 'Create Category' : 'Edit Category'}
+                {mode === 'create' ? 'Buat Kategori' : 'Edit Kategori'}
               </h2>
               <button
                 onClick={onClose}
@@ -200,7 +198,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
               {/* Live Preview */}
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Live Preview
+                  Pratinjau Langsung
                 </label>
                 <div className="bg-gray-50 rounded-[18px] py-6 px-4 flex flex-col items-center gap-2.5">
                   <div
@@ -213,12 +211,12 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                     })}
                   </div>
                   <div className="text-xl font-black text-gray-900" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                    {formData.name || 'Dining Out'}
+                    {formData.name || 'Makan & Jajan'}
                   </div>
                   <div className="text-[13px] text-gray-400 font-medium">
                     {formData.budget && formData.budget > 0 
-                      ? `Monthly Budget: Rp${formData.budget.toLocaleString('id-ID')}`
-                      : 'Monthly Budget: Rp0'
+                      ? `Budget Bulanan: Rp${formData.budget.toLocaleString('id-ID')}`
+                      : 'Budget Bulanan: Rp0'
                     }
                   </div>
                 </div>
@@ -227,7 +225,7 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
               {/* Category Name */}
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Category Name
+                  Nama Kategori
                 </label>
                 <input
                   type="text"
@@ -239,58 +237,28 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
                 />
               </div>
 
-              {/* Category Type */}
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Category Type
-                </label>
-                <div className="flex gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'expense' })}
-                    className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all ${
-                      formData.type === 'expense'
-                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                    }`}
-                  >
-                    💸 Expense
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'income' })}
-                    className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all ${
-                      formData.type === 'income'
-                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
-                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                    }`}
-                  >
-                    💰 Income
-                  </button>
-                </div>
-              </div>
-
               {/* Monthly Budget */}
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Monthly Budget
+                  Budget Bulanan <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-[18px] top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
                     Rp
                   </span>
                   <input
-                    type="number"
-                    min="0"
-                    step="10000"
+                    type="text"
+                    inputMode="numeric"
+                    required
                     value={formData.budget || ''}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Prevent leading zeros
-                      const numValue = value === '' ? 0 : parseInt(value, 10);
+                      // Only allow digits
+                      const sanitized = value.replace(/[^0-9]/g, '');
+                      const numValue = sanitized === '' ? 0 : parseInt(sanitized, 10);
                       setFormData({ ...formData, budget: isNaN(numValue) ? 0 : numValue });
                     }}
-                    placeholder="0"
+                    placeholder="100000"
                     className="w-full pl-12 pr-[18px] py-4 bg-gray-50 rounded-2xl border-0 outline-none font-bold text-gray-900 text-base placeholder:text-gray-400 focus:ring-2 focus:ring-blue-900/25 transition-all"
                   />
                 </div>
@@ -299,10 +267,10 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">
-                    Select Icon
+                    Pilih Ikon
                   </label>
                   <span className="text-[13px] font-bold text-blue-900 cursor-pointer">
-                    {CATEGORY_ICONS.length} Icons
+                    {CATEGORY_ICONS.length} Ikon
                   </span>
                 </div>
                 <div className="relative">
@@ -344,10 +312,10 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
 
               {/* Theme Color */}
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5">
-                  Theme Color
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-2.5 text-center">
+                  Warna Tema
                 </label>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 justify-center">
                   {CATEGORY_COLORS.map((color) => {
                     const isSelected = formData.color === color;
                     return (
@@ -371,10 +339,10 @@ export default function CategoryModal({ isOpen, onClose, onSubmit, category, mod
               {/* Save Button */}
               <button
                 type="submit"
-                disabled={loading || !formData.name}
+                disabled={loading || !formData.name || !formData.budget || formData.budget <= 0}
                 className="w-full bg-blue-900 text-white rounded-full py-[18px] font-bold text-base shadow-lg shadow-blue-900/30 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-98"
               >
-                {loading ? 'Saving...' : mode === 'create' ? 'Save Category' : 'Update Category'}
+                {loading ? 'Menyimpan...' : mode === 'create' ? 'Simpan Kategori' : 'Perbarui Kategori'}
               </button>
             </form>
           </div>

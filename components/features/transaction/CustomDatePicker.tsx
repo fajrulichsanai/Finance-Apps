@@ -56,12 +56,14 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
   };
 
   const handleDateSelect = (day: number) => {
-    const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    // Use UTC to avoid timezone issues
+    const newDate = new Date(Date.UTC(currentMonth.getFullYear(), currentMonth.getMonth(), day));
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
     
     // Prevent selection of future dates
-    if (newDate > today) {
+    if (newDate > todayUTC) {
       return;
     }
     
@@ -101,9 +103,10 @@ export default function CustomDatePicker({ date, onChange }: CustomDatePickerPro
   const emptyDays = Array.from({ length: startingDayOfWeek }, (_, i) => i);
 
   const isSelectedDay = (day: number) => {
-    return selectedDate.getDate() === day &&
-      selectedDate.getMonth() === currentMonth.getMonth() &&
-      selectedDate.getFullYear() === currentMonth.getFullYear();
+    // Use UTC comparison to match the selected date format
+    const checkDate = new Date(Date.UTC(currentMonth.getFullYear(), currentMonth.getMonth(), day));
+    const selectedUTC = new Date(selectedDate.toISOString().split('T')[0] + 'T00:00:00Z');
+    return checkDate.getTime() === selectedUTC.getTime();
   };
 
   const isToday = (day: number) => {

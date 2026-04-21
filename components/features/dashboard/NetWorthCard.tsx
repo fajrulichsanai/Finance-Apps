@@ -33,6 +33,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({ balance, displayName
           Total Kekayaan Bersih
         </div>
         <div className="text-[36px] font-extrabold text-white tracking-tight mb-3">
+          {isDeficit && <span className="text-red-400">-</span>}
           <sup className="text-[20px] font-bold align-super">Rp</sup>
           {displayBalance.toLocaleString('id-ID')}
         </div>
