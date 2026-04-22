@@ -24,3 +24,4 @@ TN - 7 - harus bahasa indo semua
 Tn - 8 - OK
 TN - 9 - akun yang sudah terdaftar, ngk boleh daftar lagi, kasih pesan errornya
 Tn - 10 - ❌ [Auth] Sign up error: "email rate limit exceeded" (ganti ke resend email)
+Tn - 11 - 
