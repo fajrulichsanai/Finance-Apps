@@ -42,9 +42,17 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const supabase = createClient();
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      // ✅ FIXED: Use Resend for sending password reset email (not Supabase)
+      const resetLink = `${window.location.origin}/auth/reset-password?email=${encodeURIComponent(email)}`;
+      
+      const emailResponse = await fetch('/api/auth/send-password-reset-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          resetLink,
+          name: email.split('@')[0], // Use email prefix as name fallback
+        }),
       });
 
       if (!isMountedRef.current) {
@@ -52,10 +60,11 @@ export default function ForgotPasswordPage() {
         return;
       }
 
-      if (resetError) {
-        setError('Gagal mengirim email pengaturan ulang. Silakan periksa alamat email Anda dan coba lagi.');
+      if (!emailResponse.ok) {
+        const emailError = await emailResponse.json();
+        setError('Failed to send password reset email. Please try again.');
         if (process.env.NODE_ENV === 'development') {
-          console.error('[Password Reset Error]:', resetError.message);
+          console.error('[Password Reset Error]:', emailError);
         }
       } else {
         setShowSuccessPopup(true);

@@ -60,33 +60,11 @@ export const useLogin = () => {
 
 
 
-  // ✅ NEW: Check if user is registered first
+  // ✅ BUG FIX: Skip user existence check - it was triggering Supabase emails causing rate limits
+  // Just let the login attempt handle user not found naturally
   const checkUserExists = useCallback(async (userEmail: string): Promise<{ exists: boolean; message?: string }> => {
-    try {
-      // Attempt password reset to check if email exists
-      // This is safer than attempting login as it doesn't record failed attempts
-      const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
-
-      // If no error, user exists
-      // If error contains "user_not_found", user doesn't exist
-      if (!error) {
-        return { exists: true };
-      }
-
-      if (error.message?.toLowerCase().includes('user') || error.message?.toLowerCase().includes('not found')) {
-        return { exists: false, message: 'Akun tidak ditemukan. Silakan daftar terlebih dahulu atau periksa email Anda.' };
-      }
-
-      // If other error, assume user exists (fail open)
-      return { exists: true };
-    } catch (err) {
-      console.error('[User Check Error]:', err);
-      // Assume user exists if we can't verify (fail open)
-      return { exists: true };
-    }
+    // Removed resetPasswordForEmail() call - it was sending unnecessary emails causing rate limit errors
+    return { exists: true };
   }, []);
 
   // ✅ BUG FIX #1: Atomic lock for double-submit prevention with visual feedback
@@ -280,9 +258,18 @@ export const useLogin = () => {
     setSuccessMessage('');
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      // ✅ FIXED: Use Resend for sending password reset email (not Supabase)
+      // This avoids triggering Supabase's email rate limit
+      const resetLink = `${window.location.origin}/auth/reset-password?email=${encodeURIComponent(email)}`;
+      
+      const emailResponse = await fetch('/api/auth/send-password-reset-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          resetLink,
+          name: email.split('@')[0], // Use email prefix as name fallback
+        }),
       });
 
       if (!isMountedRef.current) {
@@ -290,25 +277,24 @@ export const useLogin = () => {
         return;
       }
 
-      if (error) {
-        // ✅ BUG FIX #8: Don't leak internal error details
-        setError('Gagal mengirim email pengaturan ulang. Silakan periksa alamat email Anda dan coba lagi.');
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.error('[Password Reset Error]:', error.message);
-        }
-      } else {
-        // ✅ FIXED: Show success message with auto-dismiss
-        setSuccessMessage('✓ Email pengaturan ulang kata sandi terkirim! Periksa inbox Anda untuk instruksi. Tautan akan kadaluarsa dalam 1 jam.');
-        setError('');
-        
-        // Auto-dismiss after 10 seconds
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setSuccessMessage('');
-          }
-        }, 10000);
+      if (!emailResponse.ok) {
+        const emailError = await emailResponse.json();
+        console.error('[Resend Error]:', emailError);
+        setError('Email ini tidak terdaftar atau ada masalah mengirim email. Silakan coba lagi.');
+        setIsLoading(false);
+        return;
       }
+
+      // ✅ FIXED: Show success message with auto-dismiss
+      setSuccessMessage('✓ Email pengaturan ulang kata sandi terkirim! Periksa inbox Anda untuk instruksi. Tautan akan kadaluarsa dalam 1 jam.');
+      setError('');
+      
+      // Auto-dismiss after 10 seconds
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setSuccessMessage('');
+        }
+      }, 10000);
     } catch (err) {
       if (!isMountedRef.current) {
         setIsLoading(false);

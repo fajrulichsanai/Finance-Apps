@@ -210,18 +210,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (process.env.NODE_ENV === 'development') {
       console.log('📝 [Auth] Signing up...')
     }
-    const { error } = await supabase.auth.signUp({
+    
+    console.log('🔍 [Auth] Starting signup with email:', email);
+    
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: name,
         },
+        // ❌ DO NOT add emailRedirectTo - we're using Resend for all emails
+        // emailRedirectTo causes Supabase to send duplicate emails (rate limit error)
       },
     })
+    
+    console.log('📊 [Auth] Signup response:', { hasError: !!error, hasUser: !!data?.user, errorMsg: error?.message });
+    
     if (error) {
-      console.error('❌ [Auth] Sign up error:', error.message)
+      console.error('❌ [Auth] Sign up error - DETAILED:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        fullError: error
+      });
+      return { error }
     }
+
+    // Send confirmation email via Resend (no Supabase emails)
+    if (data.user) {
+      console.log('✅ [Auth] User created, now sending confirmation email via Resend...');
+      
+      try {
+        const confirmationLink = `${window.location.origin}/auth/callback?email=${encodeURIComponent(email)}`;
+        
+        console.log('📧 [Resend] Calling /api/auth/send-confirmation-email with:', { email, name });
+        
+        const emailResponse = await fetch('/api/auth/send-confirmation-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            confirmationLink,
+            name,
+          }),
+        });
+
+        console.log('📊 [Resend] API Response Status:', emailResponse.status);
+
+        if (!emailResponse.ok) {
+          const emailError = await emailResponse.json();
+          console.error('❌ [Auth] Failed to send confirmation email via Resend - DETAILED:', {
+            status: emailResponse.status,
+            error: emailError,
+            fullResponse: emailError
+          });
+          // Don't fail signup if Resend email fails
+        } else {
+          const successData = await emailResponse.json();
+          console.log('✅ [Auth] Confirmation email sent via Resend successfully:', successData);
+        }
+      } catch (emailErr) {
+        console.error('❌ [Auth] Error sending confirmation email - DETAILED:', {
+          message: emailErr instanceof Error ? emailErr.message : String(emailErr),
+          stack: emailErr instanceof Error ? emailErr.stack : 'N/A',
+          type: emailErr instanceof Error ? emailErr.constructor.name : typeof emailErr,
+          fullError: emailErr
+        });
+        // Don't fail signup if email sending fails
+      }
+    } else {
+      console.warn('⚠️ [Auth] No user created despite no error - unusual state');
+    }
+
     return { error }
   }, [])
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { CATEGORY_ICONS, DEFAULT_CATEGORY_ICON } from '@/lib/constants/dashboard';
+import { getIconComponent } from '@/lib/utils/icons';
 import { formatIDR } from '@/lib/utils/currency';
 import type { Transaction } from '@/lib/services/transactions';
 
@@ -10,10 +10,6 @@ interface RecentActivityListProps {
 }
 
 export const RecentActivityList: React.FC<RecentActivityListProps> = ({ transactions, loading }) => {
-  const getIconComponent = (iconName?: string) => {
-    if (!iconName) return DEFAULT_CATEGORY_ICON;
-    return CATEGORY_ICONS[iconName] || DEFAULT_CATEGORY_ICON;
-  };
 
   return (
     <div className="bg-[#f7f7f9] rounded-[18px] px-[18px] py-4 mb-3.5">

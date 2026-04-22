@@ -5,9 +5,10 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Search, X, Filter, Calendar } from 'lucide-react';
+import { Search, X, Filter } from 'lucide-react';
 import AppHeader from '@/components/shared/AppHeader';
 import BottomNav from '@/components/shared/BottomNav';
+import DateRangePicker from '@/components/features/activity/DateRangePicker';
 import { useTransactions } from '@/lib/hooks/useTransactions';
 import { getIconComponent } from '@/lib/utils/icons';
 import { formatIDR } from '@/lib/utils/currency';
@@ -295,58 +296,16 @@ export default function ActivityPage() {
               {/* Date Range Button */}
               <div>
                 <button
-                  onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg text-sm font-semibold text-gray-700"
+                  onClick={() => setShowDatePicker(true)}
+                  className="w-full flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {dateRange.start || dateRange.end ? 'Rentang Tanggal Aktif' : 'Pilih Rentang Tanggal'}
-                  </span>
-                  {(dateRange.start || dateRange.end) && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetDateRange();
-                      }}
-                      className="text-red-500 text-xs"
-                    >
-                      Reset
-                    </button>
-                  )}
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {dateRange.start || dateRange.end 
+                    ? `${dateRange.start || '—'} hingga ${dateRange.end || '—'}` 
+                    : 'Pilih Rentang Tanggal'}
                 </button>
-
-                {/* Date Picker */}
-                {showDatePicker && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-lg space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1">Dari</label>
-                      <input
-                        type="date"
-                        value={dateRange.start || ''}
-                        onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value || null }))}
-                        max={dateRange.end || new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 bg-white rounded-lg text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1">Sampai</label>
-                      <input
-                        type="date"
-                        value={dateRange.end || ''}
-                        onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value || null }))}
-                        min={dateRange.start || undefined}
-                        max={new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 bg-white rounded-lg text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <button
-                      onClick={() => setShowDatePicker(false)}
-                      className="w-full py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700"
-                    >
-                      Terapkan
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -426,6 +385,19 @@ export default function ActivityPage() {
             </div>
           )}
         </div>
+
+        {/* Date Range Picker Modal */}
+        {showDatePicker && (
+          <DateRangePicker
+            startDate={dateRange.start}
+            endDate={dateRange.end}
+            onApply={(start, end) => {
+              setDateRange({ start, end });
+              setShowDatePicker(false);
+            }}
+            onClose={() => setShowDatePicker(false)}
+          />
+        )}
 
         <BottomNav />
       </div>
