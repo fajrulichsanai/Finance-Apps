@@ -17,7 +17,8 @@
   - Auto redirect ke halaman login (`/`) dalam 2 detik
   - Akun tersimpan di database
 
-### TC-REGISTER-P02: Register dengan Google
+<!-- COMMENTED OUT - Google OAuth Feature Hidden -->
+<!-- ### TC-REGISTER-P02: Register dengan Google
 - **Precondition**: User memiliki akun Google
 - **Steps**:
   1. Buka halaman `/register`
@@ -28,6 +29,7 @@
   - OAuth popup terbuka
   - Setelah authorize, redirect ke dashboard
   - User tercatat di sistem
+-->
 
 ### TC-REGISTER-P03: Navigasi ke Halaman Login
 - **Steps**:
@@ -431,7 +433,8 @@
   - Text "Membuat Akun..."
   - Tidak ada timeout error (atau timeout setelah 30s+)
 
-### TC-REGISTER-E21: Google Sign-In Cancel
+<!-- COMMENTED OUT - Google OAuth Feature Hidden -->
+<!-- ### TC-REGISTER-E21: Google Sign-In Cancel
 - **Steps**:
   1. Klik "Daftar dengan Google"
   2. Popup OAuth muncul
@@ -440,8 +443,10 @@
   - User tetap di halaman register
   - Tidak ada error message
   - Bisa retry
+-->
 
-### TC-REGISTER-E22: Google Sign-In Error
+<!-- COMMENTED OUT - Google OAuth Feature Hidden -->
+<!-- ### TC-REGISTER-E22: Google Sign-In Error
 - **Precondition**: Simulate OAuth error
 - **Steps**:
   1. Klik "Daftar dengan Google"
@@ -450,6 +455,7 @@
   - Error message: "Failed to initiate Google sign up"
   - Loading state selesai
   - User bisa retry
+-->
 
 ### TC-REGISTER-E23: Dark Mode Support (if implemented)
 - **Steps**:
@@ -539,6 +545,8 @@ Test cases yang bisa di-automate dengan Playwright:
 - Edge cases E01-E24 (sebagian besar)
 
 Manual testing required:
+<!-- COMMENTED OUT - Google OAuth Feature Hidden
 - Google OAuth flow (TC-REGISTER-P02, E21, E22)
+-->
 - Browser autofill behavior (E08)
 - Real device testing untuk responsive (E09-E11)

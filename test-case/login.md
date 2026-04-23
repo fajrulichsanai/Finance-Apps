@@ -11,7 +11,8 @@
   4. Klik tombol "Masuk"
 - **Expected**: Redirect ke dashboard, tidak ada error
 
-### TC-LOGIN-P02: Login dengan Google
+<!-- COMMENTED OUT - Google OAuth Feature Hidden -->
+<!-- ### TC-LOGIN-P02: Login dengan Google
 - **Precondition**: User memiliki akun Google
 - **Steps**:
   1. Buka halaman login
@@ -19,6 +20,7 @@
   3. Pilih akun Google di popup
   4. Authorize aplikasi
 - **Expected**: Redirect ke dashboard setelah OAuth berhasil
+-->
 
 ### TC-LOGIN-P03: Navigasi ke Lupa Password
 - **Steps**:

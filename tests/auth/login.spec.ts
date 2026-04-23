@@ -398,14 +398,15 @@ test.describe('Login Page Tests', () => {
   });
 
   test.describe('🔧 Additional Tests', () => {
+    // COMMENTED OUT - Google OAuth Feature Hidden
     // Test Google Login Button Visibility
-    test('Google Login Button is Visible', async ({ page }) => {
-      const googleButton = page.getByText(/Google|Masuk dengan Google/i).first();
-      
-      if (await googleButton.count() > 0) {
-        await expect(googleButton).toBeVisible();
-      }
-    });
+    // test('Google Login Button is Visible', async ({ page }) => {
+    //   const googleButton = page.getByText(/Google|Masuk dengan Google/i).first();
+    //   
+    //   if (await googleButton.count() > 0) {
+    //     await expect(googleButton).toBeVisible();
+    //   }
+    // });
 
     // Test Form Elements Structure
     test('Login Form Structure is Complete', async ({ page }) => {

@@ -101,24 +101,24 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </AuthButton>
       </form>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3 my-6">
+      {/* Divider - HIDDEN */}
+      {/* <div className="flex items-center gap-3 my-6">
         <div className="flex-1 h-px bg-[#e8e8ee]" />
         <span className="text-[11px] text-[#b0b0c0] tracking-[0.8px] font-medium">
           ATAU LANJUTKAN DENGAN
         </span>
         <div className="flex-1 h-px bg-[#e8e8ee]" />
-      </div>
+      </div> */}
 
-      {/* Google Login */}
-      <AuthButton
+      {/* Google Login - HIDDEN */}
+      {/* <AuthButton
         onClick={onGoogleLogin}
         disabled={isLoading}
         variant="secondary"
         icon={<GoogleIcon />}
       >
         Masuk dengan Google
-      </AuthButton>
+      </AuthButton> */}
 
       {/* Sign Up Link */}
       <div className="text-center mt-8 pt-6 border-t-[1.5px] border-[#f0f0f5] text-sm text-[#6b6b80]">
