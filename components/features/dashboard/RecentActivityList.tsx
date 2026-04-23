@@ -44,7 +44,7 @@ export const RecentActivityList: React.FC<RecentActivityListProps> = ({ transact
         </div>
       ) : (
         transactions.slice(0, 3).map((tx) => {
-          const IconComponent = getIconComponent(tx.category_icon);
+          const IconComponent = getIconComponent(tx.category_icon || 'Wallet');
           return (
             <div key={tx.id} className="flex items-center gap-3 py-2.5 border-t border-[#d8d8e0] first:border-t-0">
               <div 

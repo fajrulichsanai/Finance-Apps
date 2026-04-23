@@ -81,18 +81,17 @@ export async function sendConfirmationEmail(
       html,
     });
 
-    console.log('📊 [Resend] Response received:', { hasId: !!result?.id, hasError: !!result?.error });
+    console.log('📊 [Resend] Response received:', { hasId: !!result?.data?.id, hasError: !!result?.error });
 
     if (result.error) {
       console.error('❌ [Resend] Confirmation email error - DETAILED:', {
-        code: result.error.code,
         message: result.error.message,
         fullError: result.error
       });
       return { success: false, error: result.error.message };
     }
 
-    console.log('✅ [Resend] Confirmation email sent successfully:', { messageId: result?.id, to });
+    console.log('✅ [Resend] Confirmation email sent successfully:', { messageId: result?.data?.id, to });
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
