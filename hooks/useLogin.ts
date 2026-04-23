@@ -247,66 +247,10 @@ export const useLogin = () => {
   };
 
   // ✅ BUG FIX #6: Password reset handler with better UX
-  const handleForgotPassword = useCallback(async () => {
-    if (!email || !isValidEmail(email)) {
-      setError('Silakan masukkan alamat email yang valid untuk mengatur ulang kata sandi');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
-
-    try {
-      // ✅ FIXED: Use Resend for sending password reset email (not Supabase)
-      // This avoids triggering Supabase's email rate limit
-      const resetLink = `${window.location.origin}/auth/reset-password?email=${encodeURIComponent(email)}`;
-      
-      const emailResponse = await fetch('/api/auth/send-password-reset-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          resetLink,
-          name: email.split('@')[0], // Use email prefix as name fallback
-        }),
-      });
-
-      if (!isMountedRef.current) {
-        setIsLoading(false);
-        return;
-      }
-
-      if (!emailResponse.ok) {
-        const emailError = await emailResponse.json();
-        console.error('[Resend Error]:', emailError);
-        setError('Email ini tidak terdaftar atau ada masalah mengirim email. Silakan coba lagi.');
-        setIsLoading(false);
-        return;
-      }
-
-      // ✅ FIXED: Show success message with auto-dismiss
-      setSuccessMessage('✓ Email pengaturan ulang kata sandi terkirim! Periksa inbox Anda untuk instruksi. Tautan akan kadaluarsa dalam 1 jam.');
-      setError('');
-      
-      // Auto-dismiss after 10 seconds
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          setSuccessMessage('');
-        }
-      }, 10000);
-    } catch (err) {
-      if (!isMountedRef.current) {
-        setIsLoading(false);
-        return;
-      }
-
-      console.error('❌ [Login] Password reset error:', err);
-      setError('Kesalahan yang tidak terduga saat pengaturan ulang kata sandi. Silakan coba lagi.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email]);
+  const handleForgotPassword = useCallback(() => {
+    // ✅ UPDATED: Navigate to forgot password page instead of sending email from login page
+    router.push('/auth/forgot-password');
+  }, [router]);
 
   return {
     email,

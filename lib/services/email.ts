@@ -5,7 +5,13 @@
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to handle missing API key during build
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 const SENDER_EMAIL = process.env.NEXT_PUBLIC_SENDER_EMAIL || 'noreply@financeapp.com';
 
@@ -74,6 +80,7 @@ export async function sendConfirmationEmail(
 
     console.log('📤 [Resend] Calling resend.emails.send()...');
     
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: SENDER_EMAIL,
       to,
@@ -160,6 +167,7 @@ export async function sendPasswordResetEmail(
 </html>
     `;
 
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: SENDER_EMAIL,
       to,
@@ -190,6 +198,7 @@ export async function sendEmail(
   html: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const resend = getResendClient();
     const result = await resend.emails.send({
       from: SENDER_EMAIL,
       to,
